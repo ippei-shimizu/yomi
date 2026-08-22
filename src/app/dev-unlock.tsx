@@ -15,7 +15,7 @@ import {
 import { Button, Text, useThemeColors } from '@/ui';
 
 /**
- * S13 Dev Unlock（docs/Screens.md S13）。非公開機能。
+ * 開発者向けのアンロック画面。非公開機能。
  * Settings のバージョン表記 7 回タップで開く。
  */
 export default function DevUnlockScreen() {

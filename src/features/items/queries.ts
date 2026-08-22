@@ -9,7 +9,7 @@ import { itemRepo, tagRepo } from '@/db/repositories';
 import type { Item, Tag } from '@/db/schema';
 
 /**
- * 画面から使う DB アクセス（docs/DesignDoc.md §6）。
+ * 画面から使う DB アクセス。
  * 画面は Repository を直接呼ばず、必ずこのフック経由にする。
  */
 
@@ -44,7 +44,7 @@ export function useItem(id: string) {
   });
 }
 
-/** 複数アイテムのタグをまとめて引く。行ごとに引くと N+1 になる（R-DB7） */
+/** 複数アイテムのタグをまとめて引く。行ごとに引くと N+1 になる */
 export function useTagsForItems(items: Item[] | undefined) {
   const db = useDatabase();
   const ids = items?.map((item) => item.id) ?? [];
@@ -87,7 +87,7 @@ export function useItemActions() {
         case 'read': {
           const item = itemRepo.findById(db, action.id);
           itemRepo.markRead(db, action.id, { memo: action.memo });
-          // 送るのは日数だけ。URL・タイトルは送らない（docs/DesignDoc.md §7.3）
+          // 送るのは日数だけ。URL・タイトルは送らない
           if (item) {
             capture({
               name: 'item_read',

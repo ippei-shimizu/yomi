@@ -5,7 +5,7 @@ import { OnboardingLayout } from '@/features/onboarding/OnboardingLayout';
 import { colors, radius } from '@/design/tokens';
 import { Text, useThemeColors } from '@/ui';
 
-/** S01 1/3 コンセプト */
+/** Onboarding 1/3 コンセプト */
 export default function OnboardingConceptScreen() {
   const theme = useThemeColors();
 

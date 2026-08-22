@@ -7,7 +7,7 @@ import * as itemRepo from './itemRepo';
 import * as statsRepo from './statsRepo';
 
 /**
- * docs/PRD.md §8「ホーム表示 500ms 以内（アイテム 5,000 件時）」の検証。
+ * 「ホーム表示 500ms 以内（アイテム 5,000 件時）」という要件の検証。
  *
  * ここで測れるのは DB クエリまで（描画は含まない）。実機より速い環境なので
  * 「余裕を持って通ること」と「インデックスが使われること」を見る。

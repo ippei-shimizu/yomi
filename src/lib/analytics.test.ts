@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { AnalyticsEvent } from './analytics';
 
 /**
- * docs/DesignDoc.md §7.3 のイベント定義と一致すること。
+ * 定義したイベントと一致すること。
  *
  * PostHog クライアントは RN 依存なのでここでは動かさない。
  * **型で送信できるプロパティを縛っている**ことを、型テストで固定する。

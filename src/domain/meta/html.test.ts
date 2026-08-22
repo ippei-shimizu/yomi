@@ -21,7 +21,7 @@ describe('parseHtmlMetadata', () => {
     });
   });
 
-  it('OGP が無ければ <title> にフォールバックする（docs/DesignDoc.md §5.2）', () => {
+  it('OGP が無ければ <title> にフォールバックする', () => {
     const html = '<html><head><title>タイトルだけ</title></head></html>';
     expect(parseHtmlMetadata(html)).toEqual({ title: 'タイトルだけ' });
   });

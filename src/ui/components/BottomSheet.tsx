@@ -7,11 +7,11 @@ import { layout, radius } from '@/design/tokens';
 import { useThemeColors } from '../theme';
 
 /**
- * bottom sheet（docs/DesignGuideline.md §8）。
+ * bottom sheet。
  * surface 塗り、上辺角丸 28、グラバー ink-3。
  *
- * ジェスチャで閉じるライブラリは入れていない。読了確認（S05）と
- * メモ（S06）はどちらも選択肢が明示されており、誤操作で閉じられる方が
+ * ジェスチャで閉じるライブラリは入れていない。読了確認と
+ * メモはどちらも選択肢が明示されており、誤操作で閉じられる方が
  * 困るため。背景タップで閉じるかは呼び出し側が決める。
  */
 export function BottomSheet({

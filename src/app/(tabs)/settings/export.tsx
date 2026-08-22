@@ -12,7 +12,7 @@ import { SettingsRow, SettingsSection } from '@/features/settings/SettingsRow';
 import { Text, useThemeColors } from '@/ui';
 
 /**
- * エクスポート（docs/PRD.md §5.1 F14）。
+ * エクスポート。
  * **無料プランでも使える。** 端末内にしかデータが無いため。
  */
 export default function ExportScreen() {

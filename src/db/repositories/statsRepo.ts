@@ -7,7 +7,7 @@ import { items, readLogs } from '../schema';
 import type { YomiDatabase } from '../types';
 import { countStale, notSnoozed } from './itemRepo';
 
-/** Stats の棒グラフに出す週数（docs/Screens.md S09） */
+/** Stats の棒グラフに出す週数 */
 export const RECENT_WEEKS = 8;
 
 export type WeeklySummary = {
@@ -29,9 +29,8 @@ function countEvents(db: YomiDatabase, event: 'saved' | 'read', from: Date, to: 
 }
 
 /**
- * 1 週間の集計。items の現在値ではなく read_logs の履歴から数える
- * （docs/DesignDoc.md §6）。読了 → 未読に戻す往復があっても、
- * その週に読んだ事実は残る。
+ * 1 週間の集計。items の現在値ではなく read_logs の履歴から数えるので、
+ * 読了 → 未読に戻す往復があっても、その週に読んだ事実は残る。
  */
 export function weeklySummary(db: YomiDatabase, weekStart: Date): WeeklySummary {
   const weekEnd = addDays(weekStart, 7);
@@ -124,7 +123,7 @@ export function readRateBySource(db: YomiDatabase): SourceReadRate[] {
     .sort((a, b) => b.readRate - a.readRate || a.source.localeCompare(b.source));
 }
 
-/** Today's Pick と通知の候補（docs/DesignDoc.md §5.6） */
+/** Today's Pick と通知の候補 */
 export function pickCandidates(db: YomiDatabase, now = new Date()) {
   return db
     .select()

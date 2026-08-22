@@ -1,4 +1,4 @@
--- メモ全文検索（Pro）用の FTS5 インデックス。docs/DesignDoc.md §4.3
+-- メモ全文検索（Pro）用の FTS5 インデックス。
 --
 -- tokenize='trigram' を使う。既定の unicode61 は連続する日本語を 1 トークンに
 -- するため、「Solid Queueのasyncモード」に対して「モード」が引けない。

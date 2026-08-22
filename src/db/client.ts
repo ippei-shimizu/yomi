@@ -9,7 +9,7 @@ export const DATABASE_NAME = 'yomi.db';
 
 /**
  * App Group コンテナのパス。本体と Share Extension が同じ SQLite ファイルを
- * 開くために必要（docs/DesignDoc.md §3）。
+ * 開くために必要。
  */
 function sharedContainerUri(): string {
   const container = Paths.appleSharedContainers[APP_GROUP];

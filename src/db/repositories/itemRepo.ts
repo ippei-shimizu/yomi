@@ -21,13 +21,13 @@ import { items, type Item, type ItemStatus, type NewItem } from '../schema';
 import type { YomiDatabase } from '../types';
 import { appendReadLog } from './readLog';
 
-/** 無料プランの保存上限（docs/PRD.md §7.5）。archived は数えない */
+/** 無料プランの保存上限。archived は数えない */
 export const FREE_PLAN_ITEM_LIMIT = 50;
 
-/** 「放置」と見なす日数（docs/PRD.md §5.1 F11） */
+/** 「放置」と見なす日数 */
 export const STALE_THRESHOLD_DAYS = 30;
 
-/** メタ取得のリトライ上限（docs/DesignDoc.md §5.2） */
+/** メタ取得のリトライ上限 */
 export const META_MAX_RETRY = 3;
 
 export type UnreadOrder = 'oldest' | 'newest';
@@ -114,7 +114,7 @@ export function update(
 }
 
 /**
- * 物理削除。archived からのみ（docs/DesignDoc.md §4.2）。
+ * 物理削除。archived からのみ。
  * read_logs は外部キーを持たないため履歴は残る。
  *
  * @returns 削除できたら true。対象が archived でなければ false
@@ -174,7 +174,7 @@ export function listByStatus(db: YomiDatabase, status: Exclude<ItemStatus, 'unre
 }
 
 /**
- * 放置アイテム（S10）。
+ * 放置アイテム。
  * スヌーズ中のものは「意図的に先送りした」ものなので含めない。
  * Home の放置バナーの件数もこれと一致させる。
  */
@@ -198,7 +198,7 @@ export function countStale(db: YomiDatabase, options: { now?: Date } = {}): numb
   return listStale(db, options).length;
 }
 
-/** 無料プランの上限判定に使う件数。archived は含めない（docs/PRD.md §7.5） */
+/** 無料プランの上限判定に使う件数。archived は含めない */
 export function countForLimit(db: YomiDatabase): number {
   const row = db
     .select({ value: count() })
@@ -212,7 +212,7 @@ export function canSave(db: YomiDatabase, isPro: boolean): boolean {
   return isPro || countForLimit(db) < FREE_PLAN_ITEM_LIMIT;
 }
 
-/** MetaFetchWorker の対象（docs/DesignDoc.md §5.2） */
+/** MetaFetchWorker の対象 */
 export function listPendingMeta(
   db: YomiDatabase,
   limit: number,
@@ -274,7 +274,7 @@ export function resetMetaStatus(db: YomiDatabase, id: string, now = new Date()):
 }
 
 /**
- * 短縮 URL の展開後に url / url_hash を更新する（docs/DesignDoc.md §5.5）。
+ * 短縮 URL の展開後に url / url_hash を更新する。
  *
  * 展開先が既に保存済みだった場合は統合する。**古い方（先に保存された方）を残し**、
  * 新しい方を削除する。保存日が古い方がユーザーの「溜めている」実感に近く、
@@ -343,7 +343,7 @@ export function archive(db: YomiDatabase, id: string, now = new Date()): void {
 
 /**
  * 複数件を 1 トランザクションで保存する（URL 一括インポート）。
- * 途中で失敗したら 1 件も入らない（docs/DesignDoc.md §5.7）。
+ * 途中で失敗したら 1 件も入らない。
  */
 export function insertMany(db: YomiDatabase, inputs: InsertItemInput[], now = new Date()): number {
   if (inputs.length === 0) return 0;
@@ -360,7 +360,7 @@ export function insertMany(db: YomiDatabase, inputs: InsertItemInput[], now = ne
   });
 }
 
-/** 複数件を 1 トランザクションでアーカイブする（S10 の一括操作） */
+/** 複数件を 1 トランザクションでアーカイブする（放置整理の一括操作） */
 export function archiveMany(db: YomiDatabase, ids: string[], now = new Date()): void {
   if (ids.length === 0) return;
   db.transaction((tx) => {
@@ -383,14 +383,14 @@ export function restoreToUnread(db: YomiDatabase, id: string, now = new Date()):
 }
 
 /**
- * 「あとで」。status は unread のまま snoozedUntil を立てる
- * （docs/DesignDoc.md §4.2）。状態は変わらないので read_logs には積まない。
+ * 「あとで」。status は unread のまま snoozedUntil を立てるだけで、
+ * 状態は変わらないので read_logs には積まない。
  */
 export function snooze(db: YomiDatabase, id: string, days: number, now = new Date()): void {
   update(db, id, { snoozedUntil: new Date(now.getTime() + days * MS_PER_DAY) }, now);
 }
 
-/** 「今週読む」。savedAt を now に更新して Home の上位に戻す（S10） */
+/** 「今週読む」。savedAt を now に更新して Home の上位に戻す */
 export function bumpToNow(db: YomiDatabase, ids: string[], now = new Date()): void {
   if (ids.length === 0) return;
   db.update(items)

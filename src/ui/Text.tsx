@@ -14,13 +14,13 @@ export type TextProps = RNTextProps & {
    *
    * - `ja`（既定）: Zen Kaku Gothic New。和文を含むテキスト
    * - `latin`: Outfit。**数字と英数のみのテキスト**（件数、日付、パーセント）。
-   *   docs/DesignGuideline.md §4「数字は Outfit のまま。Zen Kaku に混ぜない」
+   *   数字は Outfit のままにし、Zen Kaku に混ぜない
    */
   script?: TextScript;
 };
 
 /**
- * 書体とサイズを docs/DesignGuideline.md §4 に固定した Text。
+ * 書体とサイズをデザイントークンに固定した Text。
  * 画面側で fontSize / fontFamily を直接指定しない。
  */
 export function Text({ variant = 'body', script = 'ja', style, ...rest }: TextProps) {

@@ -9,7 +9,7 @@ import { dateKeyOf, pickToday } from '@/domain/pick/pickToday';
 import { clearStalePickNonces, getNumber, setNumber, storageKeys } from '@/lib/storage';
 
 /**
- * Today's Pick（docs/DesignDoc.md §5.6）。
+ * Today's Pick。
  *
  * 日付をシードにするので同日中は同じアイテムが返る。⟳ で nonce を
  * 増やして引き直す。nonce は MMKV に日付キーで保存し、日が変われば

@@ -2,8 +2,7 @@ const palette = require('./src/design/palette.json');
 
 /**
  * 色の定義は src/design/palette.json が唯一の情報源。
- * SVG / Skia から参照する src/design/tokens.ts も同じファイルを読む
- * （docs/DesignGuideline.md §10）。
+ * SVG / Skia から参照する src/design/tokens.ts も同じファイルを読む。
  *
  * ダークモードの色は tokens.ts 側で解決する。NativeWind の dark: 修飾子は
  * useColorScheme に追従するが、SVG など className を使えない箇所と挙動を

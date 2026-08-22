@@ -17,7 +17,7 @@ import { remainingSaves, shouldWarnAboutLimit, useEntitlement } from '@/domain/e
 import { getString, setString, storageKeys } from '@/lib/storage';
 import { Button, EmptyState, Text, colors, useThemeColors } from '@/ui';
 
-/** スヌーズの既定日数（docs/Screens.md S02） */
+/** スヌーズの既定日数 */
 const SNOOZE_DAYS = 7;
 
 export default function HomeScreen() {
@@ -81,7 +81,7 @@ export default function HomeScreen() {
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
           paddingTop: 24,
-          // 浮いたタブバーに隠れないよう下端を空ける（R-UI4）
+          // 浮いたタブバーに隠れないよう下端を空ける
           paddingBottom: layout.listBottomInset,
         }}
         ListHeaderComponent={
@@ -109,7 +109,7 @@ export default function HomeScreen() {
                   router.push({ pathname: '/paywall', params: { trigger: 'limit_save' } })
                 }
               >
-                {/* 事実だけを書く。煽らない（docs/DesignGuideline.md §7） */}
+                {/* 事実だけを書く。煽らない */}
                 <Banner
                   dotColor={colors.status.warn}
                   label={`保存できるのは残り ${remaining} 件です`}
@@ -147,7 +147,7 @@ export default function HomeScreen() {
   );
 }
 
-/** ホーム上部の通知バナー（docs/DesignGuideline.md §8: brand-soft の pill） */
+/** ホーム上部の通知バナー。brand-soft 塗りの pill */
 function Banner({ dotColor, label }: { dotColor: string; label: string }) {
   return (
     <View
@@ -206,7 +206,7 @@ function Header({
   return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
       <View>
-        {/* 挨拶ではなく状態を主語にする（docs/DesignGuideline.md §7） */}
+        {/* 挨拶ではなく状態を主語にする */}
         <Text variant="caption" style={{ color: theme['ink-2'] }}>
           今日も 1 本
         </Text>

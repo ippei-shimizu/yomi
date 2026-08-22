@@ -1,7 +1,7 @@
 /**
- * タグ名の正規化と検証。react-native を import しない純粋モジュール（R-UI5）。
+ * タグ名の正規化と検証。react-native を import しない純粋モジュール。
  *
- * フラットなタグのみ（docs/PRD.md §5.1 F7）。階層は作らない。
+ * フラットなタグのみ。階層は作らない。
  */
 
 export const MAX_TAG_LENGTH = 24;

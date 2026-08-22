@@ -14,7 +14,7 @@ import { Text, useThemeColors } from '@/ui';
 
 const TIME_CHOICES = ['07:00', '08:00', '09:00', '21:00'];
 
-/** S01 3/3 通知時刻 + 権限（docs/Screens.md S01） */
+/** Onboarding 3/3 通知時刻 + 権限 */
 export default function OnboardingNotifyScreen() {
   const theme = useThemeColors();
   const [time, setTime] = useNotificationTimesSetting();
@@ -28,7 +28,7 @@ export default function OnboardingNotifyScreen() {
 
   const allowAndFinish = async () => {
     setBusy(true);
-    // 拒否されても先に進む（docs/Screens.md S01）
+    // 拒否されても先に進む
     await requestPermission().catch(() => false);
     setBusy(false);
     finish();

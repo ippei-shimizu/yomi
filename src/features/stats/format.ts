@@ -1,11 +1,10 @@
 import { addDays } from '@/domain/date/week';
 
 /**
- * Stats の表示整形（docs/Screens.md S09）。
- * react-native を import しない純粋モジュール（R-UI5）。
+ * Stats の表示整形。
+ * react-native を import しない純粋モジュール。
  *
- * **数字は煽らない。** 感嘆符・絵文字を付けず、ストリークもランキングも置かない
- * （docs/DesignGuideline.md §9）。
+ * **数字は煽らない。** 感嘆符・絵文字を付けず、ストリークもランキングも置かない。
  */
 
 /** 読了率（0–1）を「38%」に。データなしは「—」 */

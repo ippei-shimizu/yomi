@@ -1,8 +1,8 @@
 import type { Metadata } from './types';
 
 /**
- * Instagram / Threads は**メタを取得しない**（ログイン必須で取れない。
- * docs/DesignDoc.md §5.2）。URL からユーザー名だけを抜いてタイトルにする。
+ * Instagram / Threads は**メタを取得しない**（ログイン必須で取れないため）。
+ * URL からユーザー名だけを抜いてタイトルにする。
  */
 
 /** /@foo/... または /foo/p/... の先頭セグメントを拾う */

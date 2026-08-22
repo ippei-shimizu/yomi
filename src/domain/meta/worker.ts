@@ -7,7 +7,7 @@ import { fetchMetadata, type FetchOptions } from './fetchMetadata';
 import type { Metadata } from './types';
 
 /**
- * MetaFetchWorker（docs/DesignDoc.md §5.2）。
+ * MetaFetchWorker。
  *
  *   トリガー: 本体 foreground 時 / expo-background-task
  *   対象:    meta_status='pending' AND meta_retry_count < 3 を saved_at ASC で最大 10 件
@@ -18,7 +18,7 @@ import type { Metadata } from './types';
 /** 1 回あたりの処理件数 */
 export const DEFAULT_BATCH_SIZE = 10;
 
-/** URL 一括インポート直後だけ引き上げる件数（§5.7） */
+/** URL 一括インポート直後だけ引き上げる件数 */
 export const IMPORT_BATCH_SIZE = 50;
 
 /** 同時に走らせる数 */
@@ -105,7 +105,7 @@ function isShortenerUrl(url: string): boolean {
 }
 
 /**
- * 短縮 URL を HEAD で展開して url / url_hash を更新する（§5.5）。
+ * 短縮 URL を HEAD で展開して url / url_hash を更新する。
  * 展開に失敗しても失敗扱いにはせず、元の URL のままメタ取得へ進む。
  */
 async function expandShortUrl(

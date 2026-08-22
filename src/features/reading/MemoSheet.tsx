@@ -7,7 +7,7 @@ import { BottomSheet, Button, Text, useThemeColors } from '@/ui';
 import { normalizeMemo } from './readConfirm';
 
 /**
- * S06 メモシート。1 行・任意（docs/Screens.md S06）。
+ * メモシート。1 行・任意。
  * スキップしても読了そのものは成立する。
  */
 export function MemoSheet({

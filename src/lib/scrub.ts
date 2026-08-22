@@ -1,8 +1,8 @@
 /**
  * Sentry に送るイベントから URL・タイトル・メモを落とす。
  *
- * `@sentry/react-native` を import しない純粋モジュール（R-UI5）。
- * Sentry の型を使わず、必要な形だけを構造的に定義する（R-DEP1）。
+ * `@sentry/react-native` を import しない純粋モジュール。
+ * Sentry の型を使わず、必要な形だけを構造的に定義する。
  */
 
 /** 落とすべき値が入りうるキー */

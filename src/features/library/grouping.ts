@@ -1,8 +1,8 @@
 import type { Item } from '@/db/schema';
 
 /**
- * Library の月ごとセクション（docs/Screens.md S08）。
- * react-native を import しない純粋モジュール（R-UI5）。
+ * Library の月ごとセクション。
+ * react-native を import しない純粋モジュール。
  */
 
 export type MonthSection = {
@@ -47,7 +47,7 @@ export function groupByMonth(items: Item[], now = new Date()): MonthSection[] {
   return sections;
 }
 
-/** メモの先頭 1 行。Library の行に出す（docs/Screens.md S08） */
+/** メモの先頭 1 行。Library の行に出す */
 export function memoPreview(memo: string | null): string | null {
   if (memo === null) return null;
   const firstLine = memo.split('\n')[0]?.trim();

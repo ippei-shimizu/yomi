@@ -7,7 +7,7 @@ import { getBoolean, getNumber, setNumber, remove, storageKeys } from '@/lib/sto
 import { decideConfirm, shouldSuggestSnooze } from './readConfirm';
 
 /**
- * 閲覧 → 読了確認 → メモ の導線（docs/Screens.md S04–S06）。
+ * 閲覧 → 読了確認 → メモ の導線。
  *
  * SFSafariViewController を開き、閉じた滞在時間で確認シートを出すか決める。
  */
@@ -25,7 +25,7 @@ export function useReadFlow() {
     setItem(target);
     const openedAt = Date.now();
 
-    // Reader モードはユーザーが Safari 側で有効化する前提（docs/PRD.md §7.3）
+    // Reader モードはユーザーが Safari 側で有効化する前提
     await WebBrowser.openBrowserAsync(target.url, {
       presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
     });

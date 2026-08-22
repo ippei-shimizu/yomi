@@ -5,7 +5,7 @@ import type { YomiDatabase } from './types';
 
 /**
  * DB ハンドルを配る。画面は Repository を直接呼ばず、features/ の
- * フック経由で使う（docs/DesignDoc.md §3.1 の依存ルール）。
+ * フック経由で使う。
  *
  * テストや Storybook から別のドライバを差し込めるよう Provider にしてある。
  */

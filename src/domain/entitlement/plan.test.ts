@@ -20,7 +20,7 @@ function fill(count: number) {
   }
 }
 
-describe('limitsFor（docs/PRD.md §7.5 の表）', () => {
+describe('limitsFor', () => {
   it('無料プランの上限', () => {
     expect(limitsFor(false)).toEqual({
       itemLimit: itemRepo.FREE_PLAN_ITEM_LIMIT,

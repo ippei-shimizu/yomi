@@ -212,7 +212,7 @@ describe('remove（物理削除）', () => {
     expect(itemRepo.findById(db, item.id)).toBeUndefined();
   });
 
-  it('unread / read は削除できない（docs/DesignDoc.md §4.2）', () => {
+  it('unread / read は削除できない', () => {
     const unread = save({ urlHash: 'u' });
     const read = save({ urlHash: 'r' });
     itemRepo.markRead(db, read.id, { now: NOW });
@@ -271,7 +271,7 @@ describe('listStale（放置アイテム）', () => {
 });
 
 describe('countForLimit / canSave（無料プランの上限）', () => {
-  it('archived を数えない（docs/PRD.md §7.5）', () => {
+  it('archived を数えない', () => {
     const archived = save({ urlHash: 'a' });
     save({ urlHash: 'u' });
     const read = save({ urlHash: 'r' });
@@ -385,7 +385,7 @@ describe('insertMany（一括インポート）', () => {
     expect(db.select().from(readLogs).all()).toHaveLength(3);
   });
 
-  // 途中で失敗したら 1 件も入らない（docs/DesignDoc.md §5.7）
+  // 途中で失敗したら 1 件も入らない
   it('重複があれば全体が失敗し、部分保存にならない', () => {
     itemRepo.insert(db, input('dup'), NOW);
 

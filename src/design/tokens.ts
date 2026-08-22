@@ -3,15 +3,15 @@ import type { Source } from '@/domain/url';
 import palette from './palette.json';
 
 /**
- * デザイントークン（docs/DesignGuideline.md）。
+ * デザイントークン。
  *
  * 色は palette.json が唯一の情報源で、tailwind.config.js も同じファイルを読む。
  * className を使えない箇所（react-native-svg、Skia、ナビゲーションの設定など）は
- * ここから取る。**コンポーネント内に色をハードコードしない**（R-UI1）。
+ * ここから取る。**コンポーネント内に色をハードコードしない**。
  *
  * このファイルは値だけを持ち、react-native を import しない。Node から
  * テストでき、Share Extension からも安全に読めるようにするため
- * （src/ui/ 配下だと Extension の依存ルールで弾かれる。docs/DesignDoc.md §3.1）。
+ * （src/ui/ 配下だと Share Extension の依存制限で弾かれる）。
  * 端末のテーマに追従する取得は src/ui/theme.ts の useThemeColors() を使う。
  */
 
@@ -20,7 +20,7 @@ export type ThemeColors = typeof palette.light;
 export const colors = {
   light: palette.light,
   dark: palette.dark,
-  /** ブランド・ソース・ステータス色はライト / ダークで変えない（§2.5） */
+  /** ブランド・ソース・ステータス色はライト / ダークで変えない */
   brand: palette.brand,
   source: palette.source,
   status: palette.status,
@@ -36,7 +36,7 @@ export function themeColors(scheme: string | null | undefined): ThemeColors {
   return scheme === 'dark' ? colors.dark : colors.light;
 }
 
-/** 保存元 → カード / アイコンの色（§2.3） */
+/** 保存元 → カード / アイコンの色 */
 export const SOURCE_COLORS: Record<Source, string> = {
   x: palette.source['src-violet'],
   threads: palette.source['src-violet'],
@@ -49,7 +49,7 @@ export const SOURCE_COLORS: Record<Source, string> = {
   web: palette.source['src-green'],
 };
 
-/** 角丸（§3） */
+/** 角丸 */
 export const radius = {
   icon: 10,
   thumb: 12,
@@ -59,7 +59,7 @@ export const radius = {
   pill: 999,
 } as const;
 
-/** レイアウト（§5） */
+/** レイアウト */
 export const layout = {
   screenPadding: 20,
   cardGap: 12,
@@ -78,13 +78,13 @@ export const layout = {
   },
   buttonHeight: 52,
   badgeHeight: 20,
-  /** Today's Pick の切り欠き半径（§6） */
+  /** Today's Pick の切り欠き半径 */
   notchRadius: 18,
   notchButtonSize: 44,
 } as const;
 
 /**
- * 影（§3）。**白カードにのみ付ける。色カードには付けない**（浮きすぎるため）。
+ * 影。**白カードにのみ付ける。色カードには付けない**（浮きすぎるため）。
  * iOS のみ対象なので elevation は持たない。
  */
 export const cardShadow = {
@@ -95,7 +95,7 @@ export const cardShadow = {
 } as const;
 
 /**
- * タイポグラフィ（§4）。
+ * タイポグラフィ。
  *
  * React Native は 1 つの fontFamily しか指定できず、CSS のような
  * 複数フォントのフォールバックができない。そのため和文用と英数用で
@@ -114,7 +114,7 @@ export type TextVariant = keyof typeof typography;
  * 英数用（Outfit）と和文用（Zen Kaku Gothic New）の family 名。
  *
  * Zen Kaku には SemiBold(600) が無いため heading は Medium(500) を当てる。
- * §9 の「和文にウェイト 700 超を使わない」に沿い、和文の最大は Bold(700)。
+ * 和文はウェイト 700 超だと潰れるため、最大を Bold(700) に留める。
  */
 export const fontFamilies = {
   latin: {
@@ -131,7 +131,7 @@ export const fontFamilies = {
   },
 } as const satisfies Record<'latin' | 'ja', Record<TextVariant, string>>;
 
-/** 放置日数バッジのしきい値（docs/PRD.md §7.2） */
+/** 放置日数バッジのしきい値 */
 export const STALE_BADGE_THRESHOLDS = { warn: 7, danger: 30 } as const;
 
 /** 放置日数に対応するバッジ色。しきい値未満なら null（バッジを出さない） */

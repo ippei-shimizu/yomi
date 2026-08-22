@@ -11,7 +11,7 @@ export type SegmentProps<T extends string> = {
 };
 
 /**
- * セグメント（docs/DesignGuideline.md §8）。
+ * セグメント。
  * surface-muted のトラックの上を brand の pill が動く。
  */
 export function Segment<T extends string>({ options, value, onChange }: SegmentProps<T>) {

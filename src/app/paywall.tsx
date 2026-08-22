@@ -24,7 +24,7 @@ import {
 import { capture } from '@/lib/analytics';
 import { Button, Text, useThemeColors } from '@/ui';
 
-/** 法務ページ。#30 で実 URL に差し替える */
+/** 法務ページ。リリース前に実 URL へ差し替える */
 const TERMS_URL = 'https://example.com/yomi/terms';
 const PRIVACY_URL = 'https://example.com/yomi/privacy';
 
@@ -197,7 +197,7 @@ export default function PaywallScreen() {
         disabled={busy || isPro}
       />
 
-      {/* 審査要件: 価格・期間・自動更新の明記（docs/PRD.md §7.5） */}
+      {/* 審査要件: 価格・期間・自動更新の明記 */}
       <Text variant="caption" style={{ color: theme['ink-2'] }}>
         {renewalNoticeFor(selected)}
       </Text>

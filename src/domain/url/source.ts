@@ -1,6 +1,6 @@
 /**
- * 保存元の種別。docs/DesignDoc.md §4.1 の items.source と一致させる。
- * 色の割り当ては docs/DesignGuideline.md §2.3 を参照。
+ * 保存元の種別。items.source に入る値と一致させる。
+ * 色の割り当ては src/design/tokens.ts の SOURCE_COLORS を参照。
  */
 export const SOURCES = [
   'x',
@@ -19,7 +19,7 @@ export type Source = (typeof SOURCES)[number];
 /**
  * ホスト名からソースを判定する。判定できないものはすべて 'web'。
  *
- * 対応表は docs/PRD.md §7.1。medium は独自ドメインで運用されることが
+ * medium は独自ドメインで運用されることが
  * あるが、ホスト名からは判別できないため 'web' に落ちる。
  */
 const HOST_TO_SOURCE: readonly (readonly [string, Source])[] = [

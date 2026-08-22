@@ -27,7 +27,7 @@ function htmlResponse(html = OGP): Response {
   return new Response(html, { status: 200, headers: { 'content-type': 'text/html' } });
 }
 
-describe('対象の選び方（docs/DesignDoc.md §5.2）', () => {
+describe('対象の選び方', () => {
   it('pending のものだけを処理する', async () => {
     const pending = save();
     const done = save();
@@ -51,7 +51,7 @@ describe('対象の選び方（docs/DesignDoc.md §5.2）', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(DEFAULT_BATCH_SIZE);
   });
 
-  it('インポート直後は件数を引き上げられる（§5.7）', async () => {
+  it('インポート直後は件数を引き上げられる', async () => {
     for (let i = 0; i < 15; i += 1) save();
 
     const fetchImpl = vi.fn().mockResolvedValue(htmlResponse());
@@ -173,7 +173,7 @@ describe('並列実行', () => {
   });
 });
 
-describe('短縮 URL の展開（§5.5）', () => {
+describe('短縮 URL の展開', () => {
   function shortItem(finalUrl: string) {
     const item = save('https://t.co/abc123');
     const fetchImpl = vi.fn().mockImplementation(async (url: string, init?: RequestInit) => {

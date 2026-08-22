@@ -1,14 +1,14 @@
 import { addDays } from '@/domain/date/week';
 
 /**
- * 通知のスケジュール計算（docs/DesignDoc.md §5.4）。
- * react-native を import しない純粋モジュール（R-UI5）。
+ * 通知のスケジュール計算。
+ * react-native を import しない純粋モジュール。
  */
 
 /** 何日分先までスケジュールするか */
 export const SCHEDULE_DAYS = 7;
 
-/** 既定の通知時刻（docs/PRD.md §7.4） */
+/** 既定の通知時刻 */
 export const DEFAULT_NOTIFICATION_TIME = '08:00';
 
 /** "HH:mm" 形式の時刻 */
@@ -42,7 +42,7 @@ export function nextOccurrence(time: TimeOfDay, now: Date): Date {
 /**
  * 翌 SCHEDULE_DAYS 日分の発火日時を、時刻ごとに展開して返す。
  *
- * Pro は複数時刻を設定できる（docs/PRD.md §7.4）。同じ日時が重複しないよう
+ * Pro は複数時刻を設定できる。同じ日時が重複しないよう
  * 昇順に整列して返す。
  */
 export function occurrencesFor(times: TimeOfDay[], now: Date, days = SCHEDULE_DAYS): Date[] {

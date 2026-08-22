@@ -2,15 +2,14 @@ import path from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 /**
- * ユニットテストは pure function と Repository のみを対象にする
- * （docs/DesignDoc.md §8）。React Native のコンポーネントは対象外。
+ * ユニットテストは pure function と Repository のみを対象にする。
+ * React Native のコンポーネントは対象外。
  */
 export default defineConfig({
   test: {
     environment: 'node',
-    // share-extension/ は src/ の外にあるため明示的に含める（docs/DesignDoc.md §3.1）
+    // share-extension/ は src/ の外にあるため明示的に含める
     include: ['src/**/*.test.ts', 'share-extension/**/*.test.ts'],
-    // 実際のテストは #6（URL 正規化）以降で追加される
     passWithNoTests: true,
     // 週の起点・放置日数はローカルタイム依存。テストを実行環境の TZ に
     // 左右されないよう固定する。

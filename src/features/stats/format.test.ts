@@ -58,7 +58,7 @@ describe('formatRateDelta', () => {
   });
 });
 
-// docs/DesignGuideline.md §7 / §9
+// 煽らない表示にする（デザイン方針）
 describe('煽らない表示', () => {
   it('感嘆符・絵文字を含まない', () => {
     const outputs = [

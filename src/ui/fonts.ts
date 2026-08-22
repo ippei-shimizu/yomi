@@ -12,7 +12,7 @@ import {
 import { useFonts } from 'expo-font';
 
 /**
- * バンドルするフォント（docs/DesignGuideline.md §4）。
+ * バンドルするフォント。
  * tokens.ts の fontFamilies が参照する family 名と 1 対 1 に対応させる。
  */
 export const FONTS = {

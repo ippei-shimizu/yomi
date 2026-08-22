@@ -16,7 +16,7 @@ function jsonResponse(payload: unknown): Response {
 
 const OGP_HTML = '<head><meta property="og:title" content="Solid Queue 入門"></head>';
 
-describe('fetchMetadata: ソース別の戦略（docs/DesignDoc.md §5.2）', () => {
+describe('fetchMetadata: ソース別の戦略', () => {
   it('一般 Web は HTML を取得して OGP を読む', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(htmlResponse(OGP_HTML));
     const result = await fetchMetadata('https://zenn.dev/a', { fetchImpl });

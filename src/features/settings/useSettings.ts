@@ -4,7 +4,7 @@ import { DEFAULT_NOTIFICATION_TIME } from '@/domain/notification/schedule';
 import { getBoolean, getString, setBoolean, setString, storage, storageKeys } from '@/lib/storage';
 
 /**
- * 端末内の設定（docs/Screens.md S11）。
+ * 端末内の設定。
  *
  * MMKV の変更を購読して、設定画面と他の画面が同じ値を見るようにする。
  */
@@ -37,7 +37,7 @@ function useStoredString(key: string, fallback: string): [string, (value: string
   return [value, set];
 }
 
-/** 読了確認シートを出すか（既定 ON。docs/Screens.md §6） */
+/** 読了確認シートを出すか（既定 ON） */
 export function useReadConfirmSetting() {
   return useStoredBoolean(storageKeys.readConfirm, true);
 }

@@ -4,8 +4,7 @@ import nacl from 'tweetnacl';
 import { verifyUnlockCode, type UnlockPayload } from './unlockCode';
 
 /**
- * テスト用の鍵ペアはここで生成する。**本番の秘密鍵はリポジトリに入れない**
- * （R-SEC3 / docs/DesignDoc.md §5.3）。
+ * テスト用の鍵ペアはここで生成する。**本番の秘密鍵はリポジトリに入れない**。
  */
 let keyPair: nacl.SignKeyPair;
 let otherKeyPair: nacl.SignKeyPair;
@@ -117,7 +116,7 @@ describe('verifyUnlockCode: 拒否すべきコード', () => {
     expect(verifyUnlockCode(code, keyPair.publicKey, NOW_SECONDS).valid).toBe(false);
   });
 
-  // 例外が起きても true を返す経路が無いこと（R-SEC4）
+  // 例外が起きても true を返す経路が無いこと
   it('どんな入力でも例外を投げない', () => {
     const inputs = ['', '.'.repeat(1000), 'あ'.repeat(1000), '\0', 'a'.repeat(100_000)];
     for (const input of inputs) {

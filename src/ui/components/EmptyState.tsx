@@ -6,7 +6,7 @@ import { useThemeColors } from '../theme';
 import { layout } from '@/design/tokens';
 
 /**
- * 空状態。**次の行動を示す**（docs/DesignGuideline.md §7）。
+ * 空状態。**次の行動を示す**。
  * 「データがありません」で終わらせない。
  */
 export function EmptyState({

@@ -59,19 +59,19 @@ function AppShell() {
   const db = useDatabase();
   const [onboardingCompleted] = useOnboardingCompleted();
 
-  // 起動のたびにメタ取得を回す（docs/DesignDoc.md §5.2）
+  // 起動のたびにメタ取得を回す
   useMetaFetchWorker(db);
-  // 通知は items が変わるたびに積み直す（§5.4）
+  // 通知は items が変わるたびに積み直す
   useDailyPickNotification(db);
-  // Share Extension での保存を read_logs 経由で分析に送る（§7.3）
+  // Share Extension での保存を read_logs 経由で分析に送る
   useAnalyticsSync(db);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <StatusBar style="auto" />
-      {/* ヘッダーはナビバーを使わず、各画面がコンテンツ先頭に置く（§5） */}
+      {/* ヘッダーはナビバーを使わず、各画面がコンテンツ先頭に置く */}
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
-        {/* 初回のみ Onboarding から始める（docs/Screens.md S01） */}
+        {/* 初回のみ Onboarding から始める */}
         <Stack.Protected guard={onboardingCompleted}>
           <Stack.Screen name="(tabs)" />
         </Stack.Protected>

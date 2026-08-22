@@ -4,10 +4,10 @@ import { newId } from '../id';
 import { itemTags, tags, type Tag } from '../schema';
 import type { YomiDatabase } from '../types';
 
-/** 無料プランのタグ上限（docs/PRD.md §7.5） */
+/** 無料プランのタグ上限 */
 export const FREE_PLAN_TAG_LIMIT = 3;
 
-/** Share Extension のタグチップに出す件数（docs/Screens.md X01） */
+/** Share Extension のタグチップに出す件数 */
 export const RECENT_TAG_LIMIT = 5;
 
 export function list(db: YomiDatabase): Tag[] {
@@ -69,7 +69,7 @@ export function listForItem(db: YomiDatabase, itemId: string): Tag[] {
 
 /**
  * 複数アイテムのタグをまとめて引く。リスト描画で 1 行ずつ引くと N+1 になるため
- * （docs/PRD.md §8 の 5,000 件 / 500ms 要件）。
+ * 5,000 件 / 500ms の要件があるため。
  */
 export function listForItems(db: YomiDatabase, itemIds: string[]): Map<string, Tag[]> {
   const result = new Map<string, Tag[]>();

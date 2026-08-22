@@ -6,13 +6,13 @@ import { FETCH_TIMEOUT_MS, MAX_HTML_BYTES, type Metadata } from './types';
 import { metadataFromUsername } from './username';
 
 /**
- * ソース別のメタデータ取得（docs/DesignDoc.md §5.2）。
+ * ソース別のメタデータ取得。
  *
  * 取得そのものはここに閉じ、パースは pure function 側に置く。
- * リトライと件数の制御は MetaFetchWorker（#8）が持つ。
+ * リトライと件数の制御は MetaFetchWorker が持つ。
  */
 
-/** OGP を返すサイトが多いので Safari 相当を名乗る（§5.2） */
+/** OGP を返すサイトが多いので Safari 相当を名乗る */
 const USER_AGENT =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
@@ -44,7 +44,7 @@ export async function fetchMetadata(url: string, options: FetchOptions = {}): Pr
         parseYouTubeOembed,
         options,
       );
-    // ログイン必須でメタを取得できないため、ネットワークに出ない（§5.2）
+    // ログイン必須でメタを取得できないため、ネットワークに出ない
     case 'instagram':
       return { ok: true, metadata: metadataFromUsername(url, 'Instagram') };
     case 'threads':
@@ -112,7 +112,7 @@ function isAbortError(error: unknown): boolean {
 }
 
 /**
- * 先頭 max バイトだけ読む（§5.2）。
+ * 先頭 max バイトだけ読む。
  *
  * response.text() は本文全体をメモリに載せるため、サイズ上限のない
  * サイトに当たると Extension でなくとも危険。ストリームを途中で切る。
@@ -150,7 +150,7 @@ export async function readAtMost(response: Response, max: number): Promise<strin
   return chunks.join('');
 }
 
-/** メタが取れなかったときの表示用フォールバック（§5.2） */
+/** メタが取れなかったときの表示用フォールバック */
 export function fallbackTitle(url: string): string {
   try {
     return new URL(url).hostname;

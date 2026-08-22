@@ -1,7 +1,7 @@
 import type { ExpoConfig } from 'expo/config';
 
 /**
- * iOS 専用アプリ（docs/PRD.md §1）。Android / iPad は対象外のため
+ * iOS 専用アプリ。Android / iPad は対象外のため
  * android / web の設定は持たない。
  *
  * ios/ は git 管理せず、この設定から prebuild で生成する
@@ -41,7 +41,7 @@ const config: ExpoConfig = {
         activationRules: [{ type: 'url', max: 1 }, { type: 'text' }],
         backgroundColor: { red: 243, green: 244, blue: 248, alpha: 1 },
         height: 260,
-        // Extension のバンドルから除外する。docs/DesignDoc.md §3.1 の依存ルールを
+        // Extension のバンドルから除外する。依存の制限を
         // ESLint（静的検査）だけでなくビルド側でも担保する。
         excludedPackages: [
           'react-native-purchases',

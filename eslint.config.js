@@ -3,7 +3,7 @@ const expoConfig = require('eslint-config-expo/flat');
 const prettierConfig = require('eslint-config-prettier');
 
 /**
- * share-extension/ の依存制限は docs/DesignDoc.md §3.1 の依存ルールを
+ * share-extension/ の依存制限は、バンドルに含めてよいものを
  * 機械的に強制するためのもの。iOS Extension のメモリ上限（~120MB）と
  * 起動 2 秒以内の要件を守るため、バンドルに含めてよいものを絞る。
  */
@@ -55,7 +55,7 @@ module.exports = defineConfig([
     },
   },
   {
-    // 設計原則 4: Pro 判定を 1 箇所に集約する（docs/DesignDoc.md §5.3）。
+    // 設計原則 4: Pro 判定を 1 箇所に集約する。
     // 判定が散ると Dev override との整合が取れず、上限判定にも抜けが出る。
     files: ['src/**/*.{ts,tsx}', 'share-extension/**/*.{ts,tsx}'],
     ignores: ['src/domain/entitlement/**'],
@@ -67,7 +67,7 @@ module.exports = defineConfig([
             {
               name: 'react-native-purchases',
               message:
-                'RevenueCat は src/domain/entitlement/ の中だけで参照してください。画面からは useEntitlement() を使います（docs/DesignDoc.md 設計原則 4）。',
+                'RevenueCat は src/domain/entitlement/ の中だけで参照してください。画面からは useEntitlement() を使ってください。',
             },
           ],
         },
@@ -82,8 +82,7 @@ module.exports = defineConfig([
         {
           paths: shareExtensionForbiddenPackages.map((name) => ({
             name,
-            message:
-              'share-extension/ にこのパッケージを入れないでください（docs/DesignDoc.md §3.1 / §5.1）。',
+            message: 'share-extension/ にこのパッケージを入れないでください。',
           })),
           patterns: [
             {
@@ -96,7 +95,7 @@ module.exports = defineConfig([
                     : [`!${tree}`, `!${tree}/**`],
                 ),
               ],
-              message: `share-extension/ からは ${shareExtensionAllowedTrees.join('・')} のみ import できます（docs/DesignDoc.md §3.1）。`,
+              message: `share-extension/ からは ${shareExtensionAllowedTrees.join('・')} のみ import できます。`,
             },
           ],
         },

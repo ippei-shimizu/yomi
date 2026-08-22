@@ -14,7 +14,7 @@ import {
 } from './schedule';
 
 /**
- * 今日の 1 本のローカル通知（docs/DesignDoc.md §5.4）。
+ * 今日の 1 本のローカル通知。
  *
  *   起動時・アイテム状態変更時・設定変更時に再計算:
  *     1. 既存の scheduled notification を全キャンセル
@@ -40,7 +40,7 @@ export function configureNotificationHandler(): void {
   });
 }
 
-/** 設定されている通知時刻。Pro は複数（docs/PRD.md §7.4） */
+/** 設定されている通知時刻。Pro は複数 */
 export function readNotificationTimes(): TimeOfDay[] {
   const raw = getString(storageKeys.notificationTimes) ?? DEFAULT_NOTIFICATION_TIME;
   const times = raw
@@ -76,7 +76,7 @@ export async function rescheduleDailyPick(
   if (!(await hasPermission())) return { scheduled: 0, itemId: null };
 
   const candidates = statsRepo.pickCandidates(db, now);
-  // 未読 0 件のときは通知しない（docs/PRD.md §7.4）
+  // 未読 0 件のときは通知しない
   const item = pickToday(candidates, dateKeyOf(now));
   if (item === null) return { scheduled: 0, itemId: null };
 

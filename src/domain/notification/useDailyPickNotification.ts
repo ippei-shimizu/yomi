@@ -11,7 +11,7 @@ import { capture } from '@/lib/analytics';
 import { itemIdFromNotification, rescheduleDailyPick } from './notifications';
 
 /**
- * 通知の再スケジュールとタップ時の遷移（docs/DesignDoc.md §5.4）。
+ * 通知の再スケジュールとタップ時の遷移。
  *
  * items が変わると Today's Pick の候補も変わるので、React Query の
  * items キャッシュが更新されるたびに積み直す。
@@ -37,7 +37,7 @@ export function useDailyPickNotification(db: YomiDatabase) {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const itemId = itemIdFromNotification(response.notification.request.content.data);
-      // 通知タップで直接ブラウザを開く（docs/PRD.md §7.4）
+      // 通知タップで直接ブラウザを開く
       if (itemId !== null) {
         capture({ name: 'notification_opened' });
         router.push({ pathname: '/item/[id]', params: { id: itemId, open: '1' } });

@@ -41,7 +41,7 @@ describe('マイグレーション', () => {
     expect(baseTableNames(createTestDb())).toEqual(['item_tags', 'items', 'read_logs', 'tags']);
   });
 
-  it('全文検索用の items_fts が作られる（docs/DesignDoc.md §4.3）', () => {
+  it('全文検索用の items_fts が作られる', () => {
     const db = createTestDb();
     const names = db
       .all<{ name: string }>(sql`SELECT name FROM sqlite_master WHERE type = 'table'`)

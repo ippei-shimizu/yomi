@@ -6,7 +6,7 @@ import { dateKeyOf, pickToday } from '@/domain/pick/pickToday';
 import { urlHash } from '@/domain/url';
 
 /**
- * 通知とホームの Today's Pick が一致すること（docs/DesignDoc.md §5.6）。
+ * 通知とホームの Today's Pick が一致すること。
  *
  * 通知（notifications.ts）とホーム（useTodaysPick）は別々の場所で
  * pickToday を呼ぶ。同じ候補・同じ dateKey・nonce=0 なら必ず同じ

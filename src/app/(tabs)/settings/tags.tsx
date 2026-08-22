@@ -9,7 +9,7 @@ import { useTagActions, useTagsWithUsage } from '@/features/tags/queries';
 import { tagNameErrorMessage, validateTagName } from '@/features/tags/tagName';
 import { Card, EmptyState, Text, useThemeColors } from '@/ui';
 
-/** Settings → タグ管理（docs/Screens.md S11） */
+/** Settings → タグ管理 */
 export default function TagSettingsScreen() {
   const theme = useThemeColors();
   const insets = useSafeAreaInsets();

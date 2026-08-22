@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { verifyUnlockCode, type VerifyResult } from './unlockCode';
 
 /**
- * 開発者向けオーバーライド（docs/DesignDoc.md §5.3）。
+ * 開発者向けオーバーライド。
  *
  * 検証に通ったコードだけを Keychain（expo-secure-store）に保存する。
  * MMKV ではなく Keychain を使うのは、書き換えの敷居を上げるため。
@@ -14,7 +14,7 @@ const STORAGE_KEY = 'yomi.devUnlockCode';
  * アプリに埋め込む Ed25519 公開鍵（base64）。
  *
  * **公開鍵なのでリポジトリに入れてよい。** 対応する秘密鍵は 1Password に
- * 保管し、絶対にコミットしない（R-SEC3）。
+ * 保管し、絶対にコミットしない。
  *
  * 未設定（空文字）のあいだ、オーバーライドは常に無効になる。鍵の生成は
  * リリース前に行う。
@@ -36,7 +36,7 @@ function nowSeconds(): number {
 
 export type OverrideState = { valid: false } | { valid: true; sub: string; exp: number };
 
-/** 保存済みコードを検証する。検証に通らなければ無効（R-SEC4） */
+/** 保存済みコードを検証する。検証に通らなければ無効 */
 export async function readOverride(): Promise<OverrideState> {
   const key = publicKeyBytes();
   if (key === null) return { valid: false };

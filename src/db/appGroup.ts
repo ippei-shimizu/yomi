@@ -1,5 +1,5 @@
 /**
- * 本体アプリと Share Extension が共有する App Group（docs/DesignDoc.md §7.1）。
+ * 本体アプリと Share Extension が共有する App Group。
  *
  * app.config.ts（entitlements の生成）と client.ts（DB を開くパスの解決）の
  * 両方から参照する。片方だけ変えると DB が別々のコンテナに作られ、共有シートで

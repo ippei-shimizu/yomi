@@ -6,11 +6,11 @@ import { useThemeColors } from '../theme';
 
 export type CardProps = ViewProps & {
   children?: ReactNode;
-  /** 大カード（Today's Pick、Stats の数値カード）は 28（§3） */
+  /** 大カード（Today's Pick、Stats の数値カード）は 28 */
   size?: 'default' | 'large';
   /**
    * 塗り色。指定すると色カードになる。
-   * **色カードには影を付けない**（§9: 浮きすぎるため）。
+   * **色カードには影を付けない**（浮きすぎるため）。
    */
   backgroundColor?: string;
 };

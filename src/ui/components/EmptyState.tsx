@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { Text } from '../Text';
 import { useThemeColors } from '../theme';
-import { layout } from '../tokens';
+import { layout } from '@/design/tokens';
 
 /**
  * 空状態。**次の行動を示す**（docs/DesignGuideline.md §7）。

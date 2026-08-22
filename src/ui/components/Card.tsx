@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { View, type ViewProps } from 'react-native';
 
-import { cardShadow, radius } from '../tokens';
+import { cardShadow, radius } from '@/design/tokens';
 import { useThemeColors } from '../theme';
 
 export type CardProps = ViewProps & {

@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 
 import { Text } from '../Text';
 import { useThemeColors } from '../theme';
-import { colors, radius } from '../tokens';
+import { colors, radius } from '@/design/tokens';
 
 export type ChipProps = {
   label: string;

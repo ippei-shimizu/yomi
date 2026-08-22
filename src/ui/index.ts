@@ -1,7 +1,7 @@
 export { Text, type TextProps, type TextScript } from './Text';
 export { useAppFonts } from './fonts';
 export { useIsDark, useThemeColors } from './theme';
-export * from './tokens';
+export * from '@/design/tokens';
 
 export { Button } from './components/Button';
 export { Card } from './components/Card';

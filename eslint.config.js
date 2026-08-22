@@ -13,6 +13,16 @@ const shareExtensionForbiddenPackages = [
   '@sentry/react-native',
 ];
 
+/**
+ * Extension が import してよい src/ 配下のツリー。
+ *
+ * ESLint のパターンは gitignore と同じ規則で、**除外されたツリーの中の
+ * 1 ファイルだけを再包含することはできない**。そのためデザイントークンは
+ * src/ui/（コンポーネントを含む）ではなく独立した src/design/ に置き、
+ * ツリーごと許可している。
+ */
+const shareExtensionAllowedTrees = ['@/db', '@/domain/url', '@/design'];
+
 module.exports = defineConfig([
   expoConfig,
   prettierConfig,
@@ -59,14 +69,14 @@ module.exports = defineConfig([
             {
               group: [
                 '@/**',
-                '!@/db',
-                '!@/db/**',
-                '!@/domain',
-                '!@/domain/url',
-                '!@/domain/url/**',
+                // '@/domain' 自体も許可しないと '@/domain/url' を再包含できない
+                ...shareExtensionAllowedTrees.flatMap((tree) =>
+                  tree === '@/domain/url'
+                    ? ['!@/domain', `!${tree}`, `!${tree}/**`]
+                    : [`!${tree}`, `!${tree}/**`],
+                ),
               ],
-              message:
-                'share-extension/ からは @/db と @/domain/url のみ import できます（docs/DesignDoc.md §3.1）。',
+              message: `share-extension/ からは ${shareExtensionAllowedTrees.join('・')} のみ import できます（docs/DesignDoc.md §3.1）。`,
             },
           ],
         },

@@ -1,6 +1,6 @@
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
-import { fontFamilies, typography, type TextVariant } from './tokens';
+import { fontFamilies, typography, type TextVariant } from '@/design/tokens';
 
 export type TextScript = 'ja' | 'latin';
 

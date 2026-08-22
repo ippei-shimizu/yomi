@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 
 import { Text } from '../Text';
 import { useThemeColors } from '../theme';
-import { colors, radius } from '../tokens';
+import { colors, radius } from '@/design/tokens';
 
 export type SegmentProps<T extends string> = {
   options: readonly { value: T; label: string }[];

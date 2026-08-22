@@ -10,7 +10,8 @@ import palette from './palette.json';
  * ここから取る。**コンポーネント内に色をハードコードしない**（R-UI1）。
  *
  * このファイルは値だけを持ち、react-native を import しない。Node から
- * テストでき、Share Extension からも安全に読めるようにするため。
+ * テストでき、Share Extension からも安全に読めるようにするため
+ * （src/ui/ 配下だと Extension の依存ルールで弾かれる。docs/DesignDoc.md §3.1）。
  * 端末のテーマに追従する取得は src/ui/theme.ts の useThemeColors() を使う。
  */
 

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import type { Source } from '@/domain/url';
 
 import { Text } from '../Text';
-import { SOURCE_COLORS, layout, radius } from '../tokens';
+import { SOURCE_COLORS, layout, radius } from '@/design/tokens';
 
 /**
  * ソースアイコンの器（docs/DesignGuideline.md §2.3）。

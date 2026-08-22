@@ -8,7 +8,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    // share-extension/ は src/ の外にあるため明示的に含める（docs/DesignDoc.md §3.1）
+    include: ['src/**/*.test.ts', 'share-extension/**/*.test.ts'],
     // 実際のテストは #6（URL 正規化）以降で追加される
     passWithNoTests: true,
     // 週の起点・放置日数はローカルタイム依存。テストを実行環境の TZ に

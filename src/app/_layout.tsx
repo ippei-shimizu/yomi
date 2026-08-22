@@ -12,6 +12,7 @@ import { DatabaseProvider, useDatabase } from '@/db/DatabaseProvider';
 import { useMigrations } from '@/db/migrations';
 import { useMetaFetchWorker } from '@/domain/meta';
 import { configureNotificationHandler, useDailyPickNotification } from '@/domain/notification';
+import { useOnboardingCompleted } from '@/features/settings/useSettings';
 import { Text, useAppFonts, useThemeColors } from '@/ui';
 
 /**
@@ -51,6 +52,7 @@ function StartupError({ message }: { message: string }) {
 function AppShell() {
   const theme = useThemeColors();
   const db = useDatabase();
+  const [onboardingCompleted] = useOnboardingCompleted();
 
   // 起動のたびにメタ取得を回す（docs/DesignDoc.md §5.2）
   useMetaFetchWorker(db);
@@ -62,8 +64,13 @@ function AppShell() {
       <StatusBar style="auto" />
       {/* ヘッダーはナビバーを使わず、各画面がコンテンツ先頭に置く（§5） */}
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="onboarding" />
+        {/* 初回のみ Onboarding から始める（docs/Screens.md S01） */}
+        <Stack.Protected guard={onboardingCompleted}>
+          <Stack.Screen name="(tabs)" />
+        </Stack.Protected>
+        <Stack.Protected guard={!onboardingCompleted}>
+          <Stack.Screen name="onboarding" />
+        </Stack.Protected>
         <Stack.Screen name="item/[id]" />
         <Stack.Screen name="stale" />
         <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />

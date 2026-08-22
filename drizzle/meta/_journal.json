@@ -8,6 +8,13 @@
       "when": 1787375281231,
       "tag": "0000_nifty_shadowcat",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1787382446737,
+      "tag": "0001_items_fts",
+      "breakpoints": true
     }
   ]
 }

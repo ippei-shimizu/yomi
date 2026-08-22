@@ -293,3 +293,39 @@ if (hostMatches(host, 'x.com') && ['s', 't'].includes(key)) del(key);
 **必須**: `createTestDb()`（`src/db/testing.ts`）を使う。これは `drizzle/` の実ファイルを drizzle 本来のマイグレータで適用する。ドライバだけが本番と異なる（expo-sqlite は Node で動かないため better-sqlite3）。
 
 **初出**: PR #36
+
+### R-DB6. `sql` テンプレートに値を直接埋め込まない。比較は drizzle の演算子を通す
+
+**理由**: `sql\`...\`` に `Date` や配列をそのまま埋め込むと、カラムの `timestamp` モードによる変換が効かず、実行時に `SQLite3 can only bind numbers, strings, bigints, buffers, and null` で落ちる。**型チェックは通る**ので、テストが無ければ実機で初めて気づく。
+
+```ts
+// 悪い — Date がそのまま bind されて落ちる
+sql`CASE WHEN ${items.snoozedUntil} > ${now} THEN 1 ELSE 0 END`
+// 良い — gt() がカラムの型に合わせて変換する
+sql`CASE WHEN ${gt(items.snoozedUntil, now)} THEN 1 ELSE 0 END`
+
+// 悪い
+sql`${itemTags.itemId} IN ${itemIds}`
+// 良い
+inArray(itemTags.itemId, itemIds)
+```
+
+`sql` テンプレートを使ってよいのは、カラム参照と値を含まない SQL 片（`CASE WHEN ... THEN 1 ELSE 0 END`、`MAX(...)` など）だけ。
+
+**初出**: PR #37
+
+### R-DB7. 複数件を扱う関数は、一括で引くクエリを用意する
+
+**理由**: リスト描画で 1 行ずつ引くと N+1 になり、5,000 件 / 500ms の要件（`docs/PRD.md` §8）を満たせない。
+
+**必須**: `listForItem`（単数）を作ったら `listForItems`（複数）も用意し、画面はループの中で単数版を呼ばない。空配列を渡されたらクエリを投げずに空を返す。
+
+**初出**: PR #37
+
+### R-TEST5. ネイティブモジュールに依存してテスト不能になったら、シムで切る
+
+**理由**: `expo-crypto` は `react-native` を読み込むため Node で動かず、これを import しているモジュールは**その先の層まで丸ごと**テスト不能になる（Repository 層全体が該当した）。
+
+**必須**: 契約が単純なものは `test/shims/` にシムを置き、`vitest.config.mts` の alias で差し替える。**シムに置き換わっても検証の穴にならないこと**を確認する（実ロジックは乱数源などを引数に取る純粋関数として別途テストする）。
+
+**初出**: PR #37

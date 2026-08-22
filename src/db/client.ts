@@ -37,13 +37,19 @@ export function openSharedSqlite(): SQLiteDatabase {
   return cachedNativeDb;
 }
 
-export type Database = ReturnType<typeof createDb>;
-
-/** SQLiteDatabase を Drizzle でラップする。テストから別のドライバを渡せるよう分離してある */
+/**
+ * SQLiteDatabase を Drizzle でラップする。
+ *
+ * 戻り値は expo-sqlite 固有の型のまま返す。マイグレータ
+ * （drizzle-orm/expo-sqlite/migrator）がこの具象型を要求するため。
+ * Repository 側はより広い YomiDatabase で受ける（types.ts を参照）。
+ */
 export function createDb(native: SQLiteDatabase) {
   native.execSync('PRAGMA foreign_keys = ON;');
   return drizzle(native, { schema });
 }
+
+export type Database = ReturnType<typeof createDb>;
 
 /** アプリ / Extension から使う共有 DB */
 export function openSharedDb(): Database {

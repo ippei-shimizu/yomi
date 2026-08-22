@@ -484,3 +484,11 @@ const staleCount = useStaleItems().data?.length ?? 0;
 **必須**: パースに失敗した値は捨て、残りが空なら既定値を使う。安全側（機能を止める）に倒すのは**認証・課金・上限判定だけ**（R-SEC4）で、表示や通知は動き続ける方に倒す。
 
 **初出**: PR #44
+
+### R-DB9. 一括操作をループの mutation で書かない
+
+**理由**: `for (const id of ids) mutate({ type: 'delete', id })` は N 回のトランザクションと N 回の invalidate を発生させる。途中で失敗すると部分適用になり（R-DB2 違反）、リストも N 回再描画される。
+
+**必須**: Repository に `〜Many` を用意し、1 トランザクションで処理する。`archiveMany` / `removeMany` が例。
+
+**初出**: PR #45

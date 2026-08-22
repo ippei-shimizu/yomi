@@ -343,3 +343,27 @@ describe('update', () => {
     expect(row?.updatedAt).toEqual(later);
   });
 });
+
+describe('removeMany（一括削除）', () => {
+  it('archived のものだけを 1 トランザクションで消す', () => {
+    const archived = [save({ urlHash: 'a1' }).id, save({ urlHash: 'a2' }).id];
+    const unread = save({ urlHash: 'u1' }).id;
+    for (const id of archived) itemRepo.archive(db, id, NOW);
+
+    expect(itemRepo.removeMany(db, [...archived, unread])).toBe(2);
+    expect(itemRepo.findById(db, unread)).toBeDefined();
+    for (const id of archived) expect(itemRepo.findById(db, id)).toBeUndefined();
+  });
+
+  it('空配列なら 0 件', () => {
+    expect(itemRepo.removeMany(db, [])).toBe(0);
+  });
+
+  it('削除しても read_logs の履歴は残る', () => {
+    const item = save();
+    itemRepo.archive(db, item.id, NOW);
+    itemRepo.removeMany(db, [item.id]);
+
+    expect(logsFor(item.id)).toHaveLength(2);
+  });
+});

@@ -72,6 +72,7 @@ export type ItemAction =
   | { type: 'snooze'; id: string; days: number }
   | { type: 'delete'; id: string }
   | { type: 'archiveMany'; ids: string[] }
+  | { type: 'deleteMany'; ids: string[] }
   | { type: 'bumpToNow'; ids: string[] };
 
 export function useItemActions() {
@@ -93,6 +94,8 @@ export function useItemActions() {
           return itemRepo.remove(db, action.id);
         case 'archiveMany':
           return itemRepo.archiveMany(db, action.ids);
+        case 'deleteMany':
+          return itemRepo.removeMany(db, action.ids);
         case 'bumpToNow':
           return itemRepo.bumpToNow(db, action.ids);
       }

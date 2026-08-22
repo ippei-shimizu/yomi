@@ -44,6 +44,7 @@ export function AppShell() {
         </Stack.Protected>
         <Stack.Screen name="item/[id]" />
         <Stack.Screen name="stale" />
+        <Stack.Screen name="legal" />
         <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
         <Stack.Screen name="dev-unlock" options={{ presentation: 'modal' }} />
       </Stack>

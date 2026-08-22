@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import appConfig from '../../app.config';
 import { APP_GROUP } from '@/db/appGroup';
+import { MINIMUM_IOS_VERSION } from '@/features/legal/requirements';
 
 /**
  * app.config.ts は Expo の設定ローダが相対 TS import を解決できないため、
@@ -22,6 +23,10 @@ describe('app.config.ts', () => {
   it('iOS 専用で iPad をサポートしない', () => {
     expect(appConfig.platforms).toEqual(['ios']);
     expect(appConfig.ios?.supportsTablet).toBe(false);
+  });
+
+  it('deploymentTarget が特定商取引法の表記と一致する（動かない端末を対応と書かない）', () => {
+    expect(appConfig.ios?.deploymentTarget).toBe(MINIMUM_IOS_VERSION);
   });
 
   it('Background Modes に fetch と processing がある（MetaFetchWorker 用）', () => {

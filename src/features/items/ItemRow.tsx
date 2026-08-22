@@ -3,7 +3,7 @@ import { Image, View } from 'react-native';
 import type { Item } from '@/db/schema';
 import { daysBetween } from '@/domain/date/week';
 import { layout, radius } from '@/design/tokens';
-import { SourceIcon, StaleBadge, Text, useThemeColors } from '@/ui';
+import { SourceIcon, StaleBadge, Text, useThemeColors, useTranslation } from '@/ui';
 
 import { displayTitle, subtitleOf } from './display';
 
@@ -13,6 +13,7 @@ import { displayTitle, subtitleOf } from './display';
  */
 export function ItemRow({ item, now = new Date() }: { item: Item; now?: Date }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const isSnoozed = item.snoozedUntil !== null && item.snoozedUntil > now;
 
   return (
@@ -50,7 +51,7 @@ export function ItemRow({ item, now = new Date() }: { item: Item; now?: Date }) 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <SourceIcon source={item.source} size={16} />
           <Text variant="caption" style={{ color: theme['ink-2'] }} numberOfLines={1}>
-            {subtitleOf(item, now)}
+            {subtitleOf(t, item, now)}
           </Text>
         </View>
       </View>

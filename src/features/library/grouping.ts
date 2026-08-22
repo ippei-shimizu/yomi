@@ -1,4 +1,5 @@
 import type { Item } from '@/db/schema';
+import type { MessageKey, Translate } from '@/lib/i18n';
 
 /**
  * Library の月ごとセクション。
@@ -22,16 +23,19 @@ function monthKeyOf(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function monthLabelOf(date: Date, currentYear: number): string {
-  const month = date.getMonth() + 1;
-  return date.getFullYear() === currentYear ? `${month}月` : `${date.getFullYear()}年${month}月`;
+function monthLabelOf(t: Translate, date: Date, currentYear: number): string {
+  // 月の呼び方は言語で違う（"8月" と "August"）ので、数値ではなく名前を渡す
+  const month = t(`month.${date.getMonth() + 1}` as MessageKey);
+  return date.getFullYear() === currentYear
+    ? t('library.monthHeading', { month })
+    : t('library.monthWithYearHeading', { year: date.getFullYear(), month });
 }
 
 /**
  * 月ごとに束ねる。入力は新しい順に整列済みである前提
  * （itemRepo.listByStatus がそう返す）。
  */
-export function groupByMonth(items: Item[], now = new Date()): MonthSection[] {
+export function groupByMonth(t: Translate, items: Item[], now = new Date()): MonthSection[] {
   const sections: MonthSection[] = [];
   const currentYear = now.getFullYear();
 
@@ -41,7 +45,7 @@ export function groupByMonth(items: Item[], now = new Date()): MonthSection[] {
     const last = sections.at(-1);
 
     if (last?.key === key) last.items.push(item);
-    else sections.push({ key, label: monthLabelOf(date, currentYear), items: [item] });
+    else sections.push({ key, label: monthLabelOf(t, date, currentYear), items: [item] });
   }
 
   return sections;

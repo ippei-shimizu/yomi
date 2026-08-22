@@ -1,4 +1,5 @@
 import type { VerifyResult } from '@/domain/entitlement';
+import type { Translate } from '@/lib/i18n';
 
 /**
  * アンロックコードの検証結果を、開発者向けの 1 行にする。
@@ -6,17 +7,17 @@ import type { VerifyResult } from '@/domain/entitlement';
  * 公開鍵が空のまま（リリース前）だと必ず malformed になるので、
  * その可能性まで書いておかないと原因の切り分けができない。
  */
-export function describeVerifyResult(result: VerifyResult): string {
-  if (result.valid) return '有効なコードです';
+export function describeVerifyResult(t: Translate, result: VerifyResult): string {
+  if (result.valid) return t('devUnlock.resultValid');
 
   switch (result.reason) {
     case 'expired':
-      return '期限が切れています';
+      return t('devUnlock.resultExpired');
     case 'bad-signature':
-      return '署名が一致しません';
+      return t('devUnlock.resultBadSignature');
     case 'bad-payload':
-      return 'コードの内容が不正です';
+      return t('devUnlock.resultBadPayload');
     case 'malformed':
-      return 'コードの形式が不正です（公開鍵が未設定の可能性があります）';
+      return t('devUnlock.resultMalformed');
   }
 }

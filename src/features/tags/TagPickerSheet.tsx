@@ -4,7 +4,7 @@ import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { tagRepo } from '@/db/repositories';
 import { radius, typography } from '@/design/tokens';
 import { useEntitlement } from '@/domain/entitlement';
-import { BottomSheet, Chip, Text, useThemeColors } from '@/ui';
+import { BottomSheet, Chip, Text, useThemeColors, useTranslation } from '@/ui';
 
 import { useItemTags, useTagActions, useTags } from './queries';
 import { tagNameErrorMessage, validateTagName } from './tagName';
@@ -25,6 +25,7 @@ export function TagPickerSheet({
   onRequestPaywall: () => void;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const { limits } = useEntitlement();
 
   const { data: allTags = [] } = useTags();
@@ -48,7 +49,7 @@ export function TagPickerSheet({
       allTags.map((tag) => tag.name),
     );
     if (!result.ok) {
-      setError(tagNameErrorMessage(result.error));
+      setError(tagNameErrorMessage(t, result.error));
       return;
     }
 
@@ -70,7 +71,7 @@ export function TagPickerSheet({
   return (
     <BottomSheet visible={visible} onRequestClose={onClose}>
       <Text variant="heading" style={{ color: theme.ink }}>
-        タグ
+        {t('item.tags')}
       </Text>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -80,7 +81,7 @@ export function TagPickerSheet({
             setInput(value);
             setError(null);
           }}
-          placeholder="新しいタグ…"
+          placeholder={t('tags.newTagPlaceholder')}
           placeholderTextColor={theme['ink-3']}
           onSubmitEditing={onCreate}
           returnKeyType="done"
@@ -105,7 +106,7 @@ export function TagPickerSheet({
           }}
         >
           <Text variant="body" style={{ color: theme.ink }}>
-            追加
+            {t('tags.add')}
           </Text>
         </Pressable>
       </View>
@@ -140,7 +141,7 @@ export function TagPickerSheet({
         <Pressable accessibilityRole="button" onPress={onRequestPaywall}>
           {/* 事実だけを書く */}
           <Text variant="caption" style={{ color: theme['ink-2'] }}>
-            無料プランのタグは {tagRepo.FREE_PLAN_TAG_LIMIT} 個までです
+            {t('tags.limitReached', { limit: tagRepo.FREE_PLAN_TAG_LIMIT })}
           </Text>
         </Pressable>
       ) : null}

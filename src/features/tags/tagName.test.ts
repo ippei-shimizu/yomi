@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import { createTranslate } from '@/lib/i18n';
+
 import { MAX_TAG_LENGTH, normalizeTagName, tagNameErrorMessage, validateTagName } from './tagName';
+
+const t = createTranslate('ja');
 
 describe('normalizeTagName', () => {
   it('前後の空白を落とす', () => {
@@ -53,13 +57,13 @@ describe('validateTagName', () => {
 
 describe('tagNameErrorMessage', () => {
   it.each(['empty', 'too-long', 'duplicate'] as const)('%s に文言がある', (error) => {
-    expect(tagNameErrorMessage(error).length).toBeGreaterThan(0);
+    expect(tagNameErrorMessage(t, error).length).toBeGreaterThan(0);
   });
 
   // 煽らない
   it('感嘆符を含まない', () => {
     for (const error of ['empty', 'too-long', 'duplicate'] as const) {
-      expect(tagNameErrorMessage(error)).not.toMatch(/[!！]/);
+      expect(tagNameErrorMessage(t, error)).not.toMatch(/[!！]/);
     }
   });
 });

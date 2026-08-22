@@ -16,10 +16,11 @@ import {
 import { SourceReadRateList } from '@/features/stats/SourceReadRateList';
 import { StatCard } from '@/features/stats/StatCard';
 import { WeeklyChart } from '@/features/stats/WeeklyChart';
-import { Card, SectionHeader, Text, useThemeColors } from '@/ui';
+import { Card, SectionHeader, Text, useThemeColors, useTranslation } from '@/ui';
 
 export default function StatsScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
   const db = useDatabase();
 
@@ -49,27 +50,29 @@ export default function StatsScreen() {
       }}
     >
       <Text variant="display" style={{ color: theme.ink }}>
-        Stats
+        {t('stats.title')}
       </Text>
 
       <View style={{ gap: layout.cardGap }}>
-        <SectionHeader title={`今週（${formatWeekRange(thisWeek.weekStart)}）`} />
+        <SectionHeader
+          title={t('stats.thisWeek', { range: formatWeekRange(thisWeek.weekStart) })}
+        />
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <StatCard
-            label="保存"
+            label={t('stats.saved')}
             value={String(thisWeek.saved)}
             delta={formatDelta(thisWeek.saved, lastWeek.saved)}
             color={colors.source['src-amber']}
           />
           <StatCard
-            label="読了"
+            label={t('stats.read')}
             value={String(thisWeek.read)}
             delta={formatDelta(thisWeek.read, lastWeek.read)}
             color={colors.source['src-green']}
           />
           <StatCard
-            label="読了率"
-            value={formatRate(thisWeek.readRate)}
+            label={t('stats.readRate')}
+            value={formatRate(t, thisWeek.readRate)}
             delta={formatRateDelta(thisWeek.readRate, lastWeek.readRate)}
             color={colors.brand.brand}
           />
@@ -77,7 +80,7 @@ export default function StatsScreen() {
       </View>
 
       <View style={{ gap: layout.cardGap }}>
-        <SectionHeader title="直近 8 週" />
+        <SectionHeader title={t('stats.recentWeeks')} />
         <Card>
           <View style={{ padding: 16, gap: 8 }}>
             <WeeklyChart weeks={recentWeeks} />
@@ -86,14 +89,16 @@ export default function StatsScreen() {
       </View>
 
       <View style={{ gap: layout.cardGap }}>
-        <SectionHeader title="現在" />
+        <SectionHeader title={t('stats.current')} />
         <Card>
           <View style={{ padding: 16, gap: 6 }}>
             <Text variant="body" style={{ color: theme.ink }}>
-              未読 {current.unread} 件 · 30 日超 {current.stale} 件
+              {t('stats.currentSummary', { unread: current.unread, stale: current.stale })}
             </Text>
             <Text variant="caption" style={{ color: theme['ink-2'] }}>
-              平均 読むまで {formatAverageDays(current.averageDaysToRead)}
+              {t('stats.averageDaysToRead', {
+                value: formatAverageDays(t, current.averageDaysToRead),
+              })}
             </Text>
           </View>
         </Card>
@@ -101,7 +106,7 @@ export default function StatsScreen() {
 
       {bySource.length === 0 ? null : (
         <View style={{ gap: layout.cardGap }}>
-          <SectionHeader title="ソース別 読了率" />
+          <SectionHeader title={t('stats.bySource')} />
           <Card>
             <SourceReadRateList rows={bySource} />
           </Card>

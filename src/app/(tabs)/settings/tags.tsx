@@ -7,11 +7,12 @@ import { layout } from '@/design/tokens';
 import { useEntitlement } from '@/domain/entitlement';
 import { useTagActions, useTagsWithUsage } from '@/features/tags/queries';
 import { TagManagementRow } from '@/features/tags/TagManagementRow';
-import { EmptyState, ScreenHeader, Text, useThemeColors } from '@/ui';
+import { EmptyState, ScreenHeader, Text, useThemeColors, useTranslation } from '@/ui';
 
 /** Settings → タグ管理 */
 export default function TagSettingsScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
   const { limits } = useEntitlement();
 
@@ -21,14 +22,12 @@ export default function TagSettingsScreen() {
 
   const onDelete = (id: string, name: string, usageCount: number) => {
     Alert.alert(
-      `「${name}」を削除しますか？`,
-      usageCount > 0
-        ? `${usageCount} 件のアイテムからタグが外れます。アイテム自体は残ります。`
-        : undefined,
+      t('tags.deleteConfirm', { name }),
+      usageCount > 0 ? t('tags.deleteConfirmUsed', { count: usageCount }) : undefined,
       [
-        { text: 'やめる', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '削除',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => actions.mutate({ type: 'delete', id }),
         },
@@ -46,19 +45,16 @@ export default function TagSettingsScreen() {
         gap: layout.cardGap,
       }}
     >
-      <ScreenHeader title="タグ管理" onBack={() => router.back()} />
+      <ScreenHeader title={t('tags.title')} onBack={() => router.back()} />
 
       {limits.tagLimit === null ? null : (
         <Text variant="caption" style={{ color: theme['ink-2'] }}>
-          無料プランのタグは {limits.tagLimit} 個まで（現在 {tags.length} 個）
+          {t('tags.limit', { limit: limits.tagLimit, count: tags.length })}
         </Text>
       )}
 
       {tags.length === 0 ? (
-        <EmptyState
-          title="タグはまだありません"
-          description="アイテムの詳細画面か、共有シートから付けられます"
-        />
+        <EmptyState title={t('tags.emptyTitle')} description={t('tags.emptyDescription')} />
       ) : (
         tags.map((tag) => (
           <TagManagementRow

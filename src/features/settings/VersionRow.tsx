@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 
 import { radius } from '@/design/tokens';
 import { APP_VERSION } from '@/features/settings/appInfo';
-import { Card, Text, useThemeColors } from '@/ui';
+import { Card, Text, useThemeColors, useTranslation } from '@/ui';
 
 /** 何回タップで Dev Unlock を開くか */
 const DEV_UNLOCK_TAP_COUNT = 7;
@@ -16,13 +16,14 @@ const DEV_UNLOCK_TAP_COUNT = 7;
  */
 export function VersionRow({ onUnlock }: { onUnlock: () => void }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const taps = useRef(0);
 
   return (
     <Card>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`バージョン ${APP_VERSION}`}
+        accessibilityLabel={t('settings.versionAccessibility', { version: APP_VERSION })}
         onPress={() => {
           taps.current += 1;
           if (taps.current >= DEV_UNLOCK_TAP_COUNT) {
@@ -40,7 +41,7 @@ export function VersionRow({ onUnlock }: { onUnlock: () => void }) {
         }}
       >
         <Text variant="body" style={{ flex: 1, color: theme.ink }}>
-          バージョン
+          {t('settings.version')}
         </Text>
         <Text variant="body" script="latin" style={{ color: theme['ink-2'] }}>
           {APP_VERSION}

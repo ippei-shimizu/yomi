@@ -16,22 +16,24 @@ import { LEGAL_DOCUMENT_IDS, legalDocument } from '@/features/legal/documents';
 import {
   DEFAULT_PLAN,
   PLANS,
-  ctaLabelFor,
-  headlineFor,
-  renewalNoticeFor,
+  ctaLabelKeyFor,
+  headlineKeyFor,
+  renewalNoticeKeyFor,
   type PlanKind,
 } from '@/features/paywall/copy';
 import { LegalLink } from '@/features/paywall/LegalLink';
 import { PlanOption } from '@/features/paywall/PlanOption';
 import { ProBenefitList } from '@/features/paywall/ProBenefitList';
 import { capture } from '@/lib/analytics';
-import { Button, Text, useThemeColors } from '@/ui';
+import { Button, Text, useLocale, useThemeColors, useTranslation } from '@/ui';
 
 export default function PaywallScreen() {
   const { trigger } = useLocalSearchParams<{ trigger?: string }>();
   const theme = useThemeColors();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+  const t = useTranslation();
+  const locale = useLocale();
 
   const { isPro } = useEntitlement();
   const offerings = useOfferings();
@@ -61,7 +63,7 @@ export default function PaywallScreen() {
   const runPurchase = async () => {
     const target = packageFor(selected);
     if (!target) {
-      Alert.alert('購入できません', 'しばらくしてからもう一度お試しください。');
+      Alert.alert(t('paywall.purchaseUnavailable'), t('common.retryLater'));
       return;
     }
 
@@ -73,7 +75,7 @@ export default function PaywallScreen() {
     } catch (error) {
       // ユーザーによるキャンセルはエラーとして見せない
       if (!isUserCancelled(error)) {
-        Alert.alert('購入できませんでした', 'しばらくしてからもう一度お試しください。');
+        Alert.alert(t('paywall.purchaseFailed'), t('common.retryLater'));
       }
     } finally {
       setBusy(false);
@@ -84,9 +86,9 @@ export default function PaywallScreen() {
     setBusy(true);
     try {
       await restore();
-      Alert.alert('復元しました', '購入内容を確認しました。');
+      Alert.alert(t('paywall.restored'), t('paywall.restoredDescription'));
     } catch {
-      Alert.alert('復元できませんでした', '購入履歴が見つかりませんでした。');
+      Alert.alert(t('paywall.restoreFailed'), t('paywall.restoreFailedDescription'));
     } finally {
       setBusy(false);
     }
@@ -105,7 +107,7 @@ export default function PaywallScreen() {
       <View style={{ alignItems: 'flex-end' }}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="閉じる"
+          accessibilityLabel={t('common.close')}
           onPress={() => router.back()}
           hitSlop={8}
         >
@@ -117,11 +119,11 @@ export default function PaywallScreen() {
 
       <View style={{ gap: 8 }}>
         <Text variant="display" style={{ color: theme.ink }}>
-          {headlineFor(trigger)}
+          {t(headlineKeyFor(trigger))}
         </Text>
         {isPro ? (
           <Text variant="body" style={{ color: theme['ink-2'] }}>
-            Yomi Pro をご利用中です
+            {t('paywall.inUse')}
           </Text>
         ) : null}
       </View>
@@ -132,9 +134,9 @@ export default function PaywallScreen() {
         {PLANS.map((plan) => (
           <PlanOption
             key={plan.kind}
-            label={plan.label}
-            price={packageFor(plan.kind)?.product.priceString ?? plan.fallbackPrice}
-            badge={plan.badge}
+            label={t(plan.labelKey)}
+            price={packageFor(plan.kind)?.product.priceString ?? t(plan.fallbackPriceKey)}
+            badge={plan.badgeKey === undefined ? undefined : t(plan.badgeKey)}
             selected={plan.kind === selected}
             onPress={() => setSelected(plan.kind)}
           />
@@ -142,14 +144,14 @@ export default function PaywallScreen() {
       </View>
 
       <Button
-        label={ctaLabelFor(selected)}
+        label={t(ctaLabelKeyFor(selected))}
         onPress={() => void runPurchase()}
         disabled={busy || isPro}
       />
 
       {/* 審査要件: 価格・期間・自動更新の明記 */}
       <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        {renewalNoticeFor(selected)}
+        {t(renewalNoticeKeyFor(selected))}
       </Text>
 
       {/* 審査要件: 利用規約・プライバシーポリシーへのリンク。
@@ -158,7 +160,7 @@ export default function PaywallScreen() {
         {LEGAL_DOCUMENT_IDS.map((id) => (
           <LegalLink
             key={id}
-            label={legalDocument(id).title}
+            label={legalDocument(t, locale, id).title}
             onPress={() => router.push({ pathname: '/legal', params: { doc: id } })}
           />
         ))}
@@ -166,7 +168,7 @@ export default function PaywallScreen() {
 
       {/* 審査要件: 購入を復元 */}
       <Button
-        label="購入を復元"
+        label={t('paywall.restore')}
         variant="secondary"
         onPress={() => void runRestore()}
         disabled={busy}

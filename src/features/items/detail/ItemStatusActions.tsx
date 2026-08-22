@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import type { Item } from '@/db/schema';
-import { Button } from '@/ui';
+import { Button, useTranslation } from '@/ui';
 
 /**
  * 状態に応じてボタンを出し分ける。
@@ -21,19 +21,21 @@ export function ItemStatusActions({
   onArchive: () => void;
   onRestore: () => void;
 }) {
+  const t = useTranslation();
+
   const buttons =
     item.status === 'unread'
       ? [
-          { label: '読んだ', onPress: onRead },
-          { label: 'あとで', onPress: onSnooze },
-          { label: 'アーカイブ', onPress: onArchive },
+          { label: t('item.markRead'), onPress: onRead },
+          { label: t('item.snooze'), onPress: onSnooze },
+          { label: t('item.archive'), onPress: onArchive },
         ]
       : item.status === 'read'
         ? [
-            { label: '未読に戻す', onPress: onRestore },
-            { label: 'アーカイブ', onPress: onArchive },
+            { label: t('item.restore'), onPress: onRestore },
+            { label: t('item.archive'), onPress: onArchive },
           ]
-        : [{ label: '未読に戻す', onPress: onRestore }];
+        : [{ label: t('item.restore'), onPress: onRestore }];
 
   return (
     <View style={{ flexDirection: 'row', gap: 8 }}>

@@ -1,5 +1,6 @@
 import type { Item } from '@/db/schema';
 import { daysBetween } from '@/domain/date/week';
+import type { Translate } from '@/lib/i18n';
 
 /**
  * 表示用の文字列を組み立てる。react-native を import しない純粋モジュール。
@@ -22,6 +23,7 @@ export function displayTitle(item: Pick<Item, 'title' | 'url'>): string {
 
 /** 「zenn.dev · 12日前」の行 */
 export function subtitleOf(
+  t: Translate,
   item: Pick<Item, 'siteName' | 'author' | 'url' | 'savedAt'>,
   now: Date,
 ): string {
@@ -33,7 +35,7 @@ export function subtitleOf(
       ? `@${author.replace(/^@/, '')}`
       : (site ?? hostnameOf(item.url));
 
-  return `${left} · ${relativeDays(daysBetween(item.savedAt, now))}`;
+  return `${left} · ${relativeDays(t, daysBetween(item.savedAt, now))}`;
 }
 
 /** URL のホスト名。パースできない文字列はそのまま返す */
@@ -46,14 +48,13 @@ export function hostnameOf(url: string): string {
 }
 
 /** 「今日」「1日前」「12日前」。煽らないよう淡々と日数だけを出す */
-export function relativeDays(days: number): string {
-  if (days <= 0) return '今日';
-  return `${days}日前`;
+export function relativeDays(t: Translate, days: number): string {
+  return days <= 0 ? t('item.today') : t('item.daysAgo', { count: days });
 }
 
 /** 未読件数の見出し。挨拶ではなく状態を主語にする */
-export function unreadHeadline(count: number): string {
-  return `未読 ${count} 件`;
+export function unreadHeadline(t: Translate, count: number): string {
+  return t('home.unreadHeadline', { count });
 }
 
 /** 「8/22」。年は出さない。詳細画面の狭い行に収めるため */

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Text, type TextProps } from '../Text';
+import { useTranslation } from '../i18n';
 import { useThemeColors } from '../theme';
 
 /**
@@ -22,10 +23,16 @@ export function ScreenHeader({
   onBack: () => void;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <Pressable accessibilityRole="button" accessibilityLabel="戻る" onPress={onBack} hitSlop={8}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('common.back')}
+        onPress={onBack}
+        hitSlop={8}
+      >
         <Text variant="heading" script="latin" style={{ color: theme.ink }}>
           ←
         </Text>

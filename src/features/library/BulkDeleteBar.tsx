@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 
 import { layout, radius } from '@/design/tokens';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * 複数選択中に画面下へ浮かべる削除バー。
@@ -10,6 +10,7 @@ import { Text, useThemeColors } from '@/ui';
  */
 export function BulkDeleteBar({ count, onDelete }: { count: number; onDelete: () => void }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <View
@@ -32,7 +33,7 @@ export function BulkDeleteBar({ count, onDelete }: { count: number; onDelete: ()
         }}
       >
         <Text variant="heading" style={{ color: theme.surface }}>
-          削除 ({count})
+          {t('library.deleteAction', { count })}
         </Text>
       </Pressable>
     </View>

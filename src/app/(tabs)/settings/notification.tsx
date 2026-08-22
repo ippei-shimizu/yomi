@@ -12,13 +12,14 @@ import {
 } from '@/domain/notification';
 import { SettingsRow, SettingsSection } from '@/features/settings/SettingsRow';
 import { useNotificationTimesSetting } from '@/features/settings/useSettings';
-import { Button, ScreenHeader, Text, useThemeColors } from '@/ui';
+import { Button, ScreenHeader, Text, useThemeColors, useTranslation } from '@/ui';
 
 /** 選べる時刻。専用ピッカーを入れずに済ませる */
 const TIME_CHOICES = ['06:00', '07:00', '08:00', '09:00', '12:00', '18:00', '21:00', '22:00'];
 
 export default function NotificationSettingsScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
   const { limits } = useEntitlement();
 
@@ -38,7 +39,7 @@ export default function NotificationSettingsScreen() {
     const exists = times.some((time) => formatTimeOfDay(time) === value);
     if (exists) {
       if (times.length === 1) {
-        Alert.alert('通知時刻は 1 つ以上必要です');
+        Alert.alert(t('notification.atLeastOne'));
         return;
       }
       commit(times.filter((time) => formatTimeOfDay(time) !== value));
@@ -63,20 +64,26 @@ export default function NotificationSettingsScreen() {
         gap: layout.sectionGap,
       }}
     >
-      <ScreenHeader title="今日の 1 本" onBack={() => router.back()} />
+      <ScreenHeader title={t('notification.title')} onBack={() => router.back()} />
 
       <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        {limits.multipleNotificationTimes
-          ? '複数の時刻を設定できます'
-          : '無料プランで設定できる時刻は 1 つです'}
+        {t(
+          limits.multipleNotificationTimes
+            ? 'notification.multipleAllowed'
+            : 'notification.singleOnly',
+        )}
       </Text>
 
-      <SettingsSection title="時刻">
+      <SettingsSection title={t('notification.sectionTimes')}>
         {TIME_CHOICES.map((choice) => (
           <SettingsRow
             key={choice}
             label={choice}
-            value={times.some((time) => formatTimeOfDay(time) === choice) ? '設定中' : undefined}
+            value={
+              times.some((time) => formatTimeOfDay(time) === choice)
+                ? t('notification.enabled')
+                : undefined
+            }
             onPress={() => toggleTime(choice)}
           />
         ))}
@@ -84,7 +91,7 @@ export default function NotificationSettingsScreen() {
 
       {limits.multipleNotificationTimes ? null : (
         <Button
-          label="複数の時刻を設定する"
+          label={t('notification.upgradeForMultiple')}
           variant="secondary"
           onPress={() => router.push({ pathname: '/paywall', params: { trigger: 'settings' } })}
         />

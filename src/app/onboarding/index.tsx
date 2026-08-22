@@ -3,16 +3,17 @@ import { View } from 'react-native';
 
 import { OnboardingLayout } from '@/features/onboarding/OnboardingLayout';
 import { colors, radius } from '@/design/tokens';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useThemeColors, useTranslation } from '@/ui';
 
 /** Onboarding 1/3 コンセプト */
 export default function OnboardingConceptScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <OnboardingLayout
       step={1}
-      primaryLabel="次へ"
+      primaryLabel={t('common.next')}
       onPrimary={() => router.push('/onboarding/share')}
       onSkip={() => router.replace('/(tabs)')}
     >
@@ -40,10 +41,10 @@ export default function OnboardingConceptScreen() {
 
         <View style={{ gap: 12 }}>
           <Text variant="display" style={{ color: theme.ink }}>
-            保存した記事、{'\n'}読めていますか？
+            {t('onboarding.introTitle')}
           </Text>
           <Text variant="body" style={{ color: theme['ink-2'] }}>
-            Yomi は保存する場所ではなく、読み切るための仕組みです。
+            {t('onboarding.introBody')}
           </Text>
         </View>
       </View>

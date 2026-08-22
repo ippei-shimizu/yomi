@@ -1,3 +1,5 @@
+import type { Translate } from '@/lib/i18n';
+
 /**
  * タグ名の正規化と検証。react-native を import しない純粋モジュール。
  *
@@ -32,13 +34,13 @@ export function validateTagName(input: string, existingNames: readonly string[])
   return { ok: true, name };
 }
 
-export function tagNameErrorMessage(error: TagNameError): string {
+export function tagNameErrorMessage(t: Translate, error: TagNameError): string {
   switch (error) {
     case 'empty':
-      return 'タグ名を入力してください';
+      return t('tags.errorEmpty');
     case 'too-long':
-      return `タグ名は ${MAX_TAG_LENGTH} 文字までです`;
+      return t('tags.errorTooLong', { max: MAX_TAG_LENGTH });
     case 'duplicate':
-      return '同じ名前のタグがあります';
+      return t('tags.errorDuplicate');
   }
 }

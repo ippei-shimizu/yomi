@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 
 import { TagNameInput } from '@/features/tags/TagNameInput';
-import { Card, Text, useThemeColors } from '@/ui';
+import { Card, Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * タグ管理画面の 1 行。名前・使用数・削除。
@@ -28,6 +28,7 @@ export function TagManagementRow({
   onDelete: () => void;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <Card>
@@ -50,7 +51,7 @@ export function TagManagementRow({
         ) : (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`${name} の名前を変更`}
+            accessibilityLabel={t('tags.renameAccessibility', { name })}
             onPress={onStartEditing}
             style={{ flex: 1 }}
           >
@@ -65,7 +66,7 @@ export function TagManagementRow({
         </Text>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`${name} を削除`}
+          accessibilityLabel={t('tags.deleteAccessibility', { name })}
           onPress={onDelete}
           hitSlop={8}
         >

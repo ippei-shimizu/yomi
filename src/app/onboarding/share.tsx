@@ -4,20 +4,22 @@ import { View } from 'react-native';
 import { colors, radius } from '@/design/tokens';
 import { OnboardingLayout } from '@/features/onboarding/OnboardingLayout';
 import { useOnboardingCompleted } from '@/features/settings/useSettings';
-import { Card, Text, useThemeColors } from '@/ui';
+import type { MessageKey } from '@/lib/i18n';
+import { Card, Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * Onboarding 2/3 共有シートへの追加手順。
  * Settings の「共有シートの設定方法」からも単体で開く。
  */
-const STEPS = [
-  'Safari や X で共有ボタンを押す',
-  '一覧を右にスクロールして「その他」を押す',
-  '「Yomi」をオンにして、上の方へドラッグする',
-];
+const STEP_KEYS = [
+  'onboarding.shareStep1',
+  'onboarding.shareStep2',
+  'onboarding.shareStep3',
+] as const satisfies readonly MessageKey[];
 
 export default function OnboardingShareScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const [completed] = useOnboardingCompleted();
 
   // Settings から開いた場合は「次へ」ではなく「閉じる」にする
@@ -26,18 +28,18 @@ export default function OnboardingShareScreen() {
   return (
     <OnboardingLayout
       step={2}
-      primaryLabel={isStandalone ? '閉じる' : '次へ'}
+      primaryLabel={t(isStandalone ? 'common.close' : 'common.next')}
       onPrimary={() => (isStandalone ? router.back() : router.push('/onboarding/notify'))}
       onSkip={isStandalone ? undefined : () => router.replace('/(tabs)')}
     >
       <View style={{ flex: 1, justifyContent: 'center', gap: 28 }}>
         <Text variant="display" style={{ color: theme.ink }}>
-          共有シートに追加
+          {t('onboarding.shareTitle')}
         </Text>
 
         <View style={{ gap: 12 }}>
-          {STEPS.map((step, index) => (
-            <Card key={step}>
+          {STEP_KEYS.map((stepKey, index) => (
+            <Card key={stepKey}>
               <View
                 style={{ flexDirection: 'row', gap: 12, padding: 16, alignItems: 'flex-start' }}
               >
@@ -60,7 +62,7 @@ export default function OnboardingShareScreen() {
                   </Text>
                 </View>
                 <Text variant="body" style={{ flex: 1, color: theme.ink }}>
-                  {step}
+                  {t(stepKey)}
                 </Text>
               </View>
             </Card>
@@ -68,7 +70,7 @@ export default function OnboardingShareScreen() {
         </View>
 
         <Text variant="caption" style={{ color: theme['ink-2'] }}>
-          一度追加すれば、次からは共有ボタンから 2 タップで保存できます。
+          {t('onboarding.shareFooter')}
         </Text>
       </View>
     </OnboardingLayout>

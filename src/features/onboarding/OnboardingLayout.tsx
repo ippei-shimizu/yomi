@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, layout, radius } from '@/design/tokens';
-import { Button, Text, useThemeColors } from '@/ui';
+import { Button, Text, useThemeColors, useTranslation } from '@/ui';
 
 export const ONBOARDING_STEPS = 3;
 
@@ -29,6 +29,7 @@ export function OnboardingLayout({
   onSkip?: () => void;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
 
   return (
@@ -58,7 +59,7 @@ export function OnboardingLayout({
         {onSkip === undefined ? null : (
           <Pressable accessibilityRole="button" onPress={onSkip} hitSlop={8}>
             <Text variant="caption" style={{ color: theme['ink-2'] }}>
-              スキップ
+              {t('onboarding.skip')}
             </Text>
           </Pressable>
         )}

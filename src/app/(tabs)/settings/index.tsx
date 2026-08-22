@@ -3,6 +3,7 @@ import { Alert, Linking, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { THEME_PREFERENCES, type ThemePreference } from '@/design/scheme';
+import { LOCALE_PREFERENCES, type LocalePreference, type MessageKey } from '@/lib/i18n';
 import { layout } from '@/design/tokens';
 import { useEntitlement, usePurchaseActions } from '@/domain/entitlement';
 import { LEGAL_DOCUMENT_IDS, legalDocument } from '@/features/legal/documents';
@@ -10,22 +11,31 @@ import { SUPPORT_URL } from '@/features/settings/appInfo';
 import { ProBanner } from '@/features/settings/ProBanner';
 import { SettingsRow, SettingsSection } from '@/features/settings/SettingsRow';
 import {
+  useLocaleSetting,
   useNotificationTimesSetting,
   useReadConfirmSetting,
   useThemeSetting,
 } from '@/features/settings/useSettings';
 import { VersionRow } from '@/features/settings/VersionRow';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useLocale, useThemeColors, useTranslation } from '@/ui';
 import { useQueryClient } from '@tanstack/react-query';
 
-const THEME_LABELS: Record<ThemePreference, string> = {
-  system: 'システム',
-  light: 'ライト',
-  dark: 'ダーク',
+const THEME_LABEL_KEYS: Record<ThemePreference, MessageKey> = {
+  system: 'settings.themeSystem',
+  light: 'settings.themeLight',
+  dark: 'settings.themeDark',
+};
+
+const LOCALE_LABEL_KEYS: Record<LocalePreference, MessageKey> = {
+  system: 'settings.languageSystem',
+  ja: 'settings.languageJa',
+  en: 'settings.languageEn',
 };
 
 export default function SettingsScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
+  const locale = useLocale();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
 
@@ -37,6 +47,7 @@ export default function SettingsScreen() {
   const [readConfirm, setReadConfirm] = useReadConfirmSetting();
   const [notificationTimes] = useNotificationTimesSetting();
   const [themePreference, setThemePreference] = useThemeSetting();
+  const [localePreference, setLocalePreference] = useLocaleSetting();
 
   return (
     <ScrollView
@@ -49,7 +60,7 @@ export default function SettingsScreen() {
       }}
     >
       <Text variant="display" style={{ color: theme.ink }}>
-        設定
+        {t('settings.title')}
       </Text>
 
       {isPro ? null : (
@@ -58,26 +69,29 @@ export default function SettingsScreen() {
         />
       )}
 
-      <SettingsSection title="通知">
+      <SettingsSection title={t('settings.sectionNotification')}>
         <SettingsRow
-          label="今日の 1 本"
+          label={t('settings.dailyPick')}
           value={notificationTimes}
           onPress={() => router.push('/(tabs)/settings/notification')}
         />
         <SettingsRow
-          label="読了確認シート"
+          label={t('settings.readConfirm')}
           toggle={{ value: readConfirm, onChange: setReadConfirm }}
         />
       </SettingsSection>
 
-      <SettingsSection title="整理">
-        <SettingsRow label="タグ管理" onPress={() => router.push('/(tabs)/settings/tags')} />
+      <SettingsSection title={t('settings.sectionOrganize')}>
         <SettingsRow
-          label="エクスポート (JSON / CSV)"
+          label={t('settings.tags')}
+          onPress={() => router.push('/(tabs)/settings/tags')}
+        />
+        <SettingsRow
+          label={t('settings.export')}
           onPress={() => router.push('/(tabs)/settings/export')}
         />
         <SettingsRow
-          label="URL をまとめて追加"
+          label={t('settings.import')}
           badge={limits.urlImport ? undefined : 'Pro'}
           onPress={() =>
             limits.urlImport
@@ -87,44 +101,62 @@ export default function SettingsScreen() {
         />
       </SettingsSection>
 
-      <SettingsSection title="表示">
+      <SettingsSection title={t('settings.sectionDisplay')}>
         <SettingsRow
-          label="テーマ"
-          value={THEME_LABELS[themePreference]}
+          label={t('settings.theme')}
+          value={t(THEME_LABEL_KEYS[themePreference])}
           onPress={() =>
-            Alert.alert('テーマ', undefined, [
+            Alert.alert(t('settings.theme'), undefined, [
               // 選べる値は THEME_PREFERENCES から作る。増えたときに出し忘れない
               ...THEME_PREFERENCES.map((preference) => ({
-                text: THEME_LABELS[preference],
+                text: t(THEME_LABEL_KEYS[preference]),
                 onPress: () => setThemePreference(preference),
               })),
-              { text: 'やめる', style: 'cancel' as const },
+              { text: t('common.cancel'), style: 'cancel' as const },
+            ])
+          }
+        />
+        <SettingsRow
+          label={t('settings.language')}
+          value={t(LOCALE_LABEL_KEYS[localePreference])}
+          onPress={() =>
+            Alert.alert(t('settings.language'), undefined, [
+              ...LOCALE_PREFERENCES.map((preference) => ({
+                text: t(LOCALE_LABEL_KEYS[preference]),
+                onPress: () => setLocalePreference(preference),
+              })),
+              { text: t('common.cancel'), style: 'cancel' as const },
             ])
           }
         />
       </SettingsSection>
 
-      <SettingsSection title="サポート">
+      <SettingsSection title={t('settings.sectionSupport')}>
         <SettingsRow
-          label="共有シートの設定方法"
+          label={t('settings.shareSheetHowTo')}
           onPress={() => router.push('/onboarding/share')}
         />
-        <SettingsRow label="お問い合わせ" onPress={() => void Linking.openURL(SUPPORT_URL)} />
         <SettingsRow
-          label="購入を復元"
+          label={t('settings.contact')}
+          onPress={() => void Linking.openURL(SUPPORT_URL)}
+        />
+        <SettingsRow
+          label={t('settings.restore')}
           onPress={() => {
             void restore()
-              .then(() => Alert.alert('復元しました', '購入内容を確認しました。'))
-              .catch(() => Alert.alert('復元できませんでした', '購入履歴が見つかりませんでした。'));
+              .then(() => Alert.alert(t('settings.restored'), t('settings.restoredDescription')))
+              .catch(() =>
+                Alert.alert(t('settings.restoreFailed'), t('settings.restoreFailedDescription')),
+              );
           }}
         />
       </SettingsSection>
 
-      <SettingsSection title="情報">
+      <SettingsSection title={t('settings.sectionInfo')}>
         {LEGAL_DOCUMENT_IDS.map((id) => (
           <SettingsRow
             key={id}
-            label={legalDocument(id).title}
+            label={legalDocument(t, locale, id).title}
             onPress={() => router.push({ pathname: '/legal', params: { doc: id } })}
           />
         ))}

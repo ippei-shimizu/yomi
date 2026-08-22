@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TextInput, View } from 'react-native';
 
 import { radius, typography } from '@/design/tokens';
-import { BottomSheet, Button, Text, useThemeColors } from '@/ui';
+import { BottomSheet, Button, Text, useThemeColors, useTranslation } from '@/ui';
 
 import { normalizeMemo } from './readConfirm';
 
@@ -22,17 +22,18 @@ export function MemoSheet({
   onSkip: () => void;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const [value, setValue] = useState(initialValue);
 
   return (
     <BottomSheet visible={visible} onRequestClose={onSkip} dismissOnBackdropPress={false}>
       <Text variant="heading" style={{ color: theme.ink }}>
-        ひとこと残す（任意）
+        {t('read.memoTitle')}
       </Text>
       <TextInput
         value={value}
         onChangeText={setValue}
-        placeholder="何を得た？"
+        placeholder={t('item.memoPlaceholder')}
         placeholderTextColor={theme['ink-3']}
         autoFocus
         multiline
@@ -47,10 +48,10 @@ export function MemoSheet({
       />
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View style={{ flex: 2 }}>
-          <Button label="保存" onPress={() => onSave(normalizeMemo(value))} />
+          <Button label={t('common.save')} onPress={() => onSave(normalizeMemo(value))} />
         </View>
         <View style={{ flex: 1 }}>
-          <Button label="スキップ" variant="secondary" onPress={onSkip} />
+          <Button label={t('common.skip')} variant="secondary" onPress={onSkip} />
         </View>
       </View>
     </BottomSheet>

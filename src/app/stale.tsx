@@ -10,7 +10,7 @@ import { useEntitlement } from '@/domain/entitlement';
 import { useItemActions, useStaleItems } from '@/features/items/queries';
 import { StaleActionBar } from '@/features/stale/StaleActionBar';
 import { StaleRow } from '@/features/stale/StaleRow';
-import { EmptyState, ScreenHeader, Text, useThemeColors } from '@/ui';
+import { EmptyState, ScreenHeader, Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * 放置アイテムの一括整理。
@@ -18,6 +18,7 @@ import { EmptyState, ScreenHeader, Text, useThemeColors } from '@/ui';
  */
 export default function StaleItemsScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
   const { limits } = useEntitlement();
 
@@ -71,14 +72,14 @@ export default function StaleItemsScreen() {
         }}
       >
         <ScreenHeader
-          title="30日以上放置"
+          title={t('stale.title')}
           titleVariant="heading"
           onBack={() => router.back()}
           trailing={
             items.length === 0 ? null : (
               <Pressable accessibilityRole="button" onPress={selectAll} hitSlop={8}>
                 <Text variant="body" style={{ color: theme.ink }}>
-                  {selected.size === items.length ? '選択解除' : 'すべて選択'}
+                  {t(selected.size === items.length ? 'stale.deselectAll' : 'stale.selectAll')}
                 </Text>
               </Pressable>
             )
@@ -96,10 +97,7 @@ export default function StaleItemsScreen() {
         }}
         ListEmptyComponent={
           isLoading ? null : (
-            <EmptyState
-              title="放置しているものはありません"
-              description="30 日を超えた未読があるとここに集まります"
-            />
+            <EmptyState title={t('stale.emptyTitle')} description={t('stale.emptyDescription')} />
           )
         }
       />

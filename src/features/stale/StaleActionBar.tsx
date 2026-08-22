@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import { layout } from '@/design/tokens';
-import { Button } from '@/ui';
+import { Button, useTranslation } from '@/ui';
 
 /**
  * 放置整理の下部バー。「捨てる」と「今週読む」を対等に並べる。
@@ -19,6 +19,8 @@ export function StaleActionBar({
   onArchive: () => void;
   onBump: () => void;
 }) {
+  const t = useTranslation();
+
   return (
     <View
       style={{
@@ -32,14 +34,14 @@ export function StaleActionBar({
     >
       <View style={{ flex: 1 }}>
         <Button
-          label={`アーカイブ (${count})`}
+          label={t('stale.archiveAction', { count })}
           variant="secondary"
           onPress={onArchive}
           disabled={count === 0}
         />
       </View>
       <View style={{ flex: 1 }}>
-        <Button label={`今週読む (${count})`} onPress={onBump} disabled={count === 0} />
+        <Button label={t('stale.bumpAction', { count })} onPress={onBump} disabled={count === 0} />
       </View>
     </View>
   );

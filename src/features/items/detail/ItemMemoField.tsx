@@ -5,25 +5,26 @@ import { useDatabase } from '@/db/DatabaseProvider';
 import { itemRepo } from '@/db/repositories';
 import type { Item } from '@/db/schema';
 import { radius, typography } from '@/design/tokens';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * 読了メモ。フォーカスを外した時点で保存する（保存ボタンを置かない）。
  */
 export function ItemMemoField({ item, onSaved }: { item: Item; onSaved: () => void }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const db = useDatabase();
   const [value, setValue] = useState(item.memo ?? '');
 
   return (
     <View style={{ gap: 8 }}>
       <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        メモ
+        {t('item.memo')}
       </Text>
       <TextInput
         value={value}
         onChangeText={setValue}
-        placeholder="何を得た？"
+        placeholder={t('item.memoPlaceholder')}
         placeholderTextColor={theme['ink-3']}
         multiline
         onBlur={() => {

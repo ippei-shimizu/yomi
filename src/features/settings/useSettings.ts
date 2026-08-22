@@ -1,5 +1,6 @@
 import { parseThemePreference, type ThemePreference } from '@/design/scheme';
 import { DEFAULT_NOTIFICATION_TIME } from '@/domain/notification/schedule';
+import { parseLocalePreference, type LocalePreference } from '@/lib/i18n';
 import { storageKeys } from '@/lib/storage';
 import { useStoredBoolean, useStoredString } from '@/lib/useStoredValue';
 
@@ -20,6 +21,11 @@ export function useNotificationTimesSetting() {
 export function useThemeSetting(): [ThemePreference, (value: ThemePreference) => void] {
   const [raw, set] = useStoredString(storageKeys.theme, 'system');
   return [parseThemePreference(raw), set];
+}
+
+export function useLocaleSetting(): [LocalePreference, (value: LocalePreference) => void] {
+  const [raw, set] = useStoredString(storageKeys.locale, 'system');
+  return [parseLocalePreference(raw), set];
 }
 
 export function useOnboardingCompleted() {

@@ -7,6 +7,7 @@ import {
   gt,
   inArray,
   isNull,
+  lt,
   lte,
   or,
   sql,
@@ -25,6 +26,9 @@ export const FREE_PLAN_ITEM_LIMIT = 50;
 
 /** 「放置」と見なす日数（docs/PRD.md §5.1 F11） */
 export const STALE_THRESHOLD_DAYS = 30;
+
+/** メタ取得のリトライ上限（docs/DesignDoc.md §5.2） */
+export const META_MAX_RETRY = 3;
 
 export type UnreadOrder = 'oldest' | 'newest';
 
@@ -188,6 +192,104 @@ export function countForLimit(db: YomiDatabase): number {
 
 export function canSave(db: YomiDatabase, isPro: boolean): boolean {
   return isPro || countForLimit(db) < FREE_PLAN_ITEM_LIMIT;
+}
+
+/** MetaFetchWorker の対象（docs/DesignDoc.md §5.2） */
+export function listPendingMeta(
+  db: YomiDatabase,
+  limit: number,
+  maxRetry = META_MAX_RETRY,
+): Item[] {
+  return db
+    .select()
+    .from(items)
+    .where(and(eq(items.metaStatus, 'pending'), lt(items.metaRetryCount, maxRetry)))
+    .orderBy(asc(items.savedAt))
+    .limit(limit)
+    .all();
+}
+
+/** メタ取得に成功したときの反映 */
+export function applyMetadata(
+  db: YomiDatabase,
+  id: string,
+  metadata: Partial<Pick<Item, 'title' | 'description' | 'thumbnailUrl' | 'siteName' | 'author'>>,
+  now = new Date(),
+): void {
+  db.update(items)
+    .set({ ...metadata, metaStatus: 'done', updatedAt: now })
+    .where(eq(items.id, id))
+    .run();
+}
+
+/**
+ * メタ取得に失敗したときのリトライ加算。
+ * META_MAX_RETRY 回で failed にして、それ以上は対象にしない。
+ */
+export function recordMetaFailure(db: YomiDatabase, id: string, now = new Date()): void {
+  db.transaction((tx) => {
+    const current = tx
+      .select({ metaRetryCount: items.metaRetryCount })
+      .from(items)
+      .where(eq(items.id, id))
+      .get();
+    if (!current) return;
+
+    const nextCount = current.metaRetryCount + 1;
+    tx.update(items)
+      .set({
+        metaRetryCount: nextCount,
+        metaStatus: nextCount >= META_MAX_RETRY ? 'failed' : 'pending',
+        updatedAt: now,
+      })
+      .where(eq(items.id, id))
+      .run();
+  });
+}
+
+/** 詳細画面の「メタデータを再取得」。リトライ回数をリセットして対象に戻す */
+export function resetMetaStatus(db: YomiDatabase, id: string, now = new Date()): void {
+  db.update(items)
+    .set({ metaStatus: 'pending', metaRetryCount: 0, updatedAt: now })
+    .where(eq(items.id, id))
+    .run();
+}
+
+/**
+ * 短縮 URL の展開後に url / url_hash を更新する（docs/DesignDoc.md §5.5）。
+ *
+ * 展開先が既に保存済みだった場合は統合する。**古い方（先に保存された方）を残し**、
+ * 新しい方を削除する。保存日が古い方がユーザーの「溜めている」実感に近く、
+ * 未読キューの並びも保たれるため。
+ *
+ * @returns 統合が起きて自身が削除されたら 'merged'、更新できたら 'updated'
+ */
+export function applyExpandedUrl(
+  db: YomiDatabase,
+  id: string,
+  expandedUrl: string,
+  expandedHash: string,
+  now = new Date(),
+): 'updated' | 'merged' {
+  return db.transaction((tx) => {
+    const existing = tx
+      .select({ id: items.id, savedAt: items.savedAt })
+      .from(items)
+      .where(eq(items.urlHash, expandedHash))
+      .get();
+
+    if (existing && existing.id !== id) {
+      // 展開先が既にある。新しい方（この id）を捨てて古い方に寄せる
+      tx.delete(items).where(eq(items.id, id)).run();
+      return 'merged';
+    }
+
+    tx.update(items)
+      .set({ url: expandedUrl, urlHash: expandedHash, updatedAt: now })
+      .where(eq(items.id, id))
+      .run();
+    return 'updated';
+  });
 }
 
 export function markRead(

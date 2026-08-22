@@ -10,7 +10,7 @@ import { NotchedCard } from './NotchedCard';
 const CARD_HEIGHT = 160;
 
 /**
- * Today's Pick（docs/DesignGuideline.md §6）。
+ * Today's Pick。
  *
  * 塗りはそのアイテムのソースカラーなので毎日色が変わる。
  * **切り欠きは Yomi 内でこのカードにだけ使う。**
@@ -80,7 +80,7 @@ export function TodaysPickCard({
         </Pressable>
       </NotchedCard>
 
-      {/* 切り欠きの内側に置く白い丸ボタン。ここをタップで Browser（§6） */}
+      {/* 切り欠きの内側に置く白い丸ボタン。ここをタップでブラウザを開く */}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="開く"

@@ -1,6 +1,6 @@
 /**
- * 無料プランの上限（docs/PRD.md §7.5）。
- * react-native を import しない純粋モジュール（R-UI5）。
+ * 無料プランの上限。
+ * react-native を import しない純粋モジュール。
  */
 
 import { itemRepo, tagRepo } from '@/db/repositories';
@@ -56,7 +56,7 @@ export function remainingSaves(db: YomiDatabase, isPro: boolean): number | null 
   return Math.max(0, limit - itemRepo.countForLimit(db));
 }
 
-/** 「残り n 件」バナーを出すしきい値（docs/Screens.md S02） */
+/** 「残り n 件」バナーを出すしきい値 */
 export const LIMIT_WARNING_REMAINING = 5;
 
 export function shouldWarnAboutLimit(remaining: number | null): boolean {

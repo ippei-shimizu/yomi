@@ -8,7 +8,7 @@ import { SourceIcon, StaleBadge, Text, useThemeColors } from '@/ui';
 import { displayTitle, subtitleOf } from './display';
 
 /**
- * リスト 1 行（docs/DesignGuideline.md §8）。
+ * リスト 1 行。
  * 行高 76、サムネ 56、左にソースアイコン、右に放置バッジ。
  */
 export function ItemRow({ item, now = new Date() }: { item: Item; now?: Date }) {
@@ -25,7 +25,7 @@ export function ItemRow({ item, now = new Date() }: { item: Item; now?: Date }) 
         paddingHorizontal: 12,
         borderRadius: radius.card,
         backgroundColor: theme.surface,
-        // スヌーズ中は末尾に薄く表示する（docs/Screens.md S02）
+        // スヌーズ中は末尾に薄く表示する
         opacity: isSnoozed ? 0.5 : 1,
       }}
     >

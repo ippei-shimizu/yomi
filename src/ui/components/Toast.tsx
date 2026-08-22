@@ -5,7 +5,7 @@ import { useThemeColors } from '../theme';
 import { colors, radius } from '@/design/tokens';
 
 /**
- * トースト（docs/DesignGuideline.md §8）。
+ * トースト。
  * ink 塗りの pill、白文字、左に ok のチェック。
  */
 export function Toast({ message }: { message: string }) {

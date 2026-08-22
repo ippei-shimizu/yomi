@@ -11,7 +11,7 @@ describe('displayTitle', () => {
     );
   });
 
-  // メタ取得前・失敗時のフォールバック（docs/DesignDoc.md §5.2）
+  // メタ取得前・失敗時のフォールバック
   it.each([null, '', '   '])('タイトルが %o ならホスト名にする', (title) => {
     expect(displayTitle({ title, url: 'https://zenn.dev/foo/articles/bar' })).toBe('zenn.dev');
   });
@@ -62,7 +62,7 @@ describe('relativeDays', () => {
     expect(relativeDays(days)).toBe(expected);
   });
 
-  // 煽らない（docs/DesignGuideline.md §7）
+  // 煽らない
   it('感嘆符や絵文字を含まない', () => {
     for (const days of [0, 1, 30, 100]) {
       expect(relativeDays(days)).not.toMatch(/[!！🎉🔥]/u);
@@ -71,7 +71,7 @@ describe('relativeDays', () => {
 });
 
 describe('unreadHeadline', () => {
-  it('挨拶ではなく状態を出す（docs/DesignGuideline.md §7）', () => {
+  it('挨拶ではなく状態を出す', () => {
     expect(unreadHeadline(23)).toBe('未読 23 件');
     expect(unreadHeadline(0)).toBe('未読 0 件');
   });

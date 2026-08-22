@@ -13,7 +13,7 @@ import { useItemActions, useStaleItems } from '@/features/items/queries';
 import { Button, EmptyState, Text, useThemeColors } from '@/ui';
 
 /**
- * S10 Stale Items（docs/Screens.md S10）。
+ * 放置アイテムの一括整理。
  * 30 日超の未読を「読むか捨てるか」判断させる。
  */
 export default function StaleItemsScreen() {
@@ -40,7 +40,7 @@ export default function StaleItemsScreen() {
     );
   };
 
-  /** 一括操作は Pro（docs/PRD.md §7.5）。無料は一覧の閲覧まで */
+  /** 一括操作は Pro。無料は一覧の閲覧まで */
   const runBulk = (action: 'archive' | 'bump') => {
     if (!limits.staleBulkAction) {
       router.push({ pathname: '/paywall', params: { trigger: 'stale_bulk' } });

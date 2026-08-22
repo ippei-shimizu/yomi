@@ -8,7 +8,7 @@ import { readOverride, type OverrideState } from './devOverride';
 import { limitsFor, type PlanLimits } from './plan';
 
 /**
- * Pro 判定（docs/DesignDoc.md §5.3）。
+ * Pro 判定。
  *
  * **設計原則 4: useEntitlement() 以外で RevenueCat を参照しない。**
  * 判定が散ると Dev override との整合が取れず、上限判定にも抜けが出る。
@@ -25,7 +25,7 @@ export type Entitlement = {
 };
 
 export function configurePurchases(apiKey: string): void {
-  // アカウント機能が無いため匿名 ID を使う（docs/DesignDoc.md §5.3）
+  // アカウント機能が無いため匿名 ID を使う
   Purchases.configure({ apiKey, appUserID: undefined });
 }
 

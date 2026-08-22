@@ -14,7 +14,7 @@ import {
 import { Card, Text, useThemeColors } from '@/ui';
 import { useQueryClient } from '@tanstack/react-query';
 
-/** バージョン表記を何回タップで Dev Unlock を開くか（docs/Screens.md S11） */
+/** バージョン表記を何回タップで Dev Unlock を開くか */
 const DEV_UNLOCK_TAP_COUNT = 7;
 
 const APP_VERSION = '0.1.0';
@@ -144,7 +144,7 @@ export default function SettingsScreen() {
   );
 }
 
-/** 7 回タップで Dev Unlock（docs/Screens.md S11 / S13） */
+/** 7 回タップで Dev Unlock */
 function VersionRow() {
   const theme = useThemeColors();
   const taps = useRef(0);

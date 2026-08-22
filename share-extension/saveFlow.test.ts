@@ -61,7 +61,7 @@ describe('save: URL の受け取り', () => {
     expect(itemRepo.listUnread(db, { now: NOW })[0]?.metaStatus).toBe('pending');
   });
 
-  it('タイトルもタグも空のまま保存できる（US-2）', () => {
+  it('タイトルもタグも空のまま保存できる', () => {
     save(db, { url: 'https://zenn.dev/a' }, { isPro: false, now: NOW });
     expect(itemRepo.listUnread(db, { now: NOW })[0]?.title).toBeNull();
   });
@@ -86,7 +86,7 @@ describe('save: 失敗の扱い', () => {
     );
   });
 
-  it('正規化して同じになる URL も duplicate（docs/PRD.md §7.1）', () => {
+  it('正規化して同じになる URL も duplicate', () => {
     save(db, { url: 'https://twitter.com/foo/status/1?s=20' }, { isPro: false, now: NOW });
     expect(save(db, { url: 'https://x.com/foo/status/1' }, { isPro: false, now: NOW }).state).toBe(
       'duplicate',
@@ -104,7 +104,7 @@ describe('save: 失敗の扱い', () => {
   });
 });
 
-describe('save: 保存上限（docs/PRD.md §7.5）', () => {
+describe('save: 保存上限', () => {
   function fill(count: number) {
     for (let i = 0; i < count; i += 1) {
       save(db, { url: `https://zenn.dev/a/${i}` }, { isPro: true, now: NOW });

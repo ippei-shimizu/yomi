@@ -3,7 +3,7 @@ import { Pressable, TextInput, View } from 'react-native';
 import { colors, radius, typography } from '@/design/tokens';
 import { Text, useThemeColors } from '@/ui';
 
-/** 検索バー（docs/DesignGuideline.md §1: 白 pill、左に虫眼鏡、右に brand のフィルタボタン） */
+/** 検索バー。白 pill、左に虫眼鏡、右に brand のフィルタボタン */
 export function SearchBar({
   value,
   onChangeText,

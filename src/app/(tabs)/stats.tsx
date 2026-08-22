@@ -19,7 +19,6 @@ import { Card, SectionHeader, Text, useThemeColors } from '@/ui';
 
 const CHART_HEIGHT = 96;
 
-/** S09 Stats（docs/Screens.md S09） */
 export default function StatsScreen() {
   const theme = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -152,7 +151,7 @@ function StatCard({
           <Text variant="caption" style={{ color: '#FFFFFF', opacity: 0.85 }}>
             {label}
           </Text>
-          {/* 数字は Outfit（docs/DesignGuideline.md §4） */}
+          {/* 数字は Outfit を使う */}
           <Text variant="display" script="latin" style={{ color: '#FFFFFF' }}>
             {value}
           </Text>
@@ -165,7 +164,7 @@ function StatCard({
   );
 }
 
-/** 保存（薄）/ 読了（濃）の棒グラフ（docs/Screens.md S09） */
+/** 保存（薄）/ 読了（濃）の棒グラフ */
 function WeeklyChart({ weeks }: { weeks: { weekStart: Date; saved: number; read: number }[] }) {
   const theme = useThemeColors();
   const bars = weekBars(weeks, CHART_HEIGHT);

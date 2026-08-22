@@ -45,7 +45,7 @@ export function useLibraryFilter() {
  * 検索を実行する。
  *
  * 入力のたびにクエリを投げないよう useDeferredValue で遅らせる。
- * 5,000 件でも 500ms 以内という要件（docs/PRD.md §8）があるため、
+ * 5,000 件でも 500ms 以内という要件があるため、
  * 打鍵ごとの実行は避ける。
  */
 export function useSearchResults(status: ItemStatus, filter: LibraryFilter, includeMemo: boolean) {

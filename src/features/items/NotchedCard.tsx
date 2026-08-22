@@ -7,9 +7,9 @@ import { layout, radius } from '@/design/tokens';
 import { notchedPath } from './notchedPath';
 
 /**
- * 右辺に丸い切り欠きを持つカード（docs/DesignGuideline.md §6）。
+ * 右辺に丸い切り欠きを持つカード。
  *
- * **Yomi 内で Today's Pick にだけ使う。1 画面に 1 つだけ**（§9）。
+ * **Yomi 内で Today's Pick にだけ使う。1 画面に 1 つだけ**。
  * 切り欠きの内側に白い丸ボタンを置くため、背景を SVG の Path で描いて
  * その部分をくり抜く。
  */

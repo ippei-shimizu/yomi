@@ -57,7 +57,7 @@ describe('toCsvRow', () => {
 });
 
 describe('buildCsv', () => {
-  it('ヘッダ行が docs/PRD.md §7.6 の列と一致する', () => {
+  it('ヘッダ行が仕様の列と一致する', () => {
     const csv = buildCsv([]);
     expect(csv.replace(UTF8_BOM, '').split('\n')[0]).toBe(CSV_HEADER.join(','));
   });

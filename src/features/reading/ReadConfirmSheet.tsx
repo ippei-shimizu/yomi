@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { BottomSheet, Button, Text, useThemeColors } from '@/ui';
 
-/** S05 読了確認シート。ボタンは動詞にする（docs/DesignGuideline.md §7） */
+/** 読了確認シート。ボタンは動詞にする */
 export function ReadConfirmSheet({
   visible,
   onRead,

@@ -71,7 +71,7 @@ function clean(value: string | undefined): string | undefined {
 }
 
 /**
- * OGP を拾い、無ければ <title> にフォールバックする（docs/DesignDoc.md §5.2）。
+ * OGP を拾い、無ければ <title> にフォールバックする。
  *
  * head の終わりで打ち切る。body 内の meta タグは OGP ではないうえ、
  * 走査量を減らせる。

@@ -1,8 +1,8 @@
 /**
- * Today's Pick のノッチ形状（docs/DesignGuideline.md §6）。
+ * Today's Pick のノッチ形状。
  *
  * react-native を import しない純粋なモジュールにしてある。Node から
- * テストするため（R-UI5）。描画側は NotchedCard.tsx。
+ * テストするため。描画側は NotchedCard.tsx。
  */
 /**
  * 角丸 + 右辺の円形切り欠きを持つパスを作る。

@@ -2,8 +2,7 @@
  * UUID v7（RFC 9562）。items.id / tags.id / read_logs.id に使う。
  *
  * 先頭 48bit がミリ秒精度の Unix 時刻なので、id でソートすると保存順に
- * 並ぶ。将来 iCloud 同期に移行する際の衝突耐性も確保できる
- * （docs/DesignDoc.md §4.1 / §7.4）。
+ * 並ぶ。将来 iCloud 同期に移行する際の衝突耐性も確保できる。
  *
  *   0                   1                   2                   3
  *  |          unix_ts_ms (48bit)           | ver |   rand_a      |

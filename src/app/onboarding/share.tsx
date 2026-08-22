@@ -7,8 +7,8 @@ import { useOnboardingCompleted } from '@/features/settings/useSettings';
 import { Card, Text, useThemeColors } from '@/ui';
 
 /**
- * S01 2/3 共有シートへの追加手順。
- * Settings の「共有シートの設定方法」からも単体で開く（docs/Screens.md S11）。
+ * Onboarding 2/3 共有シートへの追加手順。
+ * Settings の「共有シートの設定方法」からも単体で開く。
  */
 const STEPS = [
   'Safari や X で共有ボタンを押す',

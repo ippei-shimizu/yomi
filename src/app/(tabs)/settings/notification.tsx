@@ -40,7 +40,7 @@ export default function NotificationSettingsScreen() {
       return;
     }
 
-    // 無料プランは 1 つだけ（docs/PRD.md §7.5）
+    // 無料プランは 1 つだけ
     if (!limits.multipleNotificationTimes) {
       commit([parsed]);
       return;
@@ -108,6 +108,6 @@ function parseTimes(raw: string): TimeOfDay[] {
     .map((value) => parseTimeOfDay(value))
     .filter((time): time is TimeOfDay => time !== null);
 
-  // 壊れていても通知が止まらないよう既定値に倒す（R-SEC9）
+  // 壊れていても通知が止まらないよう既定値に倒す
   return parsed.length > 0 ? parsed : [{ hour: 8, minute: 0 }];
 }

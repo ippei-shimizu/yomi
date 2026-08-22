@@ -10,7 +10,7 @@ import { useItemTags, useTagActions, useTags } from './queries';
 import { tagNameErrorMessage, validateTagName } from './tagName';
 
 /**
- * S07 Tag Picker Sheet（docs/Screens.md S07）。
+ * タグ選択シート。
  * 新規タグの作成と、既存タグの付け外し。
  */
 export function TagPickerSheet({
@@ -138,7 +138,7 @@ export function TagPickerSheet({
 
       {atTagLimit ? (
         <Pressable accessibilityRole="button" onPress={onRequestPaywall}>
-          {/* 事実だけを書く（docs/DesignGuideline.md §7） */}
+          {/* 事実だけを書く */}
           <Text variant="caption" style={{ color: theme['ink-2'] }}>
             無料プランのタグは {tagRepo.FREE_PLAN_TAG_LIMIT} 個までです
           </Text>

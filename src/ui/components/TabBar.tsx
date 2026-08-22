@@ -4,13 +4,13 @@ import { Text } from '../Text';
 import { colors, layout, radius } from '@/design/tokens';
 
 /**
- * 浮いた pill 型タブバー（docs/DesignGuideline.md §5）。
+ * 浮いた pill 型タブバー。
  *
  * 幅は画面幅 − 40、高さ 64、下から 24pt 浮かせる。背景は brand。
  * **アイコンのみでラベルは出さない**。選択中は下に 4pt の白ドット。
  *
  * このバーがコンテンツに重なるため、各リストは下端に
- * layout.listBottomInset の余白を空けること（R-UI4）。
+ * layout.listBottomInset の余白を空けること。
  */
 /**
  * expo-router の tabBar に渡ってくる props のうち、このバーが実際に使う部分だけ。

@@ -4,11 +4,11 @@ import type { Source } from '@/domain/url';
 import type { PaywallTrigger } from '@/domain/entitlement/plan';
 
 /**
- * 分析イベント（docs/DesignDoc.md §7.3）。
+ * 分析イベント。
  *
  * **個人特定情報・URL・タイトルは送らない。** 送ってよいのは下の型で
  * 定義したプロパティだけ。型で縛ることで、呼び出し側が任意の値を
- * 混ぜられないようにする（R-SEC1）。
+ * 混ぜられないようにする。
  *
  * 本体アプリでのみ初期化する。Share Extension では初期化しない。
  */

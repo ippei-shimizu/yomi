@@ -4,7 +4,7 @@ import type { YomiDatabase } from '@/db/types';
 import { detectSource, extractFirstUrl, normalizeUrl, urlHash } from '@/domain/url';
 
 /**
- * Share Extension の保存処理（docs/DesignDoc.md §5.1）。
+ * Share Extension の保存処理。
  *
  * UI と切り離した純粋なロジックにして、Node からテストできるようにしてある。
  * **ネットワークアクセスは一切行わない。** メタ取得は本体側の

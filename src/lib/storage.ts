@@ -1,7 +1,7 @@
 import { createMMKV } from 'react-native-mmkv';
 
 /**
- * 端末内の設定値（docs/DesignDoc.md §6）。
+ * 端末内の設定値。
  * アイテムのデータは SQLite に持ち、ここには設定と一時的な状態だけを置く。
  */
 const storage = createMMKV({ id: 'yomi' });
@@ -12,7 +12,7 @@ export const storageKeys = {
   notificationTimes: 'settings:notificationTimes',
   theme: 'settings:theme',
   unreadOrder: 'home:unreadOrder',
-  /** Today's Pick の引き直し回数。日付が変わればリセットする（§5.6） */
+  /** Today's Pick の引き直し回数。日付が変わればリセットする */
   pickNonce: (dateKey: string) => `pick:${dateKey}`,
 } as const;
 

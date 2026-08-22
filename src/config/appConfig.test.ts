@@ -15,11 +15,11 @@ describe('app.config.ts', () => {
     expect(groups).toEqual([APP_GROUP]);
   });
 
-  it('bundleIdentifier が docs/DesignDoc.md §7.1 のとおり', () => {
+  it('bundleIdentifier が想定どおり', () => {
     expect(appConfig.ios?.bundleIdentifier).toBe('jp.ippei.yomi');
   });
 
-  it('iOS 専用で iPad をサポートしない（docs/PRD.md §1）', () => {
+  it('iOS 専用で iPad をサポートしない', () => {
     expect(appConfig.platforms).toEqual(['ios']);
     expect(appConfig.ios?.supportsTablet).toBe(false);
   });

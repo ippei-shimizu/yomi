@@ -56,7 +56,7 @@ describe('tagNameErrorMessage', () => {
     expect(tagNameErrorMessage(error).length).toBeGreaterThan(0);
   });
 
-  // 煽らない（docs/DesignGuideline.md §7）
+  // 煽らない
   it('感嘆符を含まない', () => {
     for (const error of ['empty', 'too-long', 'duplicate'] as const) {
       expect(tagNameErrorMessage(error)).not.toMatch(/[!！]/);

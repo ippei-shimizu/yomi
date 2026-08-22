@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { scrubEvent, shouldDropBreadcrumb } from './scrub';
 
 /**
- * docs/DesignDoc.md §7.3「個人特定情報・URL・タイトルは送らない」。
+ * 「個人特定情報・URL・タイトルは送らない」という方針の検証。
  * Sentry は例外メッセージや breadcrumb に値が紛れ込みやすいので、
- * 落ちていることをテストで固定する（R-SEC1）。
+ * 落ちていることをテストで固定する。
  */
 describe('scrubEvent', () => {
   it('例外メッセージから URL を落とす', () => {

@@ -6,7 +6,7 @@ import { openSharedDb } from '@/db/client';
 import { runMetaFetchWorker } from './worker';
 
 /**
- * バックグラウンドでのメタ取得（docs/DesignDoc.md §5.2）。
+ * バックグラウンドでのメタ取得。
  *
  * 実行間隔は OS の裁量で、最短でも 15 分。確実に走る保証は無いため、
  * 本体の foreground 復帰時にも同じ Worker を回す（useMetaFetchWorker）。

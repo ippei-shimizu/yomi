@@ -2,7 +2,7 @@ import { decodeEntities } from './html';
 import type { Metadata } from './types';
 
 /**
- * oEmbed レスポンスのパース（docs/DesignDoc.md §5.2）。
+ * oEmbed レスポンスのパース。
  *
  * 外部 API のレスポンスは信頼できないため、型を仮定せず 1 つずつ検証する。
  */

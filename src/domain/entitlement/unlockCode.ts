@@ -1,14 +1,14 @@
 import nacl from 'tweetnacl';
 
 /**
- * 開発者向けオーバーライドの署名検証（docs/DesignDoc.md §5.3）。
+ * 開発者向けオーバーライドの署名検証。
  *
  * アンロックコード = base64(payload) + "." + base64(signature)
  * payload = { "sub": "ippei", "exp": 4102444800 }
  *
  * アプリに埋め込むのは**公開鍵のみ**。署名を作れるのは秘密鍵を持つ本人だけ。
  * react-native を import しない純粋モジュールにしてあり、鍵と検証ロジックを
- * Node からテストできる（R-UI5 / R-TEST1）。
+ * Node からテストできる。
  */
 
 export type UnlockPayload = {
@@ -52,7 +52,7 @@ function parsePayload(bytes: Uint8Array): UnlockPayload | null {
 /**
  * アンロックコードを検証する。
  *
- * **失敗はすべて「無効」に倒す**（R-SEC4）。例外時に true を返す経路を作らない。
+ * **失敗はすべて「無効」に倒す**。例外時に true を返す経路を作らない。
  *
  * @param publicKey アプリに埋め込む Ed25519 公開鍵（32 バイト）
  * @param nowSeconds 現在時刻（Unix 秒）

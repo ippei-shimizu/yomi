@@ -15,7 +15,7 @@ import {
 
 const ALL_PLANS: PlanKind[] = ['monthly', 'annual', 'lifetime'];
 
-describe('プラン（docs/PRD.md §10 の価格）', () => {
+describe('プランと価格', () => {
   it('3 プランある', () => {
     expect(PLANS.map((p) => p.kind)).toEqual(ALL_PLANS);
   });
@@ -30,12 +30,12 @@ describe('プラン（docs/PRD.md §10 の価格）', () => {
     expect(PLANS.filter((p) => p.badge !== undefined).map((p) => p.kind)).toEqual(['annual']);
   });
 
-  it('既定は年額（docs/Screens.md S12）', () => {
+  it('既定は年額', () => {
     expect(DEFAULT_PLAN).toBe('annual');
   });
 });
 
-describe('審査要件: 自動更新の明記（docs/PRD.md §7.5）', () => {
+describe('審査要件: 自動更新の明記', () => {
   it.each(['monthly', 'annual'] as const)('%s は価格・期間・自動更新・解約方法を含む', (plan) => {
     const notice = renewalNoticeFor(plan);
 
@@ -66,7 +66,7 @@ describe('CTA', () => {
     expect(ctaLabelFor('annual')).toContain('無料');
   });
 
-  // 煽らない（docs/DesignGuideline.md §7）
+  // 煽らない
   it('感嘆符や「今すぐ」を含まない', () => {
     for (const plan of ALL_PLANS) {
       expect(ctaLabelFor(plan)).not.toMatch(/[!！]/);
@@ -76,7 +76,7 @@ describe('CTA', () => {
 });
 
 describe('特典リスト', () => {
-  it('docs/PRD.md §7.5 の Pro 機能を網羅する', () => {
+  it('Pro 限定機能を網羅する', () => {
     expect(PRO_BENEFITS).toEqual([
       '保存件数 無制限',
       'タグ 無制限',
@@ -92,7 +92,7 @@ describe('特典リスト', () => {
 });
 
 describe('トリガー', () => {
-  it('docs/Screens.md S12 の 6 種すべてに見出しがある', () => {
+  it('トリガー 6 種すべてに見出しがある', () => {
     for (const trigger of PRO_FEATURES) {
       expect(TRIGGER_HEADLINES[trigger]).toBeDefined();
     }

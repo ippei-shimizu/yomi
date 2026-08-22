@@ -1,9 +1,9 @@
 /**
- * Paywall の文言（docs/Screens.md S12）。
+ * Paywall の文言。
  *
- * **App Store の審査要件を満たす必要がある**（docs/PRD.md §7.5）。
+ * **App Store の審査要件を満たす必要がある**。
  * 文言を画面に散らさず、ここに集約してテストで検証する。
- * react-native を import しない純粋モジュール（R-UI5）。
+ * react-native を import しない純粋モジュール。
  */
 
 export type PlanKind = 'monthly' | 'annual' | 'lifetime';
@@ -17,17 +17,17 @@ export type PlanCopy = {
   badge?: string;
 };
 
-/** 価格は docs/PRD.md §10 の決定事項 */
+/** 価格は決定済みの値 */
 export const PLANS: readonly PlanCopy[] = [
   { kind: 'monthly', label: '月額', fallbackPrice: '¥400 / 月' },
   { kind: 'annual', label: '年額', fallbackPrice: '¥2,800 / 年', badge: '7日間無料' },
   { kind: 'lifetime', label: '買い切り', fallbackPrice: '¥5,800 一回' },
 ];
 
-/** 既定で選択されるプラン（docs/Screens.md S12） */
+/** 既定で選択されるプラン */
 export const DEFAULT_PLAN: PlanKind = 'annual';
 
-/** Pro の特典（docs/PRD.md §7.5 の表と対応） */
+/** Pro の特典。無料 / Pro の比較表と対応させる */
 export const PRO_BENEFITS = [
   '保存件数 無制限',
   'タグ 無制限',
@@ -36,7 +36,7 @@ export const PRO_BENEFITS = [
   '通知時刻を複数設定',
 ] as const;
 
-/** CTA の文言。選択に応じて変わる（docs/Screens.md S12） */
+/** CTA の文言。選択に応じて変わる */
 export function ctaLabelFor(plan: PlanKind): string {
   switch (plan) {
     case 'annual':

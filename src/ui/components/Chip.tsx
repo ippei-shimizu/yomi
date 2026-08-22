@@ -10,7 +10,7 @@ export type ChipProps = {
   onPress?: () => void;
 };
 
-/** フィルタチップ。選択中は brand 塗りの白文字（docs/DesignGuideline.md §8） */
+/** フィルタチップ。選択中は brand 塗りの白文字 */
 export function Chip({ label, selected = false, onPress }: ChipProps) {
   const theme = useThemeColors();
 

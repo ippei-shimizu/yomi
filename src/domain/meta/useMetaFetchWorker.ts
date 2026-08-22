@@ -8,7 +8,7 @@ import { invalidationKeys } from '@/db/queryKeys';
 import { IMPORT_BATCH_SIZE, runMetaFetchWorker, type RunOptions } from './worker';
 
 /**
- * 本体の foreground 復帰時に Worker を回す（docs/DesignDoc.md §5.2）。
+ * 本体の foreground 復帰時に Worker を回す。
  *
  * 取得が終わったらリストを更新する必要があるため、React Query の
  * invalidate をここで行う。
@@ -46,7 +46,7 @@ export function useMetaFetchWorker(db: YomiDatabase) {
     return () => subscription.remove();
   }, [run]);
 
-  /** URL 一括インポート直後に、その回だけ件数を引き上げて即時実行する（§5.7） */
+  /** URL 一括インポート直後に、その回だけ件数を引き上げて即時実行する */
   const runAfterImport = useCallback(() => run({ batchSize: IMPORT_BATCH_SIZE }), [run]);
 
   return { run, runAfterImport };

@@ -23,7 +23,7 @@ jobs:
 
       - run: npm ci
 
-      # main への push は TestFlight 内部テスト向け（docs/DesignDoc.md §7.2）
+      # main への push は TestFlight 内部テスト向け
       - name: Build preview
         if: startsWith(github.ref, 'refs/heads/')
         run: eas build --platform ios --profile preview --non-interactive --no-wait

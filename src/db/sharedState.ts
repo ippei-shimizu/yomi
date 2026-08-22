@@ -3,7 +3,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { APP_GROUP } from './appGroup';
 
 /**
- * 本体と Share Extension が共有する小さな状態（docs/DesignDoc.md §5.1）。
+ * 本体と Share Extension が共有する小さな状態。
  *
  * Extension は保存上限の判定のために Pro 状態を知る必要があるが、
  * RevenueCat SDK は Extension に入れない（起動時間とメモリの制約）。

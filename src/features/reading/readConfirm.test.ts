@@ -35,7 +35,7 @@ describe('shouldSuggestSnooze', () => {
     expect(shouldSuggestSnooze(count)).toBe(true);
   });
 
-  it('閾値は 3（docs/Screens.md S05）', () => {
+  it('閾値は 3', () => {
     expect(NOT_YET_SUGGESTION_THRESHOLD).toBe(3);
   });
 });

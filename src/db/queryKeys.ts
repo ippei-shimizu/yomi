@@ -1,7 +1,7 @@
 import type { ItemStatus } from './schema';
 
 /**
- * React Query のキー（docs/DesignDoc.md §6）。
+ * React Query のキー。
  *
  * 文字列を画面ごとに書くと invalidate の取りこぼしが起きるので、
  * 生成をここに集約する。

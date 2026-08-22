@@ -8,10 +8,10 @@ import { capture } from './analytics';
 import { getNumber, setNumber } from './storage';
 
 /**
- * item_saved の送信（docs/DesignDoc.md §7.3）。
+ * item_saved の送信。
  *
  * 保存は Share Extension で起きるが、そこには PostHog を入れられない
- * （§3.1 の依存ルール）。本体が起動したときに read_logs を見て、
+ * 本体が起動したときに read_logs を見て、
  * 前回送った時刻より後の `saved` を送る。
  *
  * 送信済みの位置を MMKV に持つので、二重送信も送り漏れも起きない。

@@ -1,6 +1,6 @@
 /**
- * 読了確認の判定（docs/Screens.md S05）。
- * react-native を import しない純粋モジュール（R-UI5）。
+ * 読了確認の判定。
+ * react-native を import しない純粋モジュール。
  */
 
 /** これ未満の滞在で閉じたら読了確認を出さない（誤タップ対策） */

@@ -1,7 +1,5 @@
 # CI / CD
 
-`docs/DesignDoc.md` §7.2 のとおり。
-
 | workflow | トリガー | 内容 |
 |---|---|---|
 | `ci.yml` | PR / main への push | lint / typecheck / format / test / bundle |

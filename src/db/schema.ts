@@ -3,11 +3,11 @@ import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlit
 
 import { SOURCES } from '@/domain/url';
 
-/** アイテムの状態。この 3 つから増やさない（docs/DesignDoc.md 設計原則 3） */
+/** アイテムの状態。この 3 つから増やさない */
 export const ITEM_STATUSES = ['unread', 'read', 'archived'] as const;
 export type ItemStatus = (typeof ITEM_STATUSES)[number];
 
-/** メタデータ取得の進捗（docs/DesignDoc.md §5.2） */
+/** メタデータ取得の進捗 */
 export const META_STATUSES = ['pending', 'done', 'failed'] as const;
 export type MetaStatus = (typeof META_STATUSES)[number];
 
@@ -40,7 +40,7 @@ export const items = sqliteTable(
     savedAt: integer('saved_at', { mode: 'timestamp' }).notNull(),
     readAt: integer('read_at', { mode: 'timestamp' }),
     archivedAt: integer('archived_at', { mode: 'timestamp' }),
-    /** 将来の iCloud 同期への移行余地のため全テーブルに持たせる（§7.4） */
+    /** 将来の iCloud 同期への移行余地のため全テーブルに持たせる */
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
   },
   (t) => [
@@ -74,7 +74,7 @@ export const itemTags = sqliteTable(
 
 /**
  * 週次集計用。items の更新で失われる履歴（読了→未読に戻す等）を残す。
- * Stats はこのテーブルだけから集計する（docs/DesignDoc.md §4.1 / §6）。
+ * Stats はこのテーブルだけから集計する。
  */
 export const readLogs = sqliteTable(
   'read_logs',

@@ -45,7 +45,7 @@ describe('palette.json と tailwind.config.js', () => {
   });
 });
 
-describe('SOURCE_COLORS（docs/DesignGuideline.md §2.3）', () => {
+describe('SOURCE_COLORS', () => {
   it('すべてのソースに色が割り当てられている', () => {
     for (const source of SOURCES) {
       expect(SOURCE_COLORS[source]).toMatch(/^#[0-9A-F]{6}$/i);
@@ -67,7 +67,7 @@ describe('SOURCE_COLORS（docs/DesignGuideline.md §2.3）', () => {
   });
 });
 
-describe('ステータス色（§2.4: ソースカラーと共有して色数を増やさない）', () => {
+describe('ステータス色（ソースカラーと共有して色数を増やさない）', () => {
   it('warn / danger / ok がソースカラーと同じ値', () => {
     expect(colors.status.warn).toBe(palette.source['src-amber']);
     expect(colors.status.danger).toBe(palette.source['src-coral']);
@@ -75,7 +75,7 @@ describe('ステータス色（§2.4: ソースカラーと共有して色数を
   });
 });
 
-describe('staleBadgeColor（docs/PRD.md §7.2）', () => {
+describe('staleBadgeColor', () => {
   it.each([0, 1, 7])('%i 日はバッジを出さない', (days) => {
     expect(staleBadgeColor(days)).toBeNull();
   });
@@ -89,7 +89,7 @@ describe('staleBadgeColor（docs/PRD.md §7.2）', () => {
   });
 });
 
-describe('タイポグラフィ（§4）', () => {
+describe('タイポグラフィ', () => {
   it('サイズが仕様どおり', () => {
     expect(typography.display.fontSize).toBe(28);
     expect(typography.heading.fontSize).toBe(20);
@@ -97,7 +97,7 @@ describe('タイポグラフィ（§4）', () => {
     expect(typography.caption.fontSize).toBe(13);
   });
 
-  it('和文に 700 超のウェイトを使っていない（§9: 潰れるため）', () => {
+  it('和文に 700 超のウェイトを使っていない（潰れるため）', () => {
     for (const family of Object.values(fontFamilies.ja)) {
       const weight = Number(family.match(/_(\d+)/)?.[1]);
       expect(weight).toBeLessThanOrEqual(700);

@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { colors, radius, typography } from '@/design/tokens';
 
 /**
- * Share Extension のカード（docs/DesignGuideline.md §8）。
+ * Share Extension のカード。
  * 本体と同じトークンを使うが、**影なし・角丸 24**。
  *
  * NativeWind ではなく StyleSheet を使っているのは、Extension のバンドルに

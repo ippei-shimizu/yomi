@@ -9,7 +9,7 @@ import type { Tag } from '@/db/schema';
 import { attachTag, save, type SaveState } from './saveFlow';
 import { EXTENSION_COLORS, extensionStyles as styles } from './styles';
 
-/** 保存できたら自動で閉じるまでの時間（docs/Screens.md X01） */
+/** 保存できたら自動で閉じるまでの時間 */
 const AUTO_CLOSE_MS = 600;
 
 /** タグをタップしたら、続けて選べるよう自動クローズを延ばす */

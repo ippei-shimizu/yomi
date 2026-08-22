@@ -79,7 +79,7 @@ export default function ItemDetailScreen() {
         text: '削除',
         style: 'destructive',
         onPress: () => {
-          // 物理削除は archived からのみ（docs/DesignDoc.md §4.2）
+          // 物理削除は archived からのみ
           if (item.status !== 'archived') itemRepo.archive(db, item.id);
           actions.mutate({ type: 'delete', id: item.id }, { onSuccess: () => router.back() });
         },
@@ -233,7 +233,7 @@ export default function ItemDetailScreen() {
   );
 }
 
-/** S03 のタグ行。+ で Tag Picker を開く */
+/** 詳細画面のタグ行。+ でタグ選択シートを開く */
 function TagRow({ itemId, onOpenPicker }: { itemId: string; onOpenPicker: () => void }) {
   const theme = useThemeColors();
   const { data: tags = [] } = useItemTags(itemId);
@@ -334,7 +334,7 @@ function MemoField({ item, onSaved }: { item: Item; onSaved: () => void }) {
   );
 }
 
-/** 状態に応じてボタンを出し分ける（docs/Screens.md S03） */
+/** 状態に応じてボタンを出し分ける */
 function StatusActions({
   item,
   onRead,

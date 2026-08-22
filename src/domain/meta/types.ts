@@ -1,4 +1,4 @@
-/** メタデータ取得の結果（docs/DesignDoc.md §4.1 の items の該当カラムに対応） */
+/** メタデータ取得の結果。items の該当カラムに対応する */
 export type Metadata = {
   title?: string;
   description?: string;
@@ -7,8 +7,8 @@ export type Metadata = {
   author?: string;
 };
 
-/** HTML を読み込む上限。iOS Extension / 端末のメモリを守る（§5.2） */
+/** HTML を読み込む上限。iOS Extension / 端末のメモリを守る */
 export const MAX_HTML_BYTES = 256 * 1024;
 
-/** 1 件あたりのタイムアウト（§5.2） */
+/** 1 件あたりのタイムアウト */
 export const FETCH_TIMEOUT_MS = 8_000;

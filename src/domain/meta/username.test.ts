@@ -32,7 +32,7 @@ describe('extractUsername', () => {
 });
 
 describe('metadataFromUsername', () => {
-  it('@username をタイトルにする（docs/DesignDoc.md §5.2）', () => {
+  it('@username をタイトルにする', () => {
     expect(metadataFromUsername('https://instagram.com/foo/p/abc', 'Instagram')).toEqual({
       title: '@foo',
       author: 'foo',

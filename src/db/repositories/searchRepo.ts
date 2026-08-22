@@ -6,7 +6,7 @@ import { items, itemTags, type Item, type ItemStatus } from '../schema';
 import type { YomiDatabase } from '../types';
 
 /**
- * 検索とフィルタ（docs/DesignDoc.md §4.3）。
+ * 検索とフィルタ。
  *
  * 無料プランは title の LIKE のみ。Pro は FTS5 で memo と description も対象。
  */

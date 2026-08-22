@@ -6,13 +6,13 @@ import type { YomiDatabase } from '@/db/types';
 import { UTF8_BOM, toCsvRow } from './csv';
 
 /**
- * エクスポート（docs/PRD.md §5.1 F14 / §7.6）。
+ * エクスポート。
  *
  * **無料プランでも使える。** 端末内にしかデータが無いため、
- * バックアップ手段を課金の後ろに置かない（§9 のリスク対応）。
+ * バックアップ手段を課金の後ろに置かない。
  */
 
-/** CSV の列（docs/PRD.md §7.6） */
+/** CSV の列 */
 export const CSV_HEADER = [
   'title',
   'url',
@@ -60,7 +60,7 @@ export type ExportPayload = {
 };
 
 /**
- * JSON は**全フィールド**を出す（§7.6）。
+ * JSON は**全フィールド**を出す。
  * `read_logs` も含めるのは、将来の復元で週次集計を失わないため。
  */
 export function buildJson(db: YomiDatabase, exportedAt: Date): string {
@@ -80,7 +80,7 @@ export function buildJson(db: YomiDatabase, exportedAt: Date): string {
  * CSV を組み立てる。
  *
  * アイテムを 1 回引き、そのタグを `listForItems` で一括取得する。
- * アイテムごとにタグを引くと N+1 になる（R-DB7）。
+ * アイテムごとにタグを引くと N+1 になる。
  */
 export function exportCsv(db: YomiDatabase): string {
   const rows = db.select().from(itemsTable).orderBy(itemsTable.savedAt).all();

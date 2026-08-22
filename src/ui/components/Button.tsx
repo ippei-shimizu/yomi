@@ -10,9 +10,9 @@ export type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
 };
 
 /**
- * 主ボタン（brand 塗り pill）／副ボタン（白 pill）（docs/DesignGuideline.md §8）。
+ * 主ボタン（brand 塗り pill）／副ボタン（白 pill）。
  *
- * ラベルは動詞にする（「保存」「開く」「読んだ」）。「OK」「送信」は使わない（§7）。
+ * ラベルは動詞にする（「保存」「開く」「読んだ」）。「OK」「送信」は使わない。
  */
 export function Button({ label, variant = 'primary', disabled, ...rest }: ButtonProps) {
   const theme = useThemeColors();

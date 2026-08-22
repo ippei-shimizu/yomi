@@ -1,8 +1,8 @@
 import { detectSource, extractUrls, normalizeUrl, urlHash } from '@/domain/url';
 
 /**
- * URL 一括インポートの解析（docs/DesignDoc.md §5.7）。
- * react-native を import しない純粋モジュール（R-UI5）。
+ * URL 一括インポートの解析。
+ * react-native を import しない純粋モジュール。
  *
  *   入力テキスト → URL 抽出 → normalizeUrl → sha256 → 既存 hash と突合
  *   → プレビュー（新規 n 件 / 重複 m 件）
@@ -64,9 +64,8 @@ export function parseImportText(text: string, existingHashes: ReadonlySet<string
 /**
  * 無料プランの残り件数で切り詰める。
  *
- * `docs/PRD.md` §7.6 は「無料プラン上限を超える分は保存しない」としている。
- * インポート自体が Pro 専用なので通常は上限なしだが、Dev override が
- * 切れた場合などに備えて実装しておく。
+ * 無料プランの上限を超える分は保存しない。インポート自体が Pro 専用なので
+ * 通常は上限なしだが、Dev override が切れた場合などに備えて実装しておく。
  */
 export function limitToRemaining(preview: ImportPreview, remaining: number | null): ImportPreview {
   if (remaining === null || preview.fresh.length <= remaining) return preview;

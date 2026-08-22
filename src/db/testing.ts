@@ -11,9 +11,8 @@ const MIGRATIONS_FOLDER = path.resolve(import.meta.dirname, '../../drizzle');
 /**
  * テスト用の in-memory DB。
  *
- * docs/DesignDoc.md §8 は「expo-sqlite を in-memory で開き Vitest」としているが、
- * expo-sqlite はネイティブモジュールで Node では動かない。同じ SQLite に対して
- * better-sqlite3 ドライバを使う。
+ * expo-sqlite はネイティブモジュールで Node では動かないため、同じ SQLite に
+ * 対して better-sqlite3 ドライバを使う。
  *
  * スキーマは drizzle-kit が生成した実際のマイグレーションを drizzle 本来の
  * マイグレータで適用して作る。本番（expo-sqlite 版マイグレータ）とは

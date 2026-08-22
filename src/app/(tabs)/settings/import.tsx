@@ -12,7 +12,7 @@ import { limitToRemaining, parseImportText } from '@/domain/import/parseImport';
 import { useInvalidateItems } from '@/features/items/queries';
 import { Button, Text, useThemeColors } from '@/ui';
 
-/** S14 URL Import（docs/Screens.md S14）。Pro 専用 */
+/** URL をまとめて追加する画面。Pro 専用 */
 export default function ImportScreen() {
   const theme = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -65,7 +65,7 @@ export default function ImportScreen() {
         })),
       );
       void invalidate();
-      // インポート直後だけ件数を引き上げてメタ取得を回す（docs/DesignDoc.md §5.7）
+      // インポート直後だけ件数を引き上げてメタ取得を回す
       void runAfterImport();
       router.replace('/(tabs)');
     } catch {

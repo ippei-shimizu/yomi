@@ -12,10 +12,10 @@ import { colors, layout, radius } from '@/design/tokens';
 import { Text } from '@/ui';
 
 /**
- * スワイプ操作（docs/Screens.md S02）。
+ * スワイプ操作。
  * 右スワイプ（フル）で読んだ、左スワイプ（フル）でアーカイブ。
  *
- * 背景は右 ok、左 danger。アイコンのみ（docs/DesignGuideline.md §8）。
+ * 背景は右 ok、左 danger。アイコンのみ。
  */
 const FULL_SWIPE_RATIO = 0.4;
 

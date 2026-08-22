@@ -8,8 +8,8 @@ import { Button, Text, useThemeColors } from '@/ui';
 export const ONBOARDING_STEPS = 3;
 
 /**
- * S01 Onboarding の共通レイアウト。
- * 3 画面固定・スキップ可（docs/Screens.md S01）。
+ * Onboarding の共通レイアウト。
+ * 3 画面固定・スキップ可。
  */
 export function OnboardingLayout({
   step,

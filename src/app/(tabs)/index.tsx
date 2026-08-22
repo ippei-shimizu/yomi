@@ -5,13 +5,15 @@ import { Pressable, useWindowDimensions, View } from 'react-native';
 
 import type { Item } from '@/db/schema';
 import { itemRepo } from '@/db/repositories';
-import { layout } from '@/design/tokens';
+import { layout, radius } from '@/design/tokens';
 import { displayTitle, unreadHeadline } from '@/features/items/display';
 import { ItemRow } from '@/features/items/ItemRow';
 import { SwipeableRow } from '@/features/items/SwipeableRow';
 import { TodaysPickCard } from '@/features/items/TodaysPickCard';
 import { useItemActions, useStaleItems, useUnreadItems } from '@/features/items/queries';
 import { useTodaysPick } from '@/features/items/useTodaysPick';
+import { useDatabase } from '@/db/DatabaseProvider';
+import { remainingSaves, shouldWarnAboutLimit, useEntitlement } from '@/domain/entitlement';
 import { getString, setString, storageKeys } from '@/lib/storage';
 import { Button, EmptyState, Text, colors, useThemeColors } from '@/ui';
 
@@ -24,6 +26,10 @@ export default function HomeScreen() {
   const [order, setOrder] = useState<itemRepo.UnreadOrder>(
     () => (getString(storageKeys.unreadOrder) as itemRepo.UnreadOrder | undefined) ?? 'oldest',
   );
+
+  const db = useDatabase();
+  const { isPro } = useEntitlement();
+  const remaining = remainingSaves(db, isPro);
 
   const unread = useUnreadItems(order);
   const pick = useTodaysPick();
@@ -96,31 +102,27 @@ export default function HomeScreen() {
               />
             )}
 
+            {shouldWarnAboutLimit(remaining) ? (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() =>
+                  router.push({ pathname: '/paywall', params: { trigger: 'limit_save' } })
+                }
+              >
+                {/* 事実だけを書く。煽らない（docs/DesignGuideline.md §7） */}
+                <Banner
+                  dotColor={colors.status.warn}
+                  label={`保存できるのは残り ${remaining} 件です`}
+                />
+              </Pressable>
+            ) : null}
+
             {staleCount > 0 ? (
               <Pressable accessibilityRole="button" onPress={() => router.push('/stale')}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 8,
-                    backgroundColor: colors.brand['brand-soft'],
-                    borderRadius: 999,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                  }}
-                >
-                  <View
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 999,
-                      backgroundColor: colors.status.danger,
-                    }}
-                  />
-                  <Text variant="caption" style={{ color: colors.brand.brand }}>
-                    30日以上放置が {staleCount} 件 → 整理する
-                  </Text>
-                </View>
+                <Banner
+                  dotColor={colors.status.danger}
+                  label={`30日以上放置が ${staleCount} 件 → 整理する`}
+                />
               </Pressable>
             ) : null}
           </View>
@@ -141,6 +143,28 @@ export default function HomeScreen() {
           )
         }
       />
+    </View>
+  );
+}
+
+/** ホーム上部の通知バナー（docs/DesignGuideline.md §8: brand-soft の pill） */
+function Banner({ dotColor, label }: { dotColor: string; label: string }) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: colors.brand['brand-soft'],
+        borderRadius: radius.pill,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+      }}
+    >
+      <View style={{ width: 8, height: 8, borderRadius: radius.pill, backgroundColor: dotColor }} />
+      <Text variant="caption" style={{ color: colors.brand.brand }}>
+        {label}
+      </Text>
     </View>
   );
 }

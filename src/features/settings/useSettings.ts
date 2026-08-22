@@ -1,41 +1,11 @@
-import { useCallback, useSyncExternalStore } from 'react';
-
+import { parseThemePreference, type ThemePreference } from '@/design/scheme';
 import { DEFAULT_NOTIFICATION_TIME } from '@/domain/notification/schedule';
-import { getBoolean, getString, setBoolean, setString, storage, storageKeys } from '@/lib/storage';
+import { storageKeys } from '@/lib/storage';
+import { useStoredBoolean, useStoredString } from '@/lib/useStoredValue';
 
 /**
- * 端末内の設定。
- *
- * MMKV の変更を購読して、設定画面と他の画面が同じ値を見るようにする。
+ * 端末内の設定。値の読み書きだけを担当し、解釈は各ドメインの純粋関数に任せる。
  */
-export type ThemePreference = 'system' | 'light' | 'dark';
-
-const THEME_VALUES: readonly ThemePreference[] = ['system', 'light', 'dark'];
-
-function subscribe(onChange: () => void): () => void {
-  const listener = storage.addOnValueChangedListener(onChange);
-  return () => listener.remove();
-}
-
-function useStoredBoolean(key: string, fallback: boolean): [boolean, (value: boolean) => void] {
-  const value = useSyncExternalStore(
-    subscribe,
-    () => getBoolean(key, fallback),
-    () => fallback,
-  );
-  const set = useCallback((next: boolean) => setBoolean(key, next), [key]);
-  return [value, set];
-}
-
-function useStoredString(key: string, fallback: string): [string, (value: string) => void] {
-  const value = useSyncExternalStore(
-    subscribe,
-    () => getString(key) ?? fallback,
-    () => fallback,
-  );
-  const set = useCallback((next: string) => setString(key, next), [key]);
-  return [value, set];
-}
 
 /** 読了確認シートを出すか（既定 ON） */
 export function useReadConfirmSetting() {
@@ -49,10 +19,7 @@ export function useNotificationTimesSetting() {
 
 export function useThemeSetting(): [ThemePreference, (value: ThemePreference) => void] {
   const [raw, set] = useStoredString(storageKeys.theme, 'system');
-  const value = (THEME_VALUES as readonly string[]).includes(raw)
-    ? (raw as ThemePreference)
-    : 'system';
-  return [value, set];
+  return [parseThemePreference(raw), set];
 }
 
 export function useOnboardingCompleted() {

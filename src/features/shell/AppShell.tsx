@@ -7,7 +7,7 @@ import { useMetaFetchWorker } from '@/domain/meta';
 import { useDailyPickNotification } from '@/domain/notification';
 import { useOnboardingCompleted } from '@/features/settings/useSettings';
 import { useAnalyticsSync } from '@/lib/analyticsSync';
-import { useThemeColors } from '@/ui';
+import { useApplyColorScheme, useIsDark, useThemeColors } from '@/ui';
 
 /**
  * ナビゲーションの骨格と、アプリ全体で回すバックグラウンド処理。
@@ -16,9 +16,12 @@ import { useThemeColors } from '@/ui';
  */
 export function AppShell() {
   const theme = useThemeColors();
+  const isDark = useIsDark();
   const db = useDatabase();
   const [onboardingCompleted] = useOnboardingCompleted();
 
+  // テーマ設定を NativeWind にも反映する
+  useApplyColorScheme();
   // 起動のたびにメタ取得を回す
   useMetaFetchWorker(db);
   // 通知は items が変わるたびに積み直す
@@ -28,7 +31,8 @@ export function AppShell() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <StatusBar style="auto" />
+      {/* 設定でテーマを固定できるので、端末設定に追従する "auto" は使えない */}
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       {/* ヘッダーはナビバーを使わず、各画面がコンテンツ先頭に置く */}
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
         {/* 初回のみ Onboarding から始める */}

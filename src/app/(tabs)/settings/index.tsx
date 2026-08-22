@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Alert, Linking, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { THEME_PREFERENCES, type ThemePreference } from '@/design/scheme';
 import { layout } from '@/design/tokens';
 import { useEntitlement, usePurchaseActions } from '@/domain/entitlement';
 import { SUPPORT_URL } from '@/features/settings/appInfo';
@@ -16,7 +17,11 @@ import { VersionRow } from '@/features/settings/VersionRow';
 import { Text, useThemeColors } from '@/ui';
 import { useQueryClient } from '@tanstack/react-query';
 
-const THEME_LABELS = { system: 'システム', light: 'ライト', dark: 'ダーク' } as const;
+const THEME_LABELS: Record<ThemePreference, string> = {
+  system: 'システム',
+  light: 'ライト',
+  dark: 'ダーク',
+};
 
 export default function SettingsScreen() {
   const theme = useThemeColors();
@@ -87,10 +92,12 @@ export default function SettingsScreen() {
           value={THEME_LABELS[themePreference]}
           onPress={() =>
             Alert.alert('テーマ', undefined, [
-              { text: 'システム', onPress: () => setThemePreference('system') },
-              { text: 'ライト', onPress: () => setThemePreference('light') },
-              { text: 'ダーク', onPress: () => setThemePreference('dark') },
-              { text: 'やめる', style: 'cancel' },
+              // 選べる値は THEME_PREFERENCES から作る。増えたときに出し忘れない
+              ...THEME_PREFERENCES.map((preference) => ({
+                text: THEME_LABELS[preference],
+                onPress: () => setThemePreference(preference),
+              })),
+              { text: 'やめる', style: 'cancel' as const },
             ])
           }
         />

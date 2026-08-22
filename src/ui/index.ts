@@ -1,6 +1,6 @@
 export { Text, type TextProps, type TextScript } from './Text';
 export { useAppFonts } from './fonts';
-export { useIsDark, useThemeColors } from './theme';
+export { useApplyColorScheme, useColorSchemeSetting, useIsDark, useThemeColors } from './theme';
 export * from '@/design/tokens';
 
 export { BottomSheet } from './components/BottomSheet';

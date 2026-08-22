@@ -367,3 +367,35 @@ describe('removeMany（一括削除）', () => {
     expect(logsFor(item.id)).toHaveLength(2);
   });
 });
+
+describe('insertMany（一括インポート）', () => {
+  function input(urlHash: string) {
+    return {
+      url: `https://zenn.dev/${urlHash}`,
+      originalUrl: `https://zenn.dev/${urlHash}`,
+      urlHash,
+      source: 'zenn' as const,
+    };
+  }
+
+  it('全件を保存し read_logs も積む', () => {
+    expect(itemRepo.insertMany(db, [input('a'), input('b'), input('c')], NOW)).toBe(3);
+
+    expect(db.select().from(items).all()).toHaveLength(3);
+    expect(db.select().from(readLogs).all()).toHaveLength(3);
+  });
+
+  // 途中で失敗したら 1 件も入らない（docs/DesignDoc.md §5.7）
+  it('重複があれば全体が失敗し、部分保存にならない', () => {
+    itemRepo.insert(db, input('dup'), NOW);
+
+    expect(() => itemRepo.insertMany(db, [input('a'), input('dup'), input('b')], NOW)).toThrow(
+      /UNIQUE/i,
+    );
+    expect(db.select().from(items).all()).toHaveLength(1);
+  });
+
+  it('空配列なら 0 件', () => {
+    expect(itemRepo.insertMany(db, [], NOW)).toBe(0);
+  });
+});

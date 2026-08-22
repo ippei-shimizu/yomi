@@ -770,3 +770,64 @@ export function updateSharedState(patch: Partial<SharedState>): void {
 **必須**: 設定値を追加したら、**読む側を同じ PR で書く**。加えて、端末設定に追従する仕組み（`StatusBar style="auto"`、NativeWind の `dark:`、ナビゲーションの既定色）が別経路で残っていないか探す。1 箇所でも取りこぼすとそこだけ設定を無視する。
 
 **初出**: PR #58
+
+### R-UI20. iOS では影とクリッピングを同じ View に載せない
+
+**理由**: `overflow: 'hidden'` は iOS で `clipsToBounds` になり、**バウンズの外に描かれる影ごと切り落とす**。さらに影はレイヤーの不透明部分から作られるので、背景色を持たない View に影だけ指定しても何も描かれない。両方を満たすには 2 枚に分け、**塗りと影を外側、クリッピングを内側**に置く必要がある。
+
+`Card` が 1 枚に両方を載せていたため、設定画面・Stats・アイテム詳細を含む**アプリ内の白カードすべてで影が出ていなかった**。型もテストも通り、実機で並べて見るまで気づけない。
+
+```tsx
+// 悪い — 影が出ない
+<View style={{ borderRadius, backgroundColor, overflow: 'hidden', ...shadow }} />
+// 良い
+<View style={{ borderRadius, backgroundColor, ...shadow }}>
+  <View style={{ borderRadius, overflow: 'hidden' }}>{children}</View>
+</View>
+```
+
+**初出**: PR #62
+
+### R-UI21. 高さが中身任せの親の中で `flex: 1` を使わない
+
+**理由**: React Native の `flex: 1` は `flexBasis: 0` を含む。親の高さが子の内容で決まる場合、子の基準サイズが 0 になり**高さごと潰れる**。
+
+`Card` の内側に `flex: 1` を付けようとして、設定行・タグ行・URL カードなど「高さが中身任せ」のカードを全部消すところだった。伸ばしたいのは**親が明確な高さを持つ場合だけ**。
+
+**必須**: 伸ばす必要があるなら、`flex` は親の高さが確定している側（行の中で `alignItems: 'stretch'` が効いている要素など）に付ける。中身任せの箱には `minHeight` を使う。
+
+**初出**: PR #62
+
+### R-UI22. 画面の上端は自分でセーフエリアを空ける
+
+**理由**: ナビバーを使わない設計なので、`paddingTop` を固定値にすると**ノッチのある端末で見出しがステータスバーの下に潜る**。ホーム画面だけ `paddingTop: 24` のままで、他の全画面は `insets.top + 8` を使っていた。1 画面だけずれていても、他を見ている限り気づけない。
+
+**必須**: 最上位のスクロール領域は `paddingTop: insets.top + 8` で揃える。固定値を書かない。
+
+**初出**: PR #62
+
+### R-UI23. Modal の中の入力欄はキーボードを避けない
+
+**理由**: `Modal` は `KeyboardAvoidingView` を持たない。下端に固定した bottom sheet に入力欄を置くと、**入力欄もボタンもキーボードの下に隠れる**。メモシートは `autoFocus` なので、開いた瞬間に何も見えない状態だった。
+
+**必須**:
+- 入力欄を持ちうる Modal は `KeyboardAvoidingView`（iOS は `behavior="padding"`）で包む
+- 入力欄を含む `ScrollView` には `automaticallyAdjustKeyboardInsets` と `keyboardShouldPersistTaps="handled"` を付ける
+
+**初出**: PR #62
+
+### R-UI24. 固定高のボタンに翻訳されるラベルを入れない
+
+**理由**: 英語のラベルは日本語より長い。「通知を許可して始める」は 10 文字だが "Allow notifications and start" は 29 文字で、幅の狭い端末では 2 行になる。`height` 固定だと**2 行目が切れる**。
+
+**必須**: `height` ではなく `minHeight` を使い、`paddingVertical` と `numberOfLines` を添える。行内に並べる可変長テキストには `flex: 1` を与える。
+
+**初出**: PR #62
+
+### R-UI25. しきい値を文言に直書きしない
+
+**理由**: 「30 日以上放置」「直近 8 週」の数字を文言に埋め込むと、`STALE_THRESHOLD_DAYS` を変えたときに**一覧の中身と見出しがずれる**。ずれても型もテストも通る。
+
+**必須**: `{days}` のような差し込みで受け、呼び出し側が定数を渡す。文言が数字を直書きしていないことをテストで固定する。
+
+**初出**: PR #62

@@ -341,6 +341,25 @@ export function archive(db: YomiDatabase, id: string, now = new Date()): void {
   });
 }
 
+/**
+ * 複数件を 1 トランザクションで保存する（URL 一括インポート）。
+ * 途中で失敗したら 1 件も入らない（docs/DesignDoc.md §5.7）。
+ */
+export function insertMany(db: YomiDatabase, inputs: InsertItemInput[], now = new Date()): number {
+  if (inputs.length === 0) return 0;
+
+  return db.transaction((tx) => {
+    for (const input of inputs) {
+      const id = input.id ?? newId();
+      tx.insert(items)
+        .values({ ...input, id, status: 'unread', savedAt: now, updatedAt: now })
+        .run();
+      appendReadLog(tx, id, 'saved', now);
+    }
+    return inputs.length;
+  });
+}
+
 /** 複数件を 1 トランザクションでアーカイブする（S10 の一括操作） */
 export function archiveMany(db: YomiDatabase, ids: string[], now = new Date()): void {
   if (ids.length === 0) return;

@@ -12,6 +12,7 @@ import {
   useOfferings,
   usePurchaseActions,
 } from '@/domain/entitlement';
+import { LEGAL_DOCUMENT_IDS, legalDocument } from '@/features/legal/documents';
 import {
   DEFAULT_PLAN,
   PLANS,
@@ -21,7 +22,6 @@ import {
   type PlanKind,
 } from '@/features/paywall/copy';
 import { LegalLink } from '@/features/paywall/LegalLink';
-import { PRIVACY_URL, TERMS_URL } from '@/features/paywall/legal';
 import { PlanOption } from '@/features/paywall/PlanOption';
 import { ProBenefitList } from '@/features/paywall/ProBenefitList';
 import { capture } from '@/lib/analytics';
@@ -152,10 +152,16 @@ export default function PaywallScreen() {
         {renewalNoticeFor(selected)}
       </Text>
 
-      {/* 審査要件: 利用規約・プライバシーポリシーへのリンク */}
-      <View style={{ flexDirection: 'row', gap: 16 }}>
-        <LegalLink label="利用規約" url={TERMS_URL} />
-        <LegalLink label="プライバシーポリシー" url={PRIVACY_URL} />
+      {/* 審査要件: 利用規約・プライバシーポリシーへのリンク。
+          特定商取引法に基づく表記も、購入前に読める場所に置く必要がある */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16 }}>
+        {LEGAL_DOCUMENT_IDS.map((id) => (
+          <LegalLink
+            key={id}
+            label={legalDocument(id).title}
+            onPress={() => router.push({ pathname: '/legal', params: { doc: id } })}
+          />
+        ))}
       </View>
 
       {/* 審査要件: 購入を復元 */}

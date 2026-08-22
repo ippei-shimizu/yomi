@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { THEME_PREFERENCES, type ThemePreference } from '@/design/scheme';
 import { layout } from '@/design/tokens';
 import { useEntitlement, usePurchaseActions } from '@/domain/entitlement';
+import { LEGAL_DOCUMENT_IDS, legalDocument } from '@/features/legal/documents';
 import { SUPPORT_URL } from '@/features/settings/appInfo';
 import { ProBanner } from '@/features/settings/ProBanner';
 import { SettingsRow, SettingsSection } from '@/features/settings/SettingsRow';
@@ -120,15 +121,13 @@ export default function SettingsScreen() {
       </SettingsSection>
 
       <SettingsSection title="情報">
-        <SettingsRow label="利用規約" onPress={() => router.push('/(tabs)/settings/about')} />
-        <SettingsRow
-          label="プライバシーポリシー"
-          onPress={() => router.push('/(tabs)/settings/about')}
-        />
-        <SettingsRow
-          label="特定商取引法に基づく表記"
-          onPress={() => router.push('/(tabs)/settings/about')}
-        />
+        {LEGAL_DOCUMENT_IDS.map((id) => (
+          <SettingsRow
+            key={id}
+            label={legalDocument(id).title}
+            onPress={() => router.push({ pathname: '/legal', params: { doc: id } })}
+          />
+        ))}
         <VersionRow onUnlock={() => router.push('/dev-unlock')} />
       </SettingsSection>
     </ScrollView>

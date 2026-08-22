@@ -131,6 +131,9 @@ export const fontFamilies = {
   },
 } as const satisfies Record<'latin' | 'ja', Record<TextVariant, string>>;
 
+/** 使う書体。fontFamilies のキーと必ず一致する */
+export type TextScript = keyof typeof fontFamilies;
+
 /** 放置日数バッジのしきい値 */
 export const STALE_BADGE_THRESHOLDS = { warn: 7, danger: 30 } as const;
 

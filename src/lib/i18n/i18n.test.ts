@@ -47,6 +47,35 @@ describe('メッセージ', () => {
   });
 });
 
+// 「30 日以上放置」のような数字を文言に埋め込むと、しきい値を変えたときに
+// 一覧の中身と表示がずれる。埋め込みで受けていることを固定する
+describe('しきい値を文言に直書きしていない', () => {
+  const THRESHOLD_KEYS = [
+    'home.staleBanner_other',
+    'stale.title',
+    'stale.emptyDescription',
+    'stats.currentSummary',
+  ];
+
+  it.each(THRESHOLD_KEYS)('%s が {days} を受け取る', (key) => {
+    for (const messages of [ja, en] as Record<string, string>[]) {
+      const text = messages[key] ?? messages[key.replace('_other', '')];
+      expect(text, key).toBeDefined();
+      expect(text, key).toContain('{days}');
+    }
+  });
+
+  it('直近の週数も埋め込みで受ける', () => {
+    expect(ja['stats.recentWeeks']).toContain('{weeks}');
+    expect((en as Record<string, string>)['stats.recentWeeks']).toContain('{weeks}');
+  });
+
+  it('しきい値を渡すと実際の日数が出る', () => {
+    expect(createTranslate('ja')('stale.title', { days: 45 })).toContain('45');
+    expect(createTranslate('en')('stale.title', { days: 45 })).toContain('45');
+  });
+});
+
 describe('interpolate', () => {
   it('プレースホルダを置き換える', () => {
     expect(interpolate('残り {count} 件', { count: 3 })).toBe('残り 3 件');

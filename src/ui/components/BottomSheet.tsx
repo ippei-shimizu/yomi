@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { layout, radius } from '@/design/tokens';
@@ -14,6 +14,10 @@ import { useThemeColors } from '../theme';
  * ジェスチャで閉じるライブラリは入れていない。読了確認と
  * メモはどちらも選択肢が明示されており、誤操作で閉じられる方が
  * 困るため。背景タップで閉じるかは呼び出し側が決める。
+ *
+ * 入力欄を持つシート（メモ、タグ追加）があるので、キーボードの分だけ
+ * 押し上げる。Modal は自動で避けてくれず、そのままだと入力欄と
+ * ボタンがキーボードの下に隠れる。
  */
 export function BottomSheet({
   visible,
@@ -38,39 +42,42 @@ export function BottomSheet({
       onRequestClose={onRequestClose}
       statusBarTranslucent
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t('common.close')}
-        onPress={dismissOnBackdropPress ? onRequestClose : undefined}
-        style={{ flex: 1, backgroundColor: 'rgba(27, 29, 42, 0.35)', justifyContent: 'flex-end' }}
-      >
-        {/* シート本体のタップが背景に抜けないよう、内側で握りつぶす */}
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <Pressable
-          accessibilityRole="none"
-          onPress={() => undefined}
-          style={{
-            backgroundColor: theme.surface,
-            borderTopLeftRadius: radius.sheet,
-            borderTopRightRadius: radius.sheet,
-            paddingHorizontal: layout.screenPadding,
-            paddingTop: 12,
-            paddingBottom: insets.bottom + 24,
-            gap: layout.cardGap,
-          }}
+          // 閉じられない背景を「閉じる」ボタンとして読み上げさせない
+          accessibilityRole={dismissOnBackdropPress ? 'button' : 'none'}
+          accessibilityLabel={dismissOnBackdropPress ? t('common.close') : undefined}
+          onPress={dismissOnBackdropPress ? onRequestClose : undefined}
+          style={{ flex: 1, backgroundColor: 'rgba(27, 29, 42, 0.35)', justifyContent: 'flex-end' }}
         >
-          <View
+          {/* シート本体のタップが背景に抜けないよう、内側で握りつぶす */}
+          <Pressable
+            accessibilityRole="none"
+            onPress={() => undefined}
             style={{
-              alignSelf: 'center',
-              width: 36,
-              height: 4,
-              borderRadius: radius.pill,
-              backgroundColor: theme['ink-3'],
-              marginBottom: 8,
+              backgroundColor: theme.surface,
+              borderTopLeftRadius: radius.sheet,
+              borderTopRightRadius: radius.sheet,
+              paddingHorizontal: layout.screenPadding,
+              paddingTop: 12,
+              paddingBottom: insets.bottom + 24,
+              gap: layout.cardGap,
             }}
-          />
-          {children}
+          >
+            <View
+              style={{
+                alignSelf: 'center',
+                width: 36,
+                height: 4,
+                borderRadius: radius.pill,
+                backgroundColor: theme['ink-3'],
+                marginBottom: 8,
+              }}
+            />
+            {children}
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

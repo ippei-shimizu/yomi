@@ -16,7 +16,7 @@ export function ProBenefitList() {
           <Text variant="body" script="latin" style={{ color: colors.status.ok }}>
             ✓
           </Text>
-          <Text variant="body" style={{ color: theme.ink }}>
+          <Text variant="body" style={{ flex: 1, color: theme.ink }}>
             {t(key)}
           </Text>
         </View>

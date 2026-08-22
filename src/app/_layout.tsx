@@ -11,7 +11,7 @@ import { MigrationGate } from '@/features/shell/MigrationGate';
 import { initAnalytics } from '@/lib/analytics';
 import { config } from '@/lib/config';
 import { initSentry } from '@/lib/sentry';
-import { useAppFonts } from '@/ui';
+import { ScriptProvider, useAppFonts } from '@/ui';
 
 // 外部サービスの初期化はモジュール読み込み時に一度だけ。
 // いずれもキー未設定なら何もしない（起動を妨げない）。
@@ -30,9 +30,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <MigrationGate>
-          <AppShell />
-        </MigrationGate>
+        <ScriptProvider>
+          <MigrationGate>
+            <AppShell />
+          </MigrationGate>
+        </ScriptProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

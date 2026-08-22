@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Item } from '@/db/schema';
+import { itemRepo } from '@/db/repositories';
 import { layout } from '@/design/tokens';
 import { useEntitlement } from '@/domain/entitlement';
 import { useItemActions, useStaleItems } from '@/features/items/queries';
@@ -72,7 +73,7 @@ export default function StaleItemsScreen() {
         }}
       >
         <ScreenHeader
-          title={t('stale.title')}
+          title={t('stale.title', { days: itemRepo.STALE_THRESHOLD_DAYS })}
           titleVariant="heading"
           onBack={() => router.back()}
           trailing={

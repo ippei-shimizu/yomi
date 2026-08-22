@@ -112,11 +112,13 @@ try { return verify(code); } catch { return false; }
 
 **初出**: 設計時（`docs/DesignDoc.md` §3.1）
 
-### R-ARCH4. RevenueCat を `useEntitlement()` 以外から参照しない
+### R-ARCH4. RevenueCat を `src/domain/entitlement/` 以外から参照しない
 
 **理由**: Pro 判定の分岐が散ると、Dev override との整合が取れなくなり、上限判定にも抜けが出る。
 
-**初出**: 設計時（`docs/DesignDoc.md` 設計原則 4）
+**必須**: 画面からは `useEntitlement()` を使う。ESLint の `no-restricted-imports` が `react-native-purchases` の import を `src/domain/entitlement/` 以外で禁止しており、機械的に落ちる。
+
+**初出**: 設計時（`docs/DesignDoc.md` 設計原則 4）、PR #46 で lint による強制を追加
 
 ### R-ARCH5. 状態を `unread / read / archived` の 3 つから増やさない
 
@@ -492,3 +494,11 @@ const staleCount = useStaleItems().data?.length ?? 0;
 **必須**: Repository に `〜Many` を用意し、1 トランザクションで処理する。`archiveMany` / `removeMany` が例。
 
 **初出**: PR #45
+
+### R-SEC10. 未設定の鍵・シークレットは「空文字」で置き、機能を無効側に倒す
+
+**理由**: 鍵をまだ生成していない段階でダミー値を入れると、検証が通ってしまう経路や、ダミーのまま出荷する事故が起きる。
+
+**必須**: 空文字で置き、空なら**機能そのものを無効にする**（`publicKeyBytes()` が `null` を返し、オーバーライドは常に無効）。リリース前に実鍵を入れる作業を issue に残す。
+
+**初出**: PR #46

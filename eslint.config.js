@@ -55,6 +55,26 @@ module.exports = defineConfig([
     },
   },
   {
+    // 設計原則 4: Pro 判定を 1 箇所に集約する（docs/DesignDoc.md §5.3）。
+    // 判定が散ると Dev override との整合が取れず、上限判定にも抜けが出る。
+    files: ['src/**/*.{ts,tsx}', 'share-extension/**/*.{ts,tsx}'],
+    ignores: ['src/domain/entitlement/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-native-purchases',
+              message:
+                'RevenueCat は src/domain/entitlement/ の中だけで参照してください。画面からは useEntitlement() を使います（docs/DesignDoc.md 設計原則 4）。',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['share-extension/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [

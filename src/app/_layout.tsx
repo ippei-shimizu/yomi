@@ -11,6 +11,7 @@ import { openSharedDb } from '@/db/client';
 import { DatabaseProvider, useDatabase } from '@/db/DatabaseProvider';
 import { useMigrations } from '@/db/migrations';
 import { useMetaFetchWorker } from '@/domain/meta';
+import { configureNotificationHandler, useDailyPickNotification } from '@/domain/notification';
 import { Text, useAppFonts, useThemeColors } from '@/ui';
 
 /**
@@ -53,6 +54,8 @@ function AppShell() {
 
   // 起動のたびにメタ取得を回す（docs/DesignDoc.md §5.2）
   useMetaFetchWorker(db);
+  // 通知は items が変わるたびに積み直す（§5.4）
+  useDailyPickNotification(db);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -69,6 +72,9 @@ function AppShell() {
     </View>
   );
 }
+
+// 通知の表示方法はモジュール読み込み時に一度だけ設定する
+configureNotificationHandler();
 
 export default function RootLayout() {
   // QueryClient はアプリの生存期間で 1 つ。再レンダリングで作り直さない。

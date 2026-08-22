@@ -36,7 +36,8 @@ export function subtitleOf(
   return `${left} · ${relativeDays(daysBetween(item.savedAt, now))}`;
 }
 
-function hostnameOf(url: string): string {
+/** URL のホスト名。パースできない文字列はそのまま返す */
+export function hostnameOf(url: string): string {
   try {
     return new URL(url).hostname;
   } catch {
@@ -53,4 +54,9 @@ export function relativeDays(days: number): string {
 /** 未読件数の見出し。挨拶ではなく状態を主語にする */
 export function unreadHeadline(count: number): string {
   return `未読 ${count} 件`;
+}
+
+/** 「8/22」。年は出さない。詳細画面の狭い行に収めるため */
+export function shortDate(date: Date): string {
+  return `${date.getMonth() + 1}/${date.getDate()}`;
 }

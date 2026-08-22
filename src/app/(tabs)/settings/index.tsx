@@ -1,24 +1,20 @@
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Linking, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, layout, radius } from '@/design/tokens';
+import { layout } from '@/design/tokens';
 import { useEntitlement, usePurchaseActions } from '@/domain/entitlement';
+import { SUPPORT_URL } from '@/features/settings/appInfo';
+import { ProBanner } from '@/features/settings/ProBanner';
 import { SettingsRow, SettingsSection } from '@/features/settings/SettingsRow';
 import {
   useNotificationTimesSetting,
   useReadConfirmSetting,
   useThemeSetting,
 } from '@/features/settings/useSettings';
-import { Card, Text, useThemeColors } from '@/ui';
+import { VersionRow } from '@/features/settings/VersionRow';
+import { Text, useThemeColors } from '@/ui';
 import { useQueryClient } from '@tanstack/react-query';
-
-/** バージョン表記を何回タップで Dev Unlock を開くか */
-const DEV_UNLOCK_TAP_COUNT = 7;
-
-const APP_VERSION = '0.1.0';
-const SUPPORT_URL = 'https://example.com/yomi/support';
 
 const THEME_LABELS = { system: 'システム', light: 'ライト', dark: 'ダーク' } as const;
 
@@ -51,21 +47,9 @@ export default function SettingsScreen() {
       </Text>
 
       {isPro ? null : (
-        <Pressable
-          accessibilityRole="button"
+        <ProBanner
           onPress={() => router.push({ pathname: '/paywall', params: { trigger: 'settings' } })}
-        >
-          <Card size="large" backgroundColor={colors.brand.brand}>
-            <View style={{ padding: 20, gap: 4 }}>
-              <Text variant="heading" style={{ color: '#FFFFFF' }}>
-                ★ Yomi Pro
-              </Text>
-              <Text variant="caption" style={{ color: '#FFFFFF', opacity: 0.85 }}>
-                上限解除・メモ検索・一括整理
-              </Text>
-            </View>
-          </Card>
-        </Pressable>
+        />
       )}
 
       <SettingsSection title="通知">
@@ -138,47 +122,8 @@ export default function SettingsScreen() {
           label="特定商取引法に基づく表記"
           onPress={() => router.push('/(tabs)/settings/about')}
         />
-        <VersionRow />
+        <VersionRow onUnlock={() => router.push('/dev-unlock')} />
       </SettingsSection>
     </ScrollView>
-  );
-}
-
-/** 7 回タップで Dev Unlock */
-function VersionRow() {
-  const theme = useThemeColors();
-  const taps = useRef(0);
-  const [, force] = useState(0);
-
-  return (
-    <Card>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`バージョン ${APP_VERSION}`}
-        onPress={() => {
-          taps.current += 1;
-          if (taps.current >= DEV_UNLOCK_TAP_COUNT) {
-            taps.current = 0;
-            router.push('/dev-unlock');
-          }
-          force((n) => n + 1);
-        }}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          minHeight: 52,
-          borderRadius: radius.card,
-        }}
-      >
-        <Text variant="body" style={{ flex: 1, color: theme.ink }}>
-          バージョン
-        </Text>
-        <Text variant="body" script="latin" style={{ color: theme['ink-2'] }}>
-          {APP_VERSION}
-        </Text>
-      </Pressable>
-    </Card>
   );
 }

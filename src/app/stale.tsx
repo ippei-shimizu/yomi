@@ -5,12 +5,12 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Item } from '@/db/schema';
-import { layout, radius } from '@/design/tokens';
+import { layout } from '@/design/tokens';
 import { useEntitlement } from '@/domain/entitlement';
-import { displayTitle } from '@/features/items/display';
-import { ItemRow } from '@/features/items/ItemRow';
 import { useItemActions, useStaleItems } from '@/features/items/queries';
-import { Button, EmptyState, Text, useThemeColors } from '@/ui';
+import { StaleActionBar } from '@/features/stale/StaleActionBar';
+import { StaleRow } from '@/features/stale/StaleRow';
+import { EmptyState, ScreenHeader, Text, useThemeColors } from '@/ui';
 
 /**
  * 放置アイテムの一括整理。
@@ -56,63 +56,34 @@ export default function StaleItemsScreen() {
 
   const renderItem = useCallback(
     ({ item }: { item: Item }) => (
-      <Pressable
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: selected.has(item.id) }}
-        accessibilityLabel={displayTitle(item)}
-        onPress={() => toggle(item.id)}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: layout.cardGap }}
-      >
-        <View
-          style={{
-            width: 22,
-            height: 22,
-            borderRadius: radius.pill,
-            borderWidth: 2,
-            borderColor: selected.has(item.id) ? theme.ink : theme['ink-3'],
-            backgroundColor: selected.has(item.id) ? theme.ink : 'transparent',
-          }}
-        />
-        <View style={{ flex: 1 }}>
-          <ItemRow item={item} />
-        </View>
-      </Pressable>
+      <StaleRow item={item} selected={selected.has(item.id)} onToggle={() => toggle(item.id)} />
     ),
-    [selected, theme, toggle],
+    [selected, toggle],
   );
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
           paddingHorizontal: layout.screenPadding,
           paddingTop: insets.top + 8,
           paddingBottom: layout.cardGap,
         }}
       >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="戻る"
-          onPress={() => router.back()}
-          hitSlop={8}
-        >
-          <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-            ←
-          </Text>
-        </Pressable>
-        <Text variant="heading" style={{ flex: 1, color: theme.ink }}>
-          30日以上放置
-        </Text>
-        {items.length === 0 ? null : (
-          <Pressable accessibilityRole="button" onPress={selectAll} hitSlop={8}>
-            <Text variant="body" style={{ color: theme.ink }}>
-              {selected.size === items.length ? '選択解除' : 'すべて選択'}
-            </Text>
-          </Pressable>
-        )}
+        <ScreenHeader
+          title="30日以上放置"
+          titleVariant="heading"
+          onBack={() => router.back()}
+          trailing={
+            items.length === 0 ? null : (
+              <Pressable accessibilityRole="button" onPress={selectAll} hitSlop={8}>
+                <Text variant="body" style={{ color: theme.ink }}>
+                  {selected.size === items.length ? '選択解除' : 'すべて選択'}
+                </Text>
+              </Pressable>
+            )
+          }
+        />
       </View>
 
       <FlashList
@@ -134,32 +105,12 @@ export default function StaleItemsScreen() {
       />
 
       {items.length === 0 ? null : (
-        <View
-          style={{
-            position: 'absolute',
-            left: layout.screenPadding,
-            right: layout.screenPadding,
-            bottom: insets.bottom + 24,
-            flexDirection: 'row',
-            gap: 12,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Button
-              label={`アーカイブ (${selected.size})`}
-              variant="secondary"
-              onPress={() => runBulk('archive')}
-              disabled={selected.size === 0}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Button
-              label={`今週読む (${selected.size})`}
-              onPress={() => runBulk('bump')}
-              disabled={selected.size === 0}
-            />
-          </View>
-        </View>
+        <StaleActionBar
+          count={selected.size}
+          bottomInset={insets.bottom + 24}
+          onArchive={() => runBulk('archive')}
+          onBump={() => runBulk('bump')}
+        />
       )}
     </View>
   );

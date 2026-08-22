@@ -4,27 +4,27 @@ import { useCallback, useState } from 'react';
 import { Pressable, useWindowDimensions, View } from 'react-native';
 
 import type { Item } from '@/db/schema';
-import { itemRepo } from '@/db/repositories';
-import { layout, radius } from '@/design/tokens';
-import { displayTitle, unreadHeadline } from '@/features/items/display';
+import { layout } from '@/design/tokens';
+import { displayTitle } from '@/features/items/display';
 import { ItemRow } from '@/features/items/ItemRow';
 import { SwipeableRow } from '@/features/items/SwipeableRow';
 import { TodaysPickCard } from '@/features/items/TodaysPickCard';
+import type { UnreadOrder } from '@/features/items/queries';
 import { useItemActions, useStaleItems, useUnreadItems } from '@/features/items/queries';
 import { useTodaysPick } from '@/features/items/useTodaysPick';
+import { SNOOZE_DAYS } from '@/features/reading/snooze';
+import { HomeBanner } from '@/features/home/HomeBanner';
+import { HomeHeader } from '@/features/home/HomeHeader';
 import { useDatabase } from '@/db/DatabaseProvider';
 import { remainingSaves, shouldWarnAboutLimit, useEntitlement } from '@/domain/entitlement';
 import { getString, setString, storageKeys } from '@/lib/storage';
-import { Button, EmptyState, Text, colors, useThemeColors } from '@/ui';
-
-/** スヌーズの既定日数 */
-const SNOOZE_DAYS = 7;
+import { Button, EmptyState, colors, useThemeColors } from '@/ui';
 
 export default function HomeScreen() {
   const theme = useThemeColors();
   const { width } = useWindowDimensions();
-  const [order, setOrder] = useState<itemRepo.UnreadOrder>(
-    () => (getString(storageKeys.unreadOrder) as itemRepo.UnreadOrder | undefined) ?? 'oldest',
+  const [order, setOrder] = useState<UnreadOrder>(
+    () => (getString(storageKeys.unreadOrder) as UnreadOrder | undefined) ?? 'oldest',
   );
 
   const db = useDatabase();
@@ -72,6 +72,9 @@ export default function HomeScreen() {
     [actions, openItem, width],
   );
 
+  // 早めに絞り込んでおくと、下の JSX で item の null 判定を繰り返さずに済む
+  const pickItem = pick.item;
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <FlashList
@@ -86,19 +89,19 @@ export default function HomeScreen() {
         }}
         ListHeaderComponent={
           <View style={{ gap: layout.sectionGap, marginBottom: layout.sectionGap }}>
-            <Header
+            <HomeHeader
               count={items.length}
               order={order}
               onToggleOrder={toggleOrder}
               onSearch={() => router.push('/(tabs)/library')}
             />
 
-            {pick.item === null ? null : (
-              <TodaysPickView
-                item={pick.item}
+            {pickItem === null ? null : (
+              <TodaysPickCard
+                item={pickItem}
                 canReshuffle={pick.canReshuffle}
                 onReshuffle={pick.reshuffle}
-                onOpen={openItem}
+                onOpen={() => openItem(pickItem)}
               />
             )}
 
@@ -109,8 +112,7 @@ export default function HomeScreen() {
                   router.push({ pathname: '/paywall', params: { trigger: 'limit_save' } })
                 }
               >
-                {/* 事実だけを書く。煽らない */}
-                <Banner
+                <HomeBanner
                   dotColor={colors.status.warn}
                   label={`保存できるのは残り ${remaining} 件です`}
                 />
@@ -119,7 +121,7 @@ export default function HomeScreen() {
 
             {staleCount > 0 ? (
               <Pressable accessibilityRole="button" onPress={() => router.push('/stale')}>
-                <Banner
+                <HomeBanner
                   dotColor={colors.status.danger}
                   label={`30日以上放置が ${staleCount} 件 → 整理する`}
                 />
@@ -143,99 +145,6 @@ export default function HomeScreen() {
           )
         }
       />
-    </View>
-  );
-}
-
-/** ホーム上部の通知バナー。brand-soft 塗りの pill */
-function Banner({ dotColor, label }: { dotColor: string; label: string }) {
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        backgroundColor: colors.brand['brand-soft'],
-        borderRadius: radius.pill,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-      }}
-    >
-      <View style={{ width: 8, height: 8, borderRadius: radius.pill, backgroundColor: dotColor }} />
-      <Text variant="caption" style={{ color: colors.brand.brand }}>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-function TodaysPickView({
-  item,
-  canReshuffle,
-  onReshuffle,
-  onOpen,
-}: {
-  item: Item;
-  canReshuffle: boolean;
-  onReshuffle: () => void;
-  onOpen: (item: Item) => void;
-}) {
-  return (
-    <TodaysPickCard
-      item={item}
-      canReshuffle={canReshuffle}
-      onReshuffle={onReshuffle}
-      onOpen={() => onOpen(item)}
-    />
-  );
-}
-
-function Header({
-  count,
-  order,
-  onToggleOrder,
-  onSearch,
-}: {
-  count: number;
-  order: itemRepo.UnreadOrder;
-  onToggleOrder: () => void;
-  onSearch: () => void;
-}) {
-  const theme = useThemeColors();
-
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-      <View>
-        {/* 挨拶ではなく状態を主語にする */}
-        <Text variant="caption" style={{ color: theme['ink-2'] }}>
-          今日も 1 本
-        </Text>
-        <Text variant="display" style={{ color: theme.ink }}>
-          {unreadHeadline(count)}
-        </Text>
-      </View>
-      <View style={{ flexDirection: 'row', gap: 12 }}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={order === 'oldest' ? '新しい順に並べ替える' : '古い順に並べ替える'}
-          onPress={onToggleOrder}
-          hitSlop={8}
-        >
-          <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-            ⇅
-          </Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="検索"
-          onPress={onSearch}
-          hitSlop={8}
-        >
-          <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-            ⌕
-          </Text>
-        </Pressable>
-      </View>
     </View>
   );
 }

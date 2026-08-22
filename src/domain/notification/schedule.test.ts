@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   DEFAULT_NOTIFICATION_TIME,
+  DEFAULT_TIME_OF_DAY,
   SCHEDULE_DAYS,
   formatTimeOfDay,
   nextOccurrence,
   occurrencesFor,
+  parseTimeList,
   parseTimeOfDay,
 } from './schedule';
 
@@ -110,6 +112,33 @@ describe('occurrencesFor', () => {
   it('すべて未来の日時になる', () => {
     for (const occurrence of occurrencesFor([{ hour: 8, minute: 0 }], NOW)) {
       expect(occurrence.getTime()).toBeGreaterThan(NOW.getTime());
+    }
+  });
+});
+
+describe('parseTimeList', () => {
+  it('カンマ区切りをすべて読む', () => {
+    expect(parseTimeList('07:00,21:30')).toEqual([
+      { hour: 7, minute: 0 },
+      { hour: 21, minute: 30 },
+    ]);
+  });
+
+  it('読めない要素だけを捨てる', () => {
+    expect(parseTimeList('07:00,25:00,あ,21:00')).toEqual([
+      { hour: 7, minute: 0 },
+      { hour: 21, minute: 0 },
+    ]);
+  });
+
+  it('1 つも読めなければ既定値に倒す（通知を止めない）', () => {
+    expect(parseTimeList('')).toEqual([DEFAULT_TIME_OF_DAY]);
+    expect(parseTimeList('壊れた設定')).toEqual([DEFAULT_TIME_OF_DAY]);
+  });
+
+  it('どんな入力でも空配列は返さない', () => {
+    for (const raw of ['', ',', ',,,', '  ', 'null', '99:99']) {
+      expect(parseTimeList(raw).length).toBeGreaterThan(0);
     }
   });
 });

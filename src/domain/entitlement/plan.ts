@@ -62,3 +62,8 @@ export const LIMIT_WARNING_REMAINING = 5;
 export function shouldWarnAboutLimit(remaining: number | null): boolean {
   return remaining !== null && remaining <= LIMIT_WARNING_REMAINING;
 }
+
+/** 画面遷移パラメータなどの文字列が、既知のペイウォール契機かどうか */
+export function isPaywallTrigger(value: string | undefined): value is PaywallTrigger {
+  return value !== undefined && (PRO_FEATURES as readonly string[]).includes(value);
+}

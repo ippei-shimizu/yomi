@@ -651,3 +651,38 @@ sql`${items.title} LIKE ${'%' + escapeLike(query) + '%'} ESCAPE '\\'`
 - 機械的に処理しきれない箇所は、無理に正規表現を増やさず手作業に回す
 
 **初出**: PR #56
+
+### R-UI17. コンポーネント抽出で、ハンドラを渡すかどうかの分岐を子へ移さない
+
+**理由**: `onLongPress` を渡すか `undefined` にするかは、見た目ではなく**イベントが消費されるかどうか**を決める。React Native の `Pressable` は `onLongPress` があれば長押しを消費して `onPress` を発火させないが、`undefined` なら指を離した時点で `onPress` が走る。分岐を子に移した結果、選択モード中の長押しが「何も起きない」から「選択がトグルされる」に変わっていた。
+
+```tsx
+// 悪い — 子が undefined に落とすと、親が意図した「消費して何もしない」が失われる
+<Pressable onLongPress={selecting ? undefined : onLongPress}>
+// 良い — 渡すかどうかは親が決め、子は受け取ったものをそのまま渡す
+<Pressable onLongPress={onLongPress}>
+// 親:
+onLongPress={() => (isSelecting ? undefined : openMenu(item))}
+```
+
+**必須**: 抽出前後で、ハンドラが `undefined` になる条件を変えない。挙動を変えたいなら、リファクタとは別の変更として出す。
+
+**初出**: PR #57
+
+### R-UI18. 「必ず 1 件以上返す」関数の既定値は、パースを経由せず値そのもので持つ
+
+**理由**: 通知時刻の既定値を `'08:00'` という**文字列**で持つと、フォールバック処理が `parseTimeOfDay(DEFAULT) ?? []` の形になり、既定値の書き間違い 1 つで空配列＝通知停止に落ちる。落ちたことは実行時まで分からず、利用者からは「設定したのに来ない」としか見えない。
+
+```ts
+// 悪い — 既定値が読めなければ空になる
+const fallback = parseTimeOfDay(DEFAULT_NOTIFICATION_TIME);
+return fallback === null ? [] : [fallback];
+// 良い — 値で持ち、文字列の方を派生させる
+export const DEFAULT_TIME_OF_DAY: TimeOfDay = { hour: 8, minute: 0 };
+export const DEFAULT_NOTIFICATION_TIME = formatTimeOfDay(DEFAULT_TIME_OF_DAY);
+return times.length > 0 ? times : [DEFAULT_TIME_OF_DAY];
+```
+
+**必須**: 「空を返さない」ことを型か構造で保証する。加えて、壊れた入力を並べて**長さが 0 にならない**ことをテストで固定する。
+
+**初出**: PR #57

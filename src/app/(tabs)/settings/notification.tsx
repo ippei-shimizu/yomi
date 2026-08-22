@@ -1,13 +1,18 @@
 import { router } from 'expo-router';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { layout } from '@/design/tokens';
 import { useEntitlement } from '@/domain/entitlement';
-import { formatTimeOfDay, parseTimeOfDay, type TimeOfDay } from '@/domain/notification';
+import {
+  formatTimeOfDay,
+  parseTimeList,
+  parseTimeOfDay,
+  type TimeOfDay,
+} from '@/domain/notification';
 import { SettingsRow, SettingsSection } from '@/features/settings/SettingsRow';
 import { useNotificationTimesSetting } from '@/features/settings/useSettings';
-import { Button, Text, useThemeColors } from '@/ui';
+import { Button, ScreenHeader, Text, useThemeColors } from '@/ui';
 
 /** 選べる時刻。専用ピッカーを入れずに済ませる */
 const TIME_CHOICES = ['06:00', '07:00', '08:00', '09:00', '12:00', '18:00', '21:00', '22:00'];
@@ -18,7 +23,7 @@ export default function NotificationSettingsScreen() {
   const { limits } = useEntitlement();
 
   const [raw, setRaw] = useNotificationTimesSetting();
-  const times = parseTimes(raw);
+  const times = parseTimeList(raw);
 
   const commit = (next: TimeOfDay[]) => {
     // 空にはできない。0 件だと通知が止まり、原因が分からなくなる
@@ -58,21 +63,7 @@ export default function NotificationSettingsScreen() {
         gap: layout.sectionGap,
       }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="戻る"
-          onPress={() => router.back()}
-          hitSlop={8}
-        >
-          <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-            ←
-          </Text>
-        </Pressable>
-        <Text variant="display" style={{ color: theme.ink }}>
-          今日の 1 本
-        </Text>
-      </View>
+      <ScreenHeader title="今日の 1 本" onBack={() => router.back()} />
 
       <Text variant="caption" style={{ color: theme['ink-2'] }}>
         {limits.multipleNotificationTimes
@@ -100,14 +91,4 @@ export default function NotificationSettingsScreen() {
       )}
     </ScrollView>
   );
-}
-
-function parseTimes(raw: string): TimeOfDay[] {
-  const parsed = raw
-    .split(',')
-    .map((value) => parseTimeOfDay(value))
-    .filter((time): time is TimeOfDay => time !== null);
-
-  // 壊れていても通知が止まらないよう既定値に倒す
-  return parsed.length > 0 ? parsed : [{ hour: 8, minute: 0 }];
 }

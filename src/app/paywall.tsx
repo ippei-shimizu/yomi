@@ -1,32 +1,31 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, layout, radius } from '@/design/tokens';
+import { layout } from '@/design/tokens';
 import {
-  PRO_FEATURES,
+  isPaywallTrigger,
+  isUserCancelled,
   useEntitlement,
   useOfferings,
   usePurchaseActions,
-  type PaywallTrigger,
 } from '@/domain/entitlement';
 import {
   DEFAULT_PLAN,
   PLANS,
-  PRO_BENEFITS,
   ctaLabelFor,
   headlineFor,
   renewalNoticeFor,
   type PlanKind,
 } from '@/features/paywall/copy';
+import { LegalLink } from '@/features/paywall/LegalLink';
+import { PRIVACY_URL, TERMS_URL } from '@/features/paywall/legal';
+import { PlanOption } from '@/features/paywall/PlanOption';
+import { ProBenefitList } from '@/features/paywall/ProBenefitList';
 import { capture } from '@/lib/analytics';
 import { Button, Text, useThemeColors } from '@/ui';
-
-/** 法務ページ。リリース前に実 URL へ差し替える */
-const TERMS_URL = 'https://example.com/yomi/terms';
-const PRIVACY_URL = 'https://example.com/yomi/privacy';
 
 export default function PaywallScreen() {
   const { trigger } = useLocalSearchParams<{ trigger?: string }>();
@@ -127,68 +126,19 @@ export default function PaywallScreen() {
         ) : null}
       </View>
 
-      <View style={{ gap: 12 }}>
-        {PRO_BENEFITS.map((benefit) => (
-          <View key={benefit} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Text variant="body" script="latin" style={{ color: colors.status.ok }}>
-              ✓
-            </Text>
-            <Text variant="body" style={{ color: theme.ink }}>
-              {benefit}
-            </Text>
-          </View>
-        ))}
-      </View>
+      <ProBenefitList />
 
       <View style={{ gap: layout.cardGap }}>
-        {PLANS.map((plan) => {
-          const isSelected = plan.kind === selected;
-          const price = packageFor(plan.kind)?.product.priceString ?? plan.fallbackPrice;
-
-          return (
-            <Pressable
-              key={plan.kind}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: isSelected }}
-              onPress={() => setSelected(plan.kind)}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: 16,
-                  borderRadius: radius.card,
-                  borderWidth: 2,
-                  borderColor: isSelected ? colors.brand.brand : 'transparent',
-                  backgroundColor: isSelected ? colors.brand['brand-soft'] : theme.surface,
-                }}
-              >
-                <Text variant="body" style={{ flex: 1, color: theme.ink }}>
-                  {plan.label}
-                </Text>
-                {plan.badge === undefined ? null : (
-                  <View
-                    style={{
-                      backgroundColor: colors.source['src-amber'],
-                      borderRadius: radius.pill,
-                      paddingHorizontal: 10,
-                      height: 20,
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text variant="caption" style={{ color: '#FFFFFF', lineHeight: 13 }}>
-                      {plan.badge}
-                    </Text>
-                  </View>
-                )}
-                <Text variant="body" script="latin" style={{ color: theme.ink }}>
-                  {price}
-                </Text>
-              </View>
-            </Pressable>
-          );
-        })}
+        {PLANS.map((plan) => (
+          <PlanOption
+            key={plan.kind}
+            label={plan.label}
+            price={packageFor(plan.kind)?.product.priceString ?? plan.fallbackPrice}
+            badge={plan.badge}
+            selected={plan.kind === selected}
+            onPress={() => setSelected(plan.kind)}
+          />
+        ))}
       </View>
 
       <Button
@@ -216,30 +166,5 @@ export default function PaywallScreen() {
         disabled={busy}
       />
     </ScrollView>
-  );
-}
-
-function LegalLink({ label, url }: { label: string; url: string }) {
-  const theme = useThemeColors();
-
-  return (
-    <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(url)}>
-      <Text variant="caption" style={{ color: theme['ink-2'], textDecorationLine: 'underline' }}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
-function isPaywallTrigger(value: string | undefined): value is PaywallTrigger {
-  return value !== undefined && (PRO_FEATURES as readonly string[]).includes(value);
-}
-
-/** RevenueCat はユーザーのキャンセルも例外で返す。エラー表示は出さない */
-function isUserCancelled(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    (error as Record<string, unknown>)['userCancelled'] === true
   );
 }

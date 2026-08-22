@@ -10,8 +10,8 @@ import {
   clearOverride,
   readOverride,
   type OverrideState,
-  type VerifyResult,
 } from '@/domain/entitlement';
+import { describeVerifyResult } from '@/features/devUnlock/message';
 import { Button, Text, useThemeColors } from '@/ui';
 
 /**
@@ -44,7 +44,7 @@ export default function DevUnlockScreen() {
 
   const onVerify = async () => {
     const result = await applyOverride(code);
-    setMessage(describeResult(result));
+    setMessage(describeVerifyResult(result));
     if (result.valid) {
       setCode('');
       await refresh();
@@ -122,19 +122,4 @@ export default function DevUnlockScreen() {
       ) : null}
     </View>
   );
-}
-
-function describeResult(result: VerifyResult): string {
-  if (result.valid) return '有効なコードです';
-
-  switch (result.reason) {
-    case 'expired':
-      return '期限が切れています';
-    case 'bad-signature':
-      return '署名が一致しません';
-    case 'bad-payload':
-      return 'コードの内容が不正です';
-    case 'malformed':
-      return 'コードの形式が不正です（公開鍵が未設定の可能性があります）';
-  }
 }

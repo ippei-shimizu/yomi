@@ -1,23 +1,30 @@
 import * as Clipboard from 'expo-clipboard';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDatabase } from '@/db/DatabaseProvider';
 import { itemRepo } from '@/db/repositories';
 import type { Item } from '@/db/schema';
-import { layout, radius, typography } from '@/design/tokens';
-import { displayTitle } from '@/features/items/display';
+import { layout, radius } from '@/design/tokens';
+import { ItemMemoField } from '@/features/items/detail/ItemMemoField';
+import { ItemMetaLine } from '@/features/items/detail/ItemMetaLine';
+import { ItemMoreMenu } from '@/features/items/detail/ItemMoreMenu';
+import { ItemStatusActions } from '@/features/items/detail/ItemStatusActions';
+import { ItemTagRow } from '@/features/items/detail/ItemTagRow';
+import { ItemTitleField } from '@/features/items/detail/ItemTitleField';
 import { useInvalidateItems, useItem, useItemActions } from '@/features/items/queries';
-import { useItemTags } from '@/features/tags/queries';
 import { TagPickerSheet } from '@/features/tags/TagPickerSheet';
 import { MemoSheet } from '@/features/reading/MemoSheet';
 import { ReadConfirmSheet } from '@/features/reading/ReadConfirmSheet';
+import { SNOOZE_DAYS } from '@/features/reading/snooze';
+import { SnoozeSuggestionSheet } from '@/features/reading/SnoozeSuggestionSheet';
 import { useReadFlow } from '@/features/reading/useReadFlow';
-import { BottomSheet, Button, Card, Chip, SourceIcon, Text, Toast, useThemeColors } from '@/ui';
+import { Button, Card, ScreenHeader, Text, Toast, useThemeColors } from '@/ui';
 
-const SNOOZE_DAYS = 7;
+/** トーストを消すまでの時間 */
+const TOAST_MS = 2_000;
 
 export default function ItemDetailScreen() {
   const { id, open } = useLocalSearchParams<{ id: string; open?: string }>();
@@ -69,7 +76,7 @@ export default function ItemDetailScreen() {
 
   const showToast = (message: string) => {
     setToast(message);
-    setTimeout(() => setToast(null), 2_000);
+    setTimeout(() => setToast(null), TOAST_MS);
   };
 
   const onDelete = () => {
@@ -97,27 +104,20 @@ export default function ItemDetailScreen() {
           gap: layout.sectionGap,
         }}
       >
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="戻る"
-            onPress={() => router.back()}
-            hitSlop={8}
-          >
-            <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-              ←
-            </Text>
-          </Pressable>
-          <MoreMenu
-            item={item}
-            onRefetchMeta={() => {
-              itemRepo.resetMetaStatus(db, item.id);
-              void invalidate();
-              showToast('再取得します');
-            }}
-            onDelete={onDelete}
-          />
-        </View>
+        <ScreenHeader
+          onBack={() => router.back()}
+          trailing={
+            <ItemMoreMenu
+              item={item}
+              onRefetchMeta={() => {
+                itemRepo.resetMetaStatus(db, item.id);
+                void invalidate();
+                showToast('再取得します');
+              }}
+              onDelete={onDelete}
+            />
+          }
+        />
 
         {item.thumbnailUrl === null ? null : (
           <Image
@@ -131,26 +131,14 @@ export default function ItemDetailScreen() {
           />
         )}
 
-        <TitleField item={item} onSaved={() => void invalidate()} />
+        <ItemTitleField item={item} onSaved={() => void invalidate()} />
 
-        <View style={{ gap: 6 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <SourceIcon source={item.source} size={16} />
-            <Text variant="caption" style={{ color: theme['ink-2'] }}>
-              {item.siteName ?? new URL(item.url).hostname}
-              {item.author === null ? '' : ` · @${item.author.replace(/^@/, '')}`}
-            </Text>
-          </View>
-          <Text variant="caption" script="latin" style={{ color: theme['ink-2'] }}>
-            保存: {formatDate(item.savedAt)}
-            {item.readAt === null ? '' : `  読了: ${formatDate(item.readAt)}`}
-          </Text>
-        </View>
+        <ItemMetaLine item={item} />
 
-        <TagRow itemId={item.id} onOpenPicker={() => setTagPickerOpen(true)} />
+        <ItemTagRow itemId={item.id} onOpenPicker={() => setTagPickerOpen(true)} />
 
         {item.status === 'read' ? (
-          <MemoField item={item} onSaved={() => void invalidate()} />
+          <ItemMemoField item={item} onSaved={() => void invalidate()} />
         ) : null}
 
         <View style={{ gap: 8 }}>
@@ -176,7 +164,7 @@ export default function ItemDetailScreen() {
 
         <View style={{ gap: 12 }}>
           <Button label="開く" onPress={() => openBrowser(item)} />
-          <StatusActions
+          <ItemStatusActions
             item={item}
             onRead={() => actions.mutate({ type: 'read', id: item.id })}
             onSnooze={() => {
@@ -230,208 +218,5 @@ export default function ItemDetailScreen() {
         onDismiss={readFlow.dismiss}
       />
     </View>
-  );
-}
-
-/** 詳細画面のタグ行。+ でタグ選択シートを開く */
-function TagRow({ itemId, onOpenPicker }: { itemId: string; onOpenPicker: () => void }) {
-  const theme = useThemeColors();
-  const { data: tags = [] } = useItemTags(itemId);
-
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-      <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        タグ
-      </Text>
-      {tags.map((tag) => (
-        <Chip key={tag.id} label={tag.name} selected onPress={onOpenPicker} />
-      ))}
-      <Chip label="＋" onPress={onOpenPicker} />
-    </View>
-  );
-}
-
-function formatDate(date: Date): string {
-  return `${date.getMonth() + 1}/${date.getDate()}`;
-}
-
-function TitleField({ item, onSaved }: { item: Item; onSaved: () => void }) {
-  const theme = useThemeColors();
-  const db = useDatabase();
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(() => displayTitle(item));
-
-  if (!editing) {
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="タイトルを編集"
-        onPress={() => {
-          setValue(displayTitle(item));
-          setEditing(true);
-        }}
-      >
-        <Text variant="display" style={{ color: theme.ink }}>
-          {displayTitle(item)}
-        </Text>
-      </Pressable>
-    );
-  }
-
-  return (
-    <TextInput
-      value={value}
-      onChangeText={setValue}
-      autoFocus
-      multiline
-      onBlur={() => {
-        const trimmed = value.trim();
-        // 空にはできない。空欄で確定するとホスト名にも戻せなくなる
-        if (trimmed.length > 0 && trimmed !== item.title) {
-          itemRepo.update(db, item.id, { title: trimmed });
-          onSaved();
-        }
-        setEditing(false);
-      }}
-      style={{ ...typography.display, color: theme.ink }}
-    />
-  );
-}
-
-function MemoField({ item, onSaved }: { item: Item; onSaved: () => void }) {
-  const theme = useThemeColors();
-  const db = useDatabase();
-  const [value, setValue] = useState(item.memo ?? '');
-
-  return (
-    <View style={{ gap: 8 }}>
-      <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        メモ
-      </Text>
-      <TextInput
-        value={value}
-        onChangeText={setValue}
-        placeholder="何を得た？"
-        placeholderTextColor={theme['ink-3']}
-        multiline
-        onBlur={() => {
-          const next = value.trim();
-          if (next !== (item.memo ?? '')) {
-            itemRepo.update(db, item.id, { memo: next.length > 0 ? next : null });
-            onSaved();
-          }
-        }}
-        style={{
-          ...typography.body,
-          color: theme.ink,
-          backgroundColor: theme.surface,
-          borderRadius: radius.card,
-          padding: 16,
-          minHeight: 72,
-        }}
-      />
-    </View>
-  );
-}
-
-/** 状態に応じてボタンを出し分ける */
-function StatusActions({
-  item,
-  onRead,
-  onSnooze,
-  onArchive,
-  onRestore,
-}: {
-  item: Item;
-  onRead: () => void;
-  onSnooze: () => void;
-  onArchive: () => void;
-  onRestore: () => void;
-}) {
-  const buttons =
-    item.status === 'unread'
-      ? [
-          { label: '読んだ', onPress: onRead },
-          { label: 'あとで', onPress: onSnooze },
-          { label: 'アーカイブ', onPress: onArchive },
-        ]
-      : item.status === 'read'
-        ? [
-            { label: '未読に戻す', onPress: onRestore },
-            { label: 'アーカイブ', onPress: onArchive },
-          ]
-        : [{ label: '未読に戻す', onPress: onRestore }];
-
-  return (
-    <View style={{ flexDirection: 'row', gap: 8 }}>
-      {buttons.map((button) => (
-        <View key={button.label} style={{ flex: 1 }}>
-          <Button label={button.label} variant="secondary" onPress={button.onPress} />
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function MoreMenu({
-  item,
-  onRefetchMeta,
-  onDelete,
-}: {
-  item: Item;
-  onRefetchMeta: () => void;
-  onDelete: () => void;
-}) {
-  const theme = useThemeColors();
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="その他の操作"
-      hitSlop={8}
-      onPress={() =>
-        Alert.alert('その他', undefined, [
-          { text: 'メタデータを再取得', onPress: onRefetchMeta },
-          { text: '共有', onPress: () => void Share.share({ url: item.url }) },
-          { text: '削除', style: 'destructive', onPress: onDelete },
-          { text: 'やめる', style: 'cancel' },
-        ])
-      }
-    >
-      <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-        ⋯
-      </Text>
-    </Pressable>
-  );
-}
-
-function SnoozeSuggestionSheet({
-  visible,
-  onAccept,
-  onDismiss,
-}: {
-  visible: boolean;
-  onAccept: () => void;
-  onDismiss: () => void;
-}) {
-  const theme = useThemeColors();
-
-  return (
-    <BottomSheet visible={visible} onRequestClose={onDismiss}>
-      <Text variant="heading" style={{ color: theme.ink, textAlign: 'center' }}>
-        あとでにしますか？
-      </Text>
-      <Text variant="caption" style={{ color: theme['ink-2'], textAlign: 'center' }}>
-        {SNOOZE_DAYS} 日後にもう一度お知らせします
-      </Text>
-      <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-        <View style={{ flex: 1 }}>
-          <Button label="あとで" onPress={onAccept} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button label="このまま" variant="secondary" onPress={onDismiss} />
-        </View>
-      </View>
-    </BottomSheet>
   );
 }

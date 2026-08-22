@@ -8,11 +8,14 @@ import { addDays } from '@/domain/date/week';
 /** 何日分先までスケジュールするか */
 export const SCHEDULE_DAYS = 7;
 
-/** 既定の通知時刻 */
-export const DEFAULT_NOTIFICATION_TIME = '08:00';
-
 /** "HH:mm" 形式の時刻 */
 export type TimeOfDay = { hour: number; minute: number };
+
+/** 既定の通知時刻 */
+export const DEFAULT_TIME_OF_DAY: TimeOfDay = { hour: 8, minute: 0 };
+
+/** 既定の通知時刻の文字列表現。設定値の初期値として保存する */
+export const DEFAULT_NOTIFICATION_TIME = formatTimeOfDay(DEFAULT_TIME_OF_DAY);
 
 export function parseTimeOfDay(value: string): TimeOfDay | null {
   const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
@@ -23,6 +26,21 @@ export function parseTimeOfDay(value: string): TimeOfDay | null {
   if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
 
   return { hour, minute };
+}
+
+/**
+ * "07:00,21:00" のような設定文字列を時刻の配列にする。
+ *
+ * 1 つも読めなかった場合は既定値に倒す。空配列を返すと通知が止まり、
+ * 利用者からは「設定したのに来ない」としか見えなくなる。
+ */
+export function parseTimeList(raw: string): TimeOfDay[] {
+  const times = raw
+    .split(',')
+    .map((value) => parseTimeOfDay(value))
+    .filter((time): time is TimeOfDay => time !== null);
+
+  return times.length > 0 ? times : [DEFAULT_TIME_OF_DAY];
 }
 
 export function formatTimeOfDay({ hour, minute }: TimeOfDay): string {

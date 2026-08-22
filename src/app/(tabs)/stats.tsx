@@ -5,19 +5,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDatabase } from '@/db/DatabaseProvider';
 import { queryKeys } from '@/db/queryKeys';
 import { statsRepo } from '@/db/repositories';
-import { colors, layout, radius } from '@/design/tokens';
+import { colors, layout } from '@/design/tokens';
 import {
   formatAverageDays,
   formatDelta,
   formatRate,
   formatRateDelta,
   formatWeekRange,
-  formatWeekTick,
-  weekBars,
 } from '@/features/stats/format';
+import { SourceReadRateList } from '@/features/stats/SourceReadRateList';
+import { StatCard } from '@/features/stats/StatCard';
+import { WeeklyChart } from '@/features/stats/WeeklyChart';
 import { Card, SectionHeader, Text, useThemeColors } from '@/ui';
-
-const CHART_HEIGHT = 96;
 
 export default function StatsScreen() {
   const theme = useThemeColors();
@@ -104,109 +103,10 @@ export default function StatsScreen() {
         <View style={{ gap: layout.cardGap }}>
           <SectionHeader title="ソース別 読了率" />
           <Card>
-            <View style={{ padding: 16, gap: 10 }}>
-              {bySource.map((row) => (
-                <View
-                  key={row.source}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-                >
-                  <Text variant="caption" style={{ flex: 1, color: theme.ink }}>
-                    {row.source}
-                  </Text>
-                  <Text variant="caption" script="latin" style={{ color: theme['ink-2'] }}>
-                    {row.read} / {row.total}
-                  </Text>
-                  <Text
-                    variant="body"
-                    script="latin"
-                    style={{ color: theme.ink, minWidth: 48, textAlign: 'right' }}
-                  >
-                    {formatRate(row.readRate)}
-                  </Text>
-                </View>
-              ))}
-            </View>
+            <SourceReadRateList rows={bySource} />
           </Card>
         </View>
       )}
     </ScrollView>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  delta,
-  color,
-}: {
-  label: string;
-  value: string;
-  delta: string;
-  color: string;
-}) {
-  return (
-    <View style={{ flex: 1 }}>
-      <Card size="large" backgroundColor={color}>
-        <View style={{ padding: 16, gap: 4, minHeight: 96, justifyContent: 'space-between' }}>
-          <Text variant="caption" style={{ color: '#FFFFFF', opacity: 0.85 }}>
-            {label}
-          </Text>
-          {/* 数字は Outfit を使う */}
-          <Text variant="display" script="latin" style={{ color: '#FFFFFF' }}>
-            {value}
-          </Text>
-          <Text variant="caption" script="latin" style={{ color: '#FFFFFF', opacity: 0.85 }}>
-            {delta}
-          </Text>
-        </View>
-      </Card>
-    </View>
-  );
-}
-
-/** 保存（薄）/ 読了（濃）の棒グラフ */
-function WeeklyChart({ weeks }: { weeks: { weekStart: Date; saved: number; read: number }[] }) {
-  const theme = useThemeColors();
-  const bars = weekBars(weeks, CHART_HEIGHT);
-
-  return (
-    <View style={{ gap: 8 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: CHART_HEIGHT, gap: 6 }}>
-        {weeks.map((week, index) => (
-          <View key={week.weekStart.toISOString()} style={{ flex: 1, justifyContent: 'flex-end' }}>
-            <View
-              style={{
-                // 0 件の週も存在が分かるよう最低 2pt は描く
-                height: Math.max(2, bars[index]?.savedHeight ?? 0),
-                borderRadius: radius.icon,
-                backgroundColor: colors.brand['brand-soft'],
-                justifyContent: 'flex-end',
-              }}
-            >
-              <View
-                style={{
-                  height: bars[index]?.readHeight ?? 0,
-                  borderRadius: radius.icon,
-                  backgroundColor: colors.brand.brand,
-                }}
-              />
-            </View>
-          </View>
-        ))}
-      </View>
-      <View style={{ flexDirection: 'row', gap: 6 }}>
-        {weeks.map((week, index) => (
-          <Text
-            key={week.weekStart.toISOString()}
-            variant="caption"
-            script="latin"
-            numberOfLines={1}
-            style={{ flex: 1, color: theme['ink-3'], fontSize: 9, textAlign: 'center' }}
-          >
-            {index % 2 === 0 ? formatWeekTick(week.weekStart) : ''}
-          </Text>
-        ))}
-      </View>
-    </View>
   );
 }

@@ -1,13 +1,13 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { layout, radius, typography } from '@/design/tokens';
+import { layout } from '@/design/tokens';
 import { useEntitlement } from '@/domain/entitlement';
 import { useTagActions, useTagsWithUsage } from '@/features/tags/queries';
-import { tagNameErrorMessage, validateTagName } from '@/features/tags/tagName';
-import { Card, EmptyState, Text, useThemeColors } from '@/ui';
+import { TagManagementRow } from '@/features/tags/TagManagementRow';
+import { EmptyState, ScreenHeader, Text, useThemeColors } from '@/ui';
 
 /** Settings → タグ管理 */
 export default function TagSettingsScreen() {
@@ -46,21 +46,7 @@ export default function TagSettingsScreen() {
         gap: layout.cardGap,
       }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="戻る"
-          onPress={() => router.back()}
-          hitSlop={8}
-        >
-          <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-            ←
-          </Text>
-        </Pressable>
-        <Text variant="display" style={{ color: theme.ink }}>
-          タグ管理
-        </Text>
-      </View>
+      <ScreenHeader title="タグ管理" onBack={() => router.back()} />
 
       {limits.tagLimit === null ? null : (
         <Text variant="caption" style={{ color: theme['ink-2'] }}>
@@ -75,98 +61,22 @@ export default function TagSettingsScreen() {
         />
       ) : (
         tags.map((tag) => (
-          <Card key={tag.id}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 12,
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-              }}
-            >
-              {editingId === tag.id ? (
-                <TagNameInput
-                  initialValue={tag.name}
-                  existingNames={tags.filter((t) => t.id !== tag.id).map((t) => t.name)}
-                  onCommit={(name) => {
-                    actions.mutate({ type: 'rename', id: tag.id, name });
-                    setEditingId(null);
-                  }}
-                  onCancel={() => setEditingId(null)}
-                />
-              ) : (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`${tag.name} の名前を変更`}
-                  onPress={() => setEditingId(tag.id)}
-                  style={{ flex: 1 }}
-                >
-                  <Text variant="body" style={{ color: theme.ink }}>
-                    {tag.name}
-                  </Text>
-                </Pressable>
-              )}
-
-              <Text variant="caption" script="latin" style={{ color: theme['ink-2'] }}>
-                {tag.usageCount}
-              </Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`${tag.name} を削除`}
-                onPress={() => onDelete(tag.id, tag.name, tag.usageCount)}
-                hitSlop={8}
-              >
-                <Text variant="body" script="latin" style={{ color: theme['ink-2'] }}>
-                  ✕
-                </Text>
-              </Pressable>
-            </View>
-          </Card>
+          <TagManagementRow
+            key={tag.id}
+            name={tag.name}
+            usageCount={tag.usageCount}
+            editing={editingId === tag.id}
+            otherNames={tags.filter((other) => other.id !== tag.id).map((other) => other.name)}
+            onStartEditing={() => setEditingId(tag.id)}
+            onRename={(name) => {
+              actions.mutate({ type: 'rename', id: tag.id, name });
+              setEditingId(null);
+            }}
+            onCancelEditing={() => setEditingId(null)}
+            onDelete={() => onDelete(tag.id, tag.name, tag.usageCount)}
+          />
         ))
       )}
     </ScrollView>
-  );
-}
-
-function TagNameInput({
-  initialValue,
-  existingNames,
-  onCommit,
-  onCancel,
-}: {
-  initialValue: string;
-  existingNames: string[];
-  onCommit: (name: string) => void;
-  onCancel: () => void;
-}) {
-  const theme = useThemeColors();
-  const [value, setValue] = useState(initialValue);
-
-  return (
-    <TextInput
-      value={value}
-      onChangeText={setValue}
-      autoFocus
-      returnKeyType="done"
-      onBlur={() => {
-        const result = validateTagName(value, existingNames);
-        // 不正な名前で確定させない。元の名前のまま編集を終える
-        if (result.ok) onCommit(result.name);
-        else {
-          if (result.error !== 'empty') Alert.alert(tagNameErrorMessage(result.error));
-          onCancel();
-        }
-      }}
-      style={{
-        ...typography.body,
-        flex: 1,
-        color: theme.ink,
-        backgroundColor: theme['surface-muted'],
-        borderRadius: radius.icon,
-        paddingHorizontal: 12,
-        height: 36,
-      }}
-    />
   );
 }

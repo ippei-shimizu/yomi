@@ -9,7 +9,7 @@ import { getString, storageKeys } from '@/lib/storage';
 import {
   DEFAULT_NOTIFICATION_TIME,
   occurrencesFor,
-  parseTimeOfDay,
+  parseTimeList,
   type TimeOfDay,
 } from './schedule';
 
@@ -42,14 +42,7 @@ export function configureNotificationHandler(): void {
 
 /** 設定されている通知時刻。Pro は複数 */
 export function readNotificationTimes(): TimeOfDay[] {
-  const raw = getString(storageKeys.notificationTimes) ?? DEFAULT_NOTIFICATION_TIME;
-  const times = raw
-    .split(',')
-    .map((value) => parseTimeOfDay(value))
-    .filter((time): time is TimeOfDay => time !== null);
-
-  // 設定が壊れていても通知が止まらないよう既定値に倒す
-  return times.length > 0 ? times : [{ hour: 8, minute: 0 }];
+  return parseTimeList(getString(storageKeys.notificationTimes) ?? DEFAULT_NOTIFICATION_TIME);
 }
 
 export async function requestPermission(): Promise<boolean> {

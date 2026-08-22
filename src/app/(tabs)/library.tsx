@@ -1,21 +1,24 @@
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Item } from '@/db/schema';
-import { layout, radius } from '@/design/tokens';
+import { layout } from '@/design/tokens';
 import { displayTitle } from '@/features/items/display';
-import { ItemRow } from '@/features/items/ItemRow';
 import { useEntitlement } from '@/domain/entitlement';
 import { SOURCES } from '@/domain/url';
 import { useItemActions } from '@/features/items/queries';
-import { groupByMonth, memoPreview } from '@/features/library/grouping';
+import { BulkDeleteBar } from '@/features/library/BulkDeleteBar';
+import { confirmDelete } from '@/features/library/confirmDelete';
+import { FilterRow } from '@/features/library/FilterRow';
+import { groupByMonth } from '@/features/library/grouping';
+import { LibraryRow } from '@/features/library/LibraryRow';
 import { SearchBar } from '@/features/library/SearchBar';
 import { useLibraryFilter, useSearchResults } from '@/features/library/useSearch';
 import { useTags } from '@/features/tags/queries';
-import { Chip, EmptyState, Segment, Text, useThemeColors } from '@/ui';
+import { EmptyState, Segment, Text, useThemeColors } from '@/ui';
 
 type LibraryTab = 'read' | 'archived';
 
@@ -83,7 +86,7 @@ export default function LibraryScreen() {
                 text: '削除',
                 style: 'destructive' as const,
                 onPress: () =>
-                  confirmDelete([item.id], () => actions.mutate({ type: 'delete', id: item.id })),
+                  confirmDelete(1, () => actions.mutate({ type: 'delete', id: item.id })),
               },
             ];
 
@@ -105,52 +108,18 @@ export default function LibraryScreen() {
         );
       }
 
-      const selected = selection?.has(row.item.id) ?? false;
-      const preview = memoPreview(row.item.memo);
-
       return (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityState={{ selected }}
-          accessibilityLabel={displayTitle(row.item)}
+        <LibraryRow
+          item={row.item}
+          selecting={isSelecting}
+          selected={selection?.has(row.item.id) ?? false}
           onPress={() =>
             isSelecting
               ? toggleSelection(row.item.id)
               : router.push({ pathname: '/item/[id]', params: { id: row.item.id } })
           }
           onLongPress={() => (isSelecting ? undefined : onLongPress(row.item))}
-          style={{
-            marginBottom: layout.cardGap,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          {isSelecting ? (
-            <View
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: radius.pill,
-                borderWidth: 2,
-                borderColor: selected ? theme.ink : theme['ink-3'],
-                backgroundColor: selected ? theme.ink : 'transparent',
-              }}
-            />
-          ) : null}
-          <View style={{ flex: 1 }}>
-            <ItemRow item={row.item} />
-            {preview === null ? null : (
-              <Text
-                variant="caption"
-                numberOfLines={1}
-                style={{ color: theme['ink-2'], paddingHorizontal: 12, paddingTop: 4 }}
-              >
-                📝 {preview}
-              </Text>
-            )}
-          </View>
-        </Pressable>
+        />
       );
     },
     [isSelecting, onLongPress, selection, theme, toggleSelection],
@@ -272,78 +241,13 @@ export default function LibraryScreen() {
         <BulkDeleteBar
           count={selection.size}
           onDelete={() =>
-            confirmDelete([...selection], () => {
+            confirmDelete(selection.size, () => {
               actions.mutate({ type: 'deleteMany', ids: [...selection] });
               setSelection(new Set());
             })
           }
         />
       ) : null}
-    </View>
-  );
-}
-
-function FilterRow({
-  label,
-  chips,
-}: {
-  label: string;
-  chips: { key: string; label: string; selected: boolean; onPress: () => void }[];
-}) {
-  const theme = useThemeColors();
-
-  return (
-    <View style={{ gap: 6 }}>
-      <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        {label}
-      </Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
-      >
-        {chips.map((chip) => (
-          <Chip key={chip.key} label={chip.label} selected={chip.selected} onPress={chip.onPress} />
-        ))}
-      </ScrollView>
-    </View>
-  );
-}
-
-function confirmDelete(ids: string[], onConfirm: () => void): void {
-  Alert.alert(`${ids.length} 件を削除しますか？`, 'この操作は取り消せません。', [
-    { text: 'やめる', style: 'cancel' },
-    { text: '削除', style: 'destructive', onPress: onConfirm },
-  ]);
-}
-
-function BulkDeleteBar({ count, onDelete }: { count: number; onDelete: () => void }) {
-  const theme = useThemeColors();
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        left: layout.screenPadding,
-        right: layout.screenPadding,
-        bottom: layout.listBottomInset,
-      }}
-    >
-      <Pressable
-        accessibilityRole="button"
-        onPress={onDelete}
-        style={{
-          height: layout.buttonHeight,
-          borderRadius: radius.pill,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: theme.ink,
-        }}
-      >
-        <Text variant="heading" style={{ color: theme.surface }}>
-          削除 ({count})
-        </Text>
-      </Pressable>
     </View>
   );
 }

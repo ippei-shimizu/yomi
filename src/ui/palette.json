@@ -1,0 +1,36 @@
+{
+  "_comment": "docs/DesignGuideline.md §2 のカラートークン。tailwind.config.js と src/ui/tokens.ts の両方がここを読むため、値の二重管理は起きない。",
+  "light": {
+    "bg": "#F3F4F8",
+    "surface": "#FFFFFF",
+    "surface-muted": "#EEF0F5",
+    "ink": "#1B1D2A",
+    "ink-2": "#6B7080",
+    "ink-3": "#A9ADB9",
+    "line": "#E4E6EE"
+  },
+  "dark": {
+    "bg": "#121420",
+    "surface": "#1C1F2E",
+    "surface-muted": "#262A3B",
+    "ink": "#F2F3F7",
+    "ink-2": "#9DA2B3",
+    "ink-3": "#A9ADB9",
+    "line": "#E4E6EE"
+  },
+  "brand": {
+    "brand": "#6C5CE7",
+    "brand-soft": "#ECEAFD"
+  },
+  "source": {
+    "src-violet": "#6C5CE7",
+    "src-coral": "#F16B62",
+    "src-amber": "#F5B942",
+    "src-green": "#4FB871"
+  },
+  "status": {
+    "warn": "#F5B942",
+    "danger": "#F16B62",
+    "ok": "#4FB871"
+  }
+}

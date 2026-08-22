@@ -329,3 +329,25 @@ inArray(itemTags.itemId, itemIds)
 **必須**: 契約が単純なものは `test/shims/` にシムを置き、`vitest.config.mts` の alias で差し替える。**シムに置き換わっても検証の穴にならないこと**を確認する（実ロジックは乱数源などを引数に取る純粋関数として別途テストする）。
 
 **初出**: PR #37
+
+### R-UI5. トークン・定数のモジュールから `react-native` を import しない
+
+**理由**: `react-native` は Flow で書かれており Node のパーサが読めない。値の定義に混ぜると、そのファイルと**それを import する層まで丸ごと**テスト不能になる（`tokens.ts` に `useColorScheme` を置いて実際にそうなった）。Share Extension から読めなくなる問題もある。
+
+**必須**: 値は `tokens.ts` に、React のフックは `theme.ts` に置く。テーマ解決も `themeColors(scheme)` のような純粋関数にしておき、フックはそれを呼ぶだけにする。
+
+**初出**: PR #38
+
+### R-UI6. 同じ値を 2 箇所が必要とするなら、共通の JSON を両方から読む
+
+**理由**: R-DB5 は一元化できない場合の次善策（テストで固定）だが、**一元化できるならその方がよい**。色は `tailwind.config.js`（CommonJS）と `tokens.ts`（TS）の両方が必要とするが、`src/ui/palette.json` を両方が読むことでドリフト自体が起きない。
+
+**初出**: PR #38
+
+### R-DEP1. ライブラリの内部 `build/` パスから型や実装を import しない
+
+**理由**: expo-router 57 のタブバーの型は `expo-router/build/react-navigation/bottom-tabs/types` にしか公開されていない。内部パスに依存するとバージョン追従で黙って壊れる。
+
+**必須**: 必要な形だけを**構造的な型としてローカルに定義する**。使うプロパティが少ないほど壊れにくい。
+
+**初出**: PR #38

@@ -6,6 +6,8 @@ import { queryKeys } from '@/db/queryKeys';
 import type { YomiDatabase } from '@/db/types';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { capture } from '@/lib/analytics';
+
 import { itemIdFromNotification, rescheduleDailyPick } from './notifications';
 
 /**
@@ -36,8 +38,10 @@ export function useDailyPickNotification(db: YomiDatabase) {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const itemId = itemIdFromNotification(response.notification.request.content.data);
       // 通知タップで直接ブラウザを開く（docs/PRD.md §7.4）
-      if (itemId !== null)
+      if (itemId !== null) {
+        capture({ name: 'notification_opened' });
         router.push({ pathname: '/item/[id]', params: { id: itemId, open: '1' } });
+      }
     });
 
     return () => subscription.remove();

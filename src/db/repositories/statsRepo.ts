@@ -1,4 +1,4 @@
-import { and, count, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, count, eq, gt, gte, lt, sql } from 'drizzle-orm';
 
 import { addDays, daysBetween, recentWeekStarts, startOfWeek } from '@/domain/date/week';
 import type { Source } from '@/domain/url';
@@ -131,6 +131,23 @@ export function pickCandidates(db: YomiDatabase, now = new Date()) {
     .from(items)
     .where(and(eq(items.status, 'unread'), notSnoozed(now)))
     .orderBy(items.id)
+    .all();
+}
+
+/**
+ * 指定時刻より後に保存されたアイテムの source を返す。
+ *
+ * item_saved の分析イベントは Share Extension では送れない
+ * （RevenueCat / PostHog を Extension に入れないため）。本体が起動したときに
+ * read_logs から拾って送るために使う。
+ */
+export function listSavedSince(db: YomiDatabase, since: Date): { at: Date; source: Source }[] {
+  return db
+    .select({ at: readLogs.at, source: items.source })
+    .from(readLogs)
+    .innerJoin(items, eq(readLogs.itemId, items.id))
+    .where(and(eq(readLogs.event, 'saved'), gt(readLogs.at, since)))
+    .orderBy(readLogs.at)
     .all();
 }
 

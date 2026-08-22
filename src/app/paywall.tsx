@@ -1,11 +1,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, layout, radius } from '@/design/tokens';
-import { useEntitlement, useOfferings, usePurchaseActions } from '@/domain/entitlement';
+import {
+  PRO_FEATURES,
+  useEntitlement,
+  useOfferings,
+  usePurchaseActions,
+  type PaywallTrigger,
+} from '@/domain/entitlement';
 import {
   DEFAULT_PLAN,
   PLANS,
@@ -15,6 +21,7 @@ import {
   renewalNoticeFor,
   type PlanKind,
 } from '@/features/paywall/copy';
+import { capture } from '@/lib/analytics';
 import { Button, Text, useThemeColors } from '@/ui';
 
 /** 法務ページ。#30 で実 URL に差し替える */
@@ -31,6 +38,13 @@ export default function PaywallScreen() {
   const offerings = useOfferings();
   const [selected, setSelected] = useState<PlanKind>(DEFAULT_PLAN);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    capture({
+      name: 'paywall_viewed',
+      properties: { trigger: isPaywallTrigger(trigger) ? trigger : 'settings' },
+    });
+  }, [trigger]);
 
   const onChanged = () => {
     void queryClient.invalidateQueries({ queryKey: ['entitlement'] });
@@ -55,6 +69,7 @@ export default function PaywallScreen() {
     setBusy(true);
     try {
       await purchase(target);
+      capture({ name: 'purchase_completed', properties: { product: selected } });
       router.back();
     } catch (error) {
       // ユーザーによるキャンセルはエラーとして見せない
@@ -214,6 +229,10 @@ function LegalLink({ label, url }: { label: string; url: string }) {
       </Text>
     </Pressable>
   );
+}
+
+function isPaywallTrigger(value: string | undefined): value is PaywallTrigger {
+  return value !== undefined && (PRO_FEATURES as readonly string[]).includes(value);
 }
 
 /** RevenueCat はユーザーのキャンセルも例外で返す。エラー表示は出さない */

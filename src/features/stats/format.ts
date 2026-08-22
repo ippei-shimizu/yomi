@@ -1,4 +1,5 @@
 import { addDays } from '@/domain/date/week';
+import type { Translate } from '@/lib/i18n';
 
 /**
  * Stats の表示整形。
@@ -8,8 +9,8 @@ import { addDays } from '@/domain/date/week';
  */
 
 /** 読了率（0–1）を「38%」に。データなしは「—」 */
-export function formatRate(rate: number | null): string {
-  return rate === null ? '—' : `${Math.round(rate * 100)}%`;
+export function formatRate(t: Translate, rate: number | null): string {
+  return rate === null ? t('stats.noData') : `${Math.round(rate * 100)}%`;
 }
 
 /** 先週比。差が 0 なら空文字（何も出さない） */
@@ -44,8 +45,10 @@ export function weekEndOf(weekStart: Date): Date {
 }
 
 /** 平均日数。「11 日」。実績なしは「—」 */
-export function formatAverageDays(days: number | null): string {
-  return days === null ? '—' : `${Math.round(days)} 日`;
+export function formatAverageDays(t: Translate, days: number | null): string {
+  return days === null
+    ? t('stats.noData')
+    : t('stats.averageDaysValue', { days: Math.round(days), count: Math.round(days) });
 }
 
 /**

@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { openSharedDb } from '@/db/client';
 import { DatabaseProvider } from '@/db/DatabaseProvider';
 import { useMigrations } from '@/db/migrations';
-import { FullScreenMessage } from '@/ui';
+import { FullScreenMessage, useTranslation } from '@/ui';
 
 /**
  * マイグレーションを適用してから子を描画する。
@@ -13,13 +13,14 @@ import { FullScreenMessage } from '@/ui';
  * ここだけ openSharedDb() の具象型をそのまま使う。
  */
 export function MigrationGate({ children }: { children: ReactNode }) {
+  const t = useTranslation();
   const [db] = useState(openSharedDb);
   const { success, error } = useMigrations(db);
 
   if (error !== undefined) {
     // マイグレーションに失敗したらデータを触らせない。
     // ここで先に進むと不整合なスキーマに書き込むことになる。
-    return <FullScreenMessage message="データベースの準備に失敗しました" />;
+    return <FullScreenMessage message={t('app.migrationFailed')} />;
   }
   if (!success) return null;
 

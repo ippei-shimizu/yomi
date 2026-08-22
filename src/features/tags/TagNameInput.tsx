@@ -3,7 +3,7 @@ import { Alert, TextInput } from 'react-native';
 
 import { radius, typography } from '@/design/tokens';
 import { tagNameErrorMessage, validateTagName } from '@/features/tags/tagName';
-import { useThemeColors } from '@/ui';
+import { useThemeColors, useTranslation } from '@/ui';
 
 /**
  * タグ名のインライン編集。フォーカスを外した時点で確定する。
@@ -23,6 +23,7 @@ export function TagNameInput({
   onCancel: () => void;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const [value, setValue] = useState(initialValue);
 
   return (
@@ -37,7 +38,7 @@ export function TagNameInput({
           onCommit(result.name);
           return;
         }
-        if (result.error !== 'empty') Alert.alert(tagNameErrorMessage(result.error));
+        if (result.error !== 'empty') Alert.alert(tagNameErrorMessage(t, result.error));
         onCancel();
       }}
       style={{

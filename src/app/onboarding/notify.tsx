@@ -10,13 +10,14 @@ import {
   useNotificationTimesSetting,
   useOnboardingCompleted,
 } from '@/features/settings/useSettings';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useThemeColors, useTranslation } from '@/ui';
 
 const TIME_CHOICES = ['07:00', '08:00', '09:00', '21:00'];
 
 /** Onboarding 3/3 通知時刻 + 権限 */
 export default function OnboardingNotifyScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const [time, setTime] = useNotificationTimesSetting();
   const [, setCompleted] = useOnboardingCompleted();
   const [busy, setBusy] = useState(false);
@@ -37,18 +38,18 @@ export default function OnboardingNotifyScreen() {
   return (
     <OnboardingLayout
       step={3}
-      primaryLabel={busy ? '確認中' : '通知を許可して始める'}
+      primaryLabel={t(busy ? 'onboarding.notifyChecking' : 'onboarding.notifyAllow')}
       onPrimary={() => void allowAndFinish()}
-      secondaryLabel="あとで設定する"
+      secondaryLabel={t('onboarding.notifyLater')}
       onSecondary={finish}
     >
       <View style={{ flex: 1, justifyContent: 'center', gap: 28 }}>
         <View style={{ gap: 12 }}>
           <Text variant="display" style={{ color: theme.ink }}>
-            毎朝 1 本だけ{'\n'}お知らせします
+            {t('onboarding.notifyTitle')}
           </Text>
           <Text variant="body" style={{ color: theme['ink-2'] }}>
-            未読の中から 1 件だけ選んで通知します。溜まっていても、その日に読むのは 1 本です。
+            {t('onboarding.notifyBody')}
           </Text>
         </View>
 
@@ -57,7 +58,7 @@ export default function OnboardingNotifyScreen() {
             <SettingsRow
               key={choice}
               label={choice}
-              value={time === choice ? '設定中' : undefined}
+              value={time === choice ? t('onboarding.notifyEnabled') : undefined}
               onPress={() => setTime(choice)}
             />
           ))}

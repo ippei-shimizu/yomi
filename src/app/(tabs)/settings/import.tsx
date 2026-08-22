@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useDeferredValue, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Alert, ScrollView, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDatabase } from '@/db/DatabaseProvider';
@@ -10,11 +10,12 @@ import { remainingSaves, useEntitlement } from '@/domain/entitlement';
 import { useMetaFetchWorker } from '@/domain/meta';
 import { limitToRemaining, parseImportText } from '@/domain/import/parseImport';
 import { useInvalidateItems } from '@/features/items/queries';
-import { Button, Text, useThemeColors } from '@/ui';
+import { Button, ScreenHeader, Text, useThemeColors, useTranslation } from '@/ui';
 
 /** URL をまとめて追加する画面。Pro 専用 */
 export default function ImportScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
   const db = useDatabase();
 
@@ -69,7 +70,7 @@ export default function ImportScreen() {
       void runAfterImport();
       router.replace('/(tabs)');
     } catch {
-      Alert.alert('保存できませんでした', 'しばらくしてからもう一度お試しください。');
+      Alert.alert(t('import.failed'), t('common.retryLater'));
     } finally {
       setBusy(false);
     }
@@ -86,24 +87,10 @@ export default function ImportScreen() {
       }}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="戻る"
-          onPress={() => router.back()}
-          hitSlop={8}
-        >
-          <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-            ←
-          </Text>
-        </Pressable>
-        <Text variant="display" style={{ color: theme.ink }}>
-          URL をまとめて追加
-        </Text>
-      </View>
+      <ScreenHeader title={t('import.title')} onBack={() => router.back()} />
 
       <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        既存のブックマークを貼り付けてください。改行や空白で区切られていれば、URL だけを拾います。
+        {t('import.description')}
       </Text>
 
       <TextInput
@@ -125,12 +112,15 @@ export default function ImportScreen() {
       />
 
       <Text variant="body" style={{ color: theme.ink }}>
-        新規 {preview.fresh.length} 件 · 重複 {preview.duplicateCount} 件
-        {preview.invalidCount > 0 ? ` · 読み取れず ${preview.invalidCount} 件` : ''}
+        {t('import.summary', {
+          fresh: preview.fresh.length,
+          duplicate: preview.duplicateCount,
+        })}
+        {preview.invalidCount > 0 ? t('import.invalidCount', { count: preview.invalidCount }) : ''}
       </Text>
 
       <Button
-        label={`${preview.fresh.length} 件を保存`}
+        label={t('import.saveAction', { count: preview.fresh.length })}
         onPress={onSave}
         disabled={busy || preview.fresh.length === 0}
       />

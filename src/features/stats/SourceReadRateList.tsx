@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import type { statsRepo } from '@/db/repositories';
 import { formatRate } from '@/features/stats/format';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * ソース別の読了率一覧。分子/分母も併記する。
@@ -11,6 +11,7 @@ import { Text, useThemeColors } from '@/ui';
  */
 export function SourceReadRateList({ rows }: { rows: readonly statsRepo.SourceReadRate[] }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <View style={{ padding: 16, gap: 10 }}>
@@ -27,7 +28,7 @@ export function SourceReadRateList({ rows }: { rows: readonly statsRepo.SourceRe
             script="latin"
             style={{ color: theme.ink, minWidth: 48, textAlign: 'right' }}
           >
-            {formatRate(row.readRate)}
+            {formatRate(t, row.readRate)}
           </Text>
         </View>
       ))}

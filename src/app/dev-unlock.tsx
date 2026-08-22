@@ -12,7 +12,7 @@ import {
   type OverrideState,
 } from '@/domain/entitlement';
 import { describeVerifyResult } from '@/features/devUnlock/message';
-import { Button, Text, useThemeColors } from '@/ui';
+import { Button, Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * 開発者向けのアンロック画面。非公開機能。
@@ -20,6 +20,7 @@ import { Button, Text, useThemeColors } from '@/ui';
  */
 export default function DevUnlockScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
 
@@ -44,7 +45,7 @@ export default function DevUnlockScreen() {
 
   const onVerify = async () => {
     const result = await applyOverride(code);
-    setMessage(describeVerifyResult(result));
+    setMessage(describeVerifyResult(t, result));
     if (result.valid) {
       setCode('');
       await refresh();
@@ -53,7 +54,7 @@ export default function DevUnlockScreen() {
 
   const onClear = async () => {
     await clearOverride();
-    setMessage('解除しました');
+    setMessage(t('devUnlock.cleared'));
     await refresh();
   };
 
@@ -73,7 +74,7 @@ export default function DevUnlockScreen() {
         </Text>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="閉じる"
+          accessibilityLabel={t('common.close')}
           onPress={() => router.back()}
           hitSlop={8}
         >
@@ -104,7 +105,11 @@ export default function DevUnlockScreen() {
         }}
       />
 
-      <Button label="検証" onPress={() => void onVerify()} disabled={code.trim().length === 0} />
+      <Button
+        label={t('devUnlock.verify')}
+        onPress={() => void onVerify()}
+        disabled={code.trim().length === 0}
+      />
 
       {message === null ? null : (
         <Text variant="caption" style={{ color: theme['ink-2'] }}>
@@ -113,12 +118,13 @@ export default function DevUnlockScreen() {
       )}
 
       <Text variant="body" style={{ color: theme.ink }}>
-        状態:{' '}
-        {state.valid ? `override 有効 (sub ${state.sub} / exp ${state.exp})` : 'override なし'}
+        {state.valid
+          ? t('devUnlock.stateActive', { sub: state.sub, exp: state.exp })
+          : t('devUnlock.stateNone')}
       </Text>
 
       {state.valid ? (
-        <Button label="解除" variant="secondary" onPress={() => void onClear()} />
+        <Button label={t('devUnlock.clear')} variant="secondary" onPress={() => void onClear()} />
       ) : null}
     </View>
   );

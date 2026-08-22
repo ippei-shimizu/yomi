@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { createTranslate } from '@/lib/i18n';
+
 import {
   barRatios,
   formatAverageDays,
@@ -12,6 +14,8 @@ import {
   weekBars,
 } from './format';
 
+const t = createTranslate('ja');
+
 describe('formatRate', () => {
   it.each([
     [0, '0%'],
@@ -19,12 +23,12 @@ describe('formatRate', () => {
     [0.5, '50%'],
     [1, '100%'],
   ])('%f -> %s', (rate, expected) => {
-    expect(formatRate(rate)).toBe(expected);
+    expect(formatRate(t, rate)).toBe(expected);
   });
 
   // 0% と「データなし」を区別する
   it('null は — にする', () => {
-    expect(formatRate(null)).toBe('—');
+    expect(formatRate(t, null)).toBe('—');
   });
 });
 
@@ -62,10 +66,10 @@ describe('formatRateDelta', () => {
 describe('煽らない表示', () => {
   it('感嘆符・絵文字を含まない', () => {
     const outputs = [
-      formatRate(1),
+      formatRate(t, 1),
       formatDelta(10, 0),
       formatRateDelta(1, 0),
-      formatAverageDays(1),
+      formatAverageDays(t, 1),
     ];
     for (const output of outputs) {
       expect(output).not.toMatch(/[!！🎉🔥⭐]/u);
@@ -88,12 +92,12 @@ describe('週ラベル', () => {
 
 describe('formatAverageDays', () => {
   it('四捨五入して日数を出す', () => {
-    expect(formatAverageDays(11.4)).toBe('11 日');
-    expect(formatAverageDays(11.6)).toBe('12 日');
+    expect(formatAverageDays(t, 11.4)).toBe('11 日');
+    expect(formatAverageDays(t, 11.6)).toBe('12 日');
   });
 
   it('実績なしは —', () => {
-    expect(formatAverageDays(null)).toBe('—');
+    expect(formatAverageDays(t, null)).toBe('—');
   });
 });
 

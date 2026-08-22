@@ -1,7 +1,7 @@
 import { Pressable, TextInput, View } from 'react-native';
 
 import { colors, radius, typography } from '@/design/tokens';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useThemeColors, useTranslation } from '@/ui';
 
 /** 検索バー。白 pill、左に虫眼鏡、右に brand のフィルタボタン */
 export function SearchBar({
@@ -16,6 +16,7 @@ export function SearchBar({
   onPressFilter: () => void;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -37,7 +38,7 @@ export function SearchBar({
         <TextInput
           value={value}
           onChangeText={onChangeText}
-          placeholder="検索"
+          placeholder={t('library.searchPlaceholder')}
           placeholderTextColor={theme['ink-3']}
           returnKeyType="search"
           autoCorrect={false}
@@ -47,7 +48,7 @@ export function SearchBar({
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="絞り込み"
+        accessibilityLabel={t('library.filter')}
         accessibilityState={{ selected: filterActive }}
         onPress={onPressFilter}
         style={{

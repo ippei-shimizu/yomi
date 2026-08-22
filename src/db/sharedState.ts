@@ -1,5 +1,7 @@
 import { Directory, File, Paths } from 'expo-file-system';
 
+import { localeFromTag, type Locale } from '@/lib/i18n';
+
 import { APP_GROUP } from './appGroup';
 
 /**
@@ -22,9 +24,17 @@ const FILE_NAME = 'shared-state.json';
 export type SharedState = {
   /** 本体が useEntitlement() で判定した結果のキャッシュ */
   isPro: boolean;
+  /**
+   * 本体が解決した表示言語。
+   *
+   * Extension は MMKV の設定を読めないので、これが無いと端末の言語しか
+   * 分からず、アプリ内で言語を変えても共有シートだけ別言語になる。
+   * 未設定（本体を一度も開いていない）なら null。
+   */
+  locale: Locale | null;
 };
 
-const DEFAULT_STATE: SharedState = { isPro: false };
+const DEFAULT_STATE: SharedState = { isPro: false, locale: null };
 
 function stateFile(): File {
   const container = Paths.appleSharedContainers[APP_GROUP];
@@ -48,15 +58,28 @@ export function readSharedState(): SharedState {
     const parsed: unknown = JSON.parse(file.textSync());
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_STATE;
 
-    const isPro = (parsed as Record<string, unknown>)['isPro'];
-    return { isPro: isPro === true };
+    const record = parsed as Record<string, unknown>;
+    const rawLocale = record['locale'];
+    return {
+      isPro: record['isPro'] === true,
+      locale: typeof rawLocale === 'string' ? localeFromTag(rawLocale) : null,
+    };
   } catch {
     return DEFAULT_STATE;
   }
 }
 
-/** 本体から共有状態を書く。Extension からは呼ばない */
-export function writeSharedState(state: SharedState): void {
+/**
+ * 本体から共有状態の一部を書く。Extension からは呼ばない。
+ *
+ * 書き手が複数（課金判定と言語設定）あるので、必ず読んでから混ぜる。
+ * 丸ごと上書きすると、あとから書いた方がもう片方を消してしまう。
+ */
+export function updateSharedState(patch: Partial<SharedState>): void {
+  writeSharedState({ ...readSharedState(), ...patch });
+}
+
+function writeSharedState(state: SharedState): void {
   const file = stateFile();
   const parent = file.parentDirectory;
   if (parent instanceof Directory && !parent.exists) parent.create({ intermediates: true });

@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import { layout } from '@/design/tokens';
-import { Text, useThemeColors } from '@/ui';
+import { Text, useThemeColors, useTranslation } from '@/ui';
 
 import type { LegalBlock, LegalDocument } from './types';
 
@@ -12,11 +12,12 @@ import type { LegalBlock, LegalDocument } from './types';
  */
 export function LegalDocumentView({ document }: { document: LegalDocument }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <View style={{ gap: layout.sectionGap }}>
       <Text variant="caption" script="latin" style={{ color: theme['ink-3'] }}>
-        最終改定 {document.updatedAt}
+        {t('legal.lastUpdated', { date: document.updatedAt })}
       </Text>
 
       {document.sections.map((section) => (
@@ -37,6 +38,7 @@ const BODY_LINE_HEIGHT = 24;
 
 function Block({ block }: { block: LegalBlock }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   if (block.kind === 'paragraph') {
     return (
@@ -52,7 +54,7 @@ function Block({ block }: { block: LegalBlock }) {
         {block.items.map((item) => (
           <View key={item} style={{ flexDirection: 'row', gap: 8 }}>
             <Text variant="body" style={{ color: theme['ink-3'], lineHeight: BODY_LINE_HEIGHT }}>
-              ・
+              {t('legal.bullet')}
             </Text>
             <Text
               variant="body"

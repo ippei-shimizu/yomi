@@ -18,10 +18,11 @@ import { HomeHeader } from '@/features/home/HomeHeader';
 import { useDatabase } from '@/db/DatabaseProvider';
 import { remainingSaves, shouldWarnAboutLimit, useEntitlement } from '@/domain/entitlement';
 import { getString, setString, storageKeys } from '@/lib/storage';
-import { Button, EmptyState, colors, useThemeColors } from '@/ui';
+import { Button, colors, EmptyState, useThemeColors, useTranslation } from '@/ui';
 
 export default function HomeScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const { width } = useWindowDimensions();
   const [order, setOrder] = useState<UnreadOrder>(
     () => (getString(storageKeys.unreadOrder) as UnreadOrder | undefined) ?? 'oldest',
@@ -114,7 +115,7 @@ export default function HomeScreen() {
               >
                 <HomeBanner
                   dotColor={colors.status.warn}
-                  label={`保存できるのは残り ${remaining} 件です`}
+                  label={t('home.limitWarning', { count: remaining ?? 0 })}
                 />
               </Pressable>
             ) : null}
@@ -123,7 +124,7 @@ export default function HomeScreen() {
               <Pressable accessibilityRole="button" onPress={() => router.push('/stale')}>
                 <HomeBanner
                   dotColor={colors.status.danger}
-                  label={`30日以上放置が ${staleCount} 件 → 整理する`}
+                  label={t('home.staleBanner', { count: staleCount })}
                 />
               </Pressable>
             ) : null}
@@ -132,11 +133,11 @@ export default function HomeScreen() {
         ListEmptyComponent={
           unread.isLoading ? null : (
             <EmptyState
-              title="未読はありません"
-              description="X や Safari で見つけたら、共有シートから Yomi に送ってください"
+              title={t('home.emptyTitle')}
+              description={t('home.emptyDescription')}
               action={
                 <Button
-                  label="共有シートの設定方法"
+                  label={t('home.emptyAction')}
                   variant="secondary"
                   onPress={() => router.push('/onboarding/share')}
                 />

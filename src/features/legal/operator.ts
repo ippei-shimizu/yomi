@@ -26,8 +26,13 @@ export const OPERATOR: OperatorInfo = {
   email: '',
 };
 
-/** 未記入の項目に出すプレースホルダ。提出前に気づけるよう明示的な文言にする */
-export const UNFILLED = '（提出前に記入）';
+/**
+ * 未記入の項目に出すプレースホルダ。提出前に気づけるよう明示的な文言にする。
+ *
+ * 言語を問わず同じ文字列を出す。翻訳して自然な文になってしまうと、
+ * スクリーンショットを眺めているだけでは未記入だと気づけない。
+ */
+export const UNFILLED = '(TO FILL IN BEFORE SUBMISSION)';
 
 export function operatorValue(value: string): string {
   return value.trim().length > 0 ? value : UNFILLED;

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import appConfig from '../../app.config';
 import { APP_GROUP } from '@/db/appGroup';
 import { MINIMUM_IOS_VERSION } from '@/features/legal/requirements';
+import { LOCALES } from '@/lib/i18n';
 
 /**
  * app.config.ts は Expo の設定ローダが相対 TS import を解決できないため、
@@ -27,6 +28,10 @@ describe('app.config.ts', () => {
 
   it('deploymentTarget が特定商取引法の表記と一致する（動かない端末を対応と書かない）', () => {
     expect(appConfig.ios?.deploymentTarget).toBe(MINIMUM_IOS_VERSION);
+  });
+
+  it('CFBundleLocalizations が対応言語と一致する（iOS の言語設定に出るために必要）', () => {
+    expect(appConfig.ios?.infoPlist?.['CFBundleLocalizations']).toEqual([...LOCALES]);
   });
 
   it('Background Modes に fetch と processing がある（MetaFetchWorker 用）', () => {

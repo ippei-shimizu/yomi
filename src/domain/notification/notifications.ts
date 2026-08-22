@@ -4,6 +4,7 @@ import { statsRepo } from '@/db/repositories';
 import type { YomiDatabase } from '@/db/types';
 import { dateKeyOf, pickToday } from '@/domain/pick/pickToday';
 import { displayTitle } from '@/features/items/display';
+import type { Translate } from '@/lib/i18n';
 import { getString, storageKeys } from '@/lib/storage';
 
 import {
@@ -61,6 +62,7 @@ export type RescheduleResult = { scheduled: number; itemId: string | null };
  * 通知を再計算する。既存を全キャンセルしてから積み直すので冪等。
  */
 export async function rescheduleDailyPick(
+  t: Translate,
   db: YomiDatabase,
   now = new Date(),
 ): Promise<RescheduleResult> {
@@ -78,7 +80,7 @@ export async function rescheduleDailyPick(
   for (const occurrence of occurrences) {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: '今日の 1 本',
+        title: t('notification.title'),
         body: displayTitle(item),
         data: { [NOTIFICATION_ITEM_ID]: item.id },
       },

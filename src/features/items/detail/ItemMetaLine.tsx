@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import type { Item } from '@/db/schema';
 import { hostnameOf, shortDate } from '@/features/items/display';
-import { SourceIcon, Text, useThemeColors } from '@/ui';
+import { SourceIcon, Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * 出典と日付。タイトルの下に置く 2 行。
@@ -11,6 +11,7 @@ import { SourceIcon, Text, useThemeColors } from '@/ui';
  */
 export function ItemMetaLine({ item }: { item: Item }) {
   const theme = useThemeColors();
+  const t = useTranslation();
 
   return (
     <View style={{ gap: 6 }}>
@@ -22,8 +23,8 @@ export function ItemMetaLine({ item }: { item: Item }) {
         </Text>
       </View>
       <Text variant="caption" script="latin" style={{ color: theme['ink-2'] }}>
-        保存: {shortDate(item.savedAt)}
-        {item.readAt === null ? '' : `  読了: ${shortDate(item.readAt)}`}
+        {t('item.savedAt', { date: shortDate(item.savedAt) })}
+        {item.readAt === null ? '' : `  ${t('item.readAt', { date: shortDate(item.readAt) })}`}
       </Text>
     </View>
   );

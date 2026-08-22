@@ -5,6 +5,7 @@ import { Alert, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Item } from '@/db/schema';
+import type { MessageKey } from '@/lib/i18n';
 import { layout } from '@/design/tokens';
 import { displayTitle } from '@/features/items/display';
 import { useEntitlement } from '@/domain/entitlement';
@@ -18,14 +19,14 @@ import { LibraryRow } from '@/features/library/LibraryRow';
 import { SearchBar } from '@/features/library/SearchBar';
 import { useLibraryFilter, useSearchResults } from '@/features/library/useSearch';
 import { useTags } from '@/features/tags/queries';
-import { EmptyState, Segment, Text, useThemeColors } from '@/ui';
+import { EmptyState, Segment, Text, useThemeColors, useTranslation } from '@/ui';
 
 type LibraryTab = 'read' | 'archived';
 
-const TABS = [
-  { value: 'read', label: '既読' },
-  { value: 'archived', label: 'アーカイブ' },
-] as const satisfies readonly { value: LibraryTab; label: string }[];
+const TAB_KEYS = [
+  { value: 'read', labelKey: 'library.tabRead' },
+  { value: 'archived', labelKey: 'library.tabArchived' },
+] as const satisfies readonly { value: LibraryTab; labelKey: MessageKey }[];
 
 /** セクション見出しか行か。FlashList に平坦化して渡す */
 type Row =
@@ -33,6 +34,7 @@ type Row =
 
 export default function LibraryScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
 
   const [tab, setTab] = useState<LibraryTab>('read');
@@ -47,11 +49,11 @@ export default function LibraryScreen() {
   const actions = useItemActions();
 
   const rows = useMemo((): Row[] => {
-    return groupByMonth(data ?? []).flatMap((section) => [
+    return groupByMonth(t, data ?? []).flatMap((section) => [
       { kind: 'header' as const, key: `h:${section.key}`, label: section.label },
       ...section.items.map((item) => ({ kind: 'item' as const, key: item.id, item })),
     ]);
-  }, [data]);
+  }, [data, t]);
 
   const isSelecting = selection !== null;
 
@@ -68,7 +70,7 @@ export default function LibraryScreen() {
   const onLongPress = useCallback(
     (item: Item) => {
       const restore = {
-        text: '未読に戻す',
+        text: t('item.restore'),
         onPress: () => actions.mutate({ type: 'restore', id: item.id }),
       };
       const options =
@@ -76,23 +78,26 @@ export default function LibraryScreen() {
           ? [
               restore,
               {
-                text: 'アーカイブ',
+                text: t('item.archive'),
                 onPress: () => actions.mutate({ type: 'archive', id: item.id }),
               },
             ]
           : [
               restore,
               {
-                text: '削除',
+                text: t('common.delete'),
                 style: 'destructive' as const,
                 onPress: () =>
-                  confirmDelete(1, () => actions.mutate({ type: 'delete', id: item.id })),
+                  confirmDelete(t, 1, () => actions.mutate({ type: 'delete', id: item.id })),
               },
             ];
 
-      Alert.alert(displayTitle(item), undefined, [...options, { text: 'やめる', style: 'cancel' }]);
+      Alert.alert(displayTitle(item), undefined, [
+        ...options,
+        { text: t('common.cancel'), style: 'cancel' },
+      ]);
     },
-    [actions, tab],
+    [actions, t, tab],
   );
 
   const renderRow = useCallback(
@@ -138,7 +143,7 @@ export default function LibraryScreen() {
           style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
         >
           <Text variant="display" style={{ color: theme.ink }}>
-            Library
+            {t('library.title')}
           </Text>
           {tab === 'archived' ? (
             <Pressable
@@ -147,13 +152,13 @@ export default function LibraryScreen() {
               hitSlop={8}
             >
               <Text variant="body" style={{ color: theme.ink }}>
-                {isSelecting ? 'やめる' : '選択'}
+                {t(isSelecting ? 'common.cancel' : 'library.select')}
               </Text>
             </Pressable>
           ) : null}
         </View>
         <Segment
-          options={TABS}
+          options={TAB_KEYS.map((entry) => ({ value: entry.value, label: t(entry.labelKey) }))}
           value={tab}
           onChange={(next) => {
             setTab(next);
@@ -176,7 +181,7 @@ export default function LibraryScreen() {
             }
           >
             <Text variant="caption" style={{ color: theme['ink-2'] }}>
-              Pro ではメモも検索できます
+              {t('library.memoSearchIsPro')}
             </Text>
           </Pressable>
         )}
@@ -184,7 +189,7 @@ export default function LibraryScreen() {
         {showFilters ? (
           <View style={{ gap: 8 }}>
             <FilterRow
-              label="ソース"
+              label={t('library.filterSource')}
               chips={SOURCES.map((source) => ({
                 key: source,
                 label: source,
@@ -194,7 +199,7 @@ export default function LibraryScreen() {
             />
             {tags.length === 0 ? null : (
               <FilterRow
-                label="タグ"
+                label={t('library.filterTag')}
                 chips={tags.map((tag) => ({
                   key: tag.id,
                   label: tag.name,
@@ -218,20 +223,20 @@ export default function LibraryScreen() {
         ListEmptyComponent={
           isLoading ? null : (
             <EmptyState
-              title={
+              title={t(
                 isActive
-                  ? '該当するものがありません'
+                  ? 'library.emptyFiltered'
                   : tab === 'read'
-                    ? 'まだ読了はありません'
-                    : 'アーカイブは空です'
-              }
-              description={
+                    ? 'library.emptyRead'
+                    : 'library.emptyArchived',
+              )}
+              description={t(
                 isActive
-                  ? '検索語や絞り込みを変えてみてください'
+                  ? 'library.emptyFilteredDescription'
                   : tab === 'read'
-                    ? '読み終えた記事とメモがここに残ります'
-                    : '捨てたものがここに入ります'
-              }
+                    ? 'library.emptyReadDescription'
+                    : 'library.emptyArchivedDescription',
+              )}
             />
           )
         }
@@ -241,7 +246,7 @@ export default function LibraryScreen() {
         <BulkDeleteBar
           count={selection.size}
           onDelete={() =>
-            confirmDelete(selection.size, () => {
+            confirmDelete(t, selection.size, () => {
               actions.mutate({ type: 'deleteMany', ids: [...selection] });
               setSelection(new Set());
             })

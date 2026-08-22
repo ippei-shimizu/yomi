@@ -104,6 +104,20 @@ RevenueCat Sandbox + StoreKit Configuration file を使う（`docs/DesignDoc.md`
 - [ ] **Sentry のイベントに URL が出ていない**（意図的に例外を起こして確認）
 - [ ] プライバシーポリシーの記載と実際の送信内容が一致している
 
+## 多言語（#30）
+
+- [ ] **端末の言語が日本語のときに日本語で起動する**。`Intl.DateTimeFormat().resolvedOptions().locale`
+      が実機の Hermes で端末の言語を返すかは未検証で、常に `en-US` を返す場合は
+      `expo-localization` の導入が必要になる（**この PR で最も確認が必要な項目**）
+- [ ] 設定 → 表示 → 言語 で 日本語 / English を切り替えると、全画面が即座に切り替わる
+- [ ] English にしたまま**共有シート**から保存すると、共有シートも English で表示される
+      （本体が App Group に書いた言語を Extension が読む経路）
+- [ ] 言語を切り替えたあとに通知が届くと、通知タイトルも切り替わっている
+- [ ] English で 1 件 / 複数件の表記が自然（"1 day ago" / "3 days ago"、"1 unread" / "23 unread"）
+- [ ] English でボタンの文字が折り返さない・見切れない（日本語より長くなる箇所がある）
+- [ ] Library の月見出しが English で "August" / "December 2025" になる
+- [ ] iOS の設定 → Yomi → 言語 にアプリが現れる（CFBundleLocalizations の宣言が効いている）
+
 ## 法務ページ（#30）
 
 - [ ] **`src/features/legal/operator.ts` の事業者情報を実際の値で埋める**。空のままだと
@@ -111,6 +125,7 @@ RevenueCat Sandbox + StoreKit Configuration file を使う（`docs/DesignDoc.md`
 - [ ] 設定 → 情報 から 3 つの文書すべてに到達できる
 - [ ] 購入画面から利用規約とプライバシーポリシーに到達し、**戻ると購入画面に戻る**
 - [ ] 長文がダークモードで読める。行間と余白が破綻しない
+- [ ] 3 文書とも English で表示できる
 - [ ] 表記の価格が購入画面の価格と一致している（RevenueCat の実売価格を含めて確認）
 - [ ] `docs/` 側にも同じ文面を掲載する必要があるか確認する（App Store Connect は
       プライバシーポリシーの **URL** を要求するため、Web 上にも同じ内容が必要）

@@ -2,14 +2,14 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDatabase } from '@/db/DatabaseProvider';
 import { layout } from '@/design/tokens';
 import { buildJson, exportCsv } from '@/domain/export/exportData';
 import { SettingsRow, SettingsSection } from '@/features/settings/SettingsRow';
-import { Text, useThemeColors } from '@/ui';
+import { ScreenHeader, Text, useThemeColors, useTranslation } from '@/ui';
 
 /**
  * エクスポート。
@@ -17,6 +17,7 @@ import { Text, useThemeColors } from '@/ui';
  */
 export default function ExportScreen() {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
   const db = useDatabase();
   const [busy, setBusy] = useState(false);
@@ -36,13 +37,13 @@ export default function ExportScreen() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(file.uri, {
           mimeType: format === 'json' ? 'application/json' : 'text/csv',
-          dialogTitle: 'Yomi のデータ',
+          dialogTitle: t('export.shareTitle'),
         });
       } else {
-        Alert.alert('共有できません', 'この端末では共有シートを利用できません。');
+        Alert.alert(t('export.unavailable'), t('export.unavailableDescription'));
       }
     } catch {
-      Alert.alert('書き出せませんでした', 'しばらくしてからもう一度お試しください。');
+      Alert.alert(t('export.failed'), t('common.retryLater'));
     } finally {
       setBusy(false);
     }
@@ -58,35 +59,18 @@ export default function ExportScreen() {
         gap: layout.sectionGap,
       }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="戻る"
-          onPress={() => router.back()}
-          hitSlop={8}
-        >
-          <Text variant="heading" script="latin" style={{ color: theme.ink }}>
-            ←
-          </Text>
-        </Pressable>
-        <Text variant="display" style={{ color: theme.ink }}>
-          エクスポート
-        </Text>
-      </View>
+      <ScreenHeader title={t('export.title')} onBack={() => router.back()} />
 
       <Text variant="caption" style={{ color: theme['ink-2'] }}>
-        データは端末内にのみ保存されています。機種変更や紛失に備えて、ときどき書き出しておいてください。
+        {t('export.description')}
       </Text>
 
-      <SettingsSection title="形式">
+      <SettingsSection title={t('export.sectionFormat')}>
         <SettingsRow
-          label="JSON（全項目・復元用）"
+          label={t('export.json')}
           onPress={busy ? undefined : () => void share('json')}
         />
-        <SettingsRow
-          label="CSV（表計算ソフト向け）"
-          onPress={busy ? undefined : () => void share('csv')}
-        />
+        <SettingsRow label={t('export.csv')} onPress={busy ? undefined : () => void share('csv')} />
       </SettingsSection>
     </ScrollView>
   );

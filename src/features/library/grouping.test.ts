@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { createTranslate } from '@/lib/i18n';
+
 import type { Item } from '@/db/schema';
 
 import { groupByMonth, memoPreview, sectionDateOf } from './grouping';
@@ -31,6 +33,8 @@ function item(overrides: Partial<Item>): Item {
   };
 }
 
+const t = createTranslate('ja');
+
 describe('sectionDateOf', () => {
   it('既読は readAt を使う', () => {
     const readAt = new Date('2026-08-20T00:00:00');
@@ -56,6 +60,7 @@ describe('sectionDateOf', () => {
 describe('groupByMonth', () => {
   it('月ごとに束ねる', () => {
     const sections = groupByMonth(
+      t,
       [
         item({ id: '1', readAt: new Date('2026-08-20T00:00:00') }),
         item({ id: '2', readAt: new Date('2026-08-01T00:00:00') }),
@@ -70,12 +75,13 @@ describe('groupByMonth', () => {
   });
 
   it('年が変わるセクションには年を付ける', () => {
-    const sections = groupByMonth([item({ readAt: new Date('2025-12-20T00:00:00') })], NOW);
+    const sections = groupByMonth(t, [item({ readAt: new Date('2025-12-20T00:00:00') })], NOW);
     expect(sections[0]?.label).toBe('2025年12月');
   });
 
   it('同じ月でも年が違えば別セクション', () => {
     const sections = groupByMonth(
+      t,
       [
         item({ id: '1', readAt: new Date('2026-08-01T00:00:00') }),
         item({ id: '2', readAt: new Date('2025-08-01T00:00:00') }),
@@ -88,11 +94,12 @@ describe('groupByMonth', () => {
   });
 
   it('空なら空配列', () => {
-    expect(groupByMonth([], NOW)).toEqual([]);
+    expect(groupByMonth(t, [], NOW)).toEqual([]);
   });
 
   it('月をまたいで戻るデータでも壊れない（別セクションになる）', () => {
     const sections = groupByMonth(
+      t,
       [
         item({ id: '1', readAt: new Date('2026-08-20T00:00:00') }),
         item({ id: '2', readAt: new Date('2026-07-20T00:00:00') }),

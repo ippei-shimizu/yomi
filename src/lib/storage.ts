@@ -11,6 +11,7 @@ export const storageKeys = {
   readConfirm: 'settings:readConfirm',
   notificationTimes: 'settings:notificationTimes',
   theme: 'settings:theme',
+  locale: 'settings:locale',
   unreadOrder: 'home:unreadOrder',
   /** Today's Pick の引き直し回数。日付が変わればリセットする */
   pickNonce: (dateKey: string) => `pick:${dateKey}`,

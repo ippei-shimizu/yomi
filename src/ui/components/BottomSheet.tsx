@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { layout, radius } from '@/design/tokens';
 
+import { useTranslation } from '../i18n';
 import { useThemeColors } from '../theme';
 
 /**
@@ -26,6 +27,7 @@ export function BottomSheet({
   children: ReactNode;
 }) {
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
 
   return (
@@ -38,7 +40,7 @@ export function BottomSheet({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="閉じる"
+        accessibilityLabel={t('common.close')}
         onPress={dismissOnBackdropPress ? onRequestClose : undefined}
         style={{ flex: 1, backgroundColor: 'rgba(27, 29, 42, 0.35)', justifyContent: 'flex-end' }}
       >

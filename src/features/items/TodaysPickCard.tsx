@@ -2,7 +2,7 @@ import { Pressable, useWindowDimensions, View } from 'react-native';
 
 import type { Item } from '@/db/schema';
 import { layout, radius, SOURCE_COLORS } from '@/design/tokens';
-import { SourceIcon, Text } from '@/ui';
+import { SourceIcon, Text, useTranslation } from '@/ui';
 
 import { displayTitle, subtitleOf } from './display';
 import { NotchedCard } from './NotchedCard';
@@ -29,6 +29,7 @@ export function TodaysPickCard({
   onOpen: () => void;
 }) {
   const { width } = useWindowDimensions();
+  const t = useTranslation();
   const cardWidth = width - layout.screenPadding * 2;
   const notchCenterY = CARD_HEIGHT / 2;
 
@@ -42,7 +43,7 @@ export function TodaysPickCard({
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`今日の 1 本: ${displayTitle(item)}`}
+          accessibilityLabel={t('pick.accessibilityLabel', { title: displayTitle(item) })}
           onPress={onOpen}
           style={{ flex: 1, padding: 20, paddingRight: layout.notchRadius + 28, gap: 8 }}
         >
@@ -55,7 +56,7 @@ export function TodaysPickCard({
             {canReshuffle ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="引き直す"
+                accessibilityLabel={t('pick.reshuffle')}
                 onPress={onReshuffle}
                 hitSlop={12}
               >
@@ -73,7 +74,7 @@ export function TodaysPickCard({
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <SourceIcon source={item.source} size={16} />
               <Text variant="caption" style={{ color: '#FFFFFF', opacity: 0.85 }} numberOfLines={1}>
-                {subtitleOf(item, now)}
+                {subtitleOf(t, item, now)}
               </Text>
             </View>
           </View>
@@ -83,7 +84,7 @@ export function TodaysPickCard({
       {/* 切り欠きの内側に置く白い丸ボタン。ここをタップでブラウザを開く */}
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="開く"
+        accessibilityLabel={t('common.open')}
         onPress={onOpen}
         style={{
           position: 'absolute',

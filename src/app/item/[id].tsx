@@ -21,7 +21,7 @@ import { ReadConfirmSheet } from '@/features/reading/ReadConfirmSheet';
 import { SNOOZE_DAYS } from '@/features/reading/snooze';
 import { SnoozeSuggestionSheet } from '@/features/reading/SnoozeSuggestionSheet';
 import { useReadFlow } from '@/features/reading/useReadFlow';
-import { Button, Card, ScreenHeader, Text, Toast, useThemeColors } from '@/ui';
+import { Button, Card, ScreenHeader, Text, Toast, useThemeColors, useTranslation } from '@/ui';
 
 /** トーストを消すまでの時間 */
 const TOAST_MS = 2_000;
@@ -29,6 +29,7 @@ const TOAST_MS = 2_000;
 export default function ItemDetailScreen() {
   const { id, open } = useLocalSearchParams<{ id: string; open?: string }>();
   const theme = useThemeColors();
+  const t = useTranslation();
   const insets = useSafeAreaInsets();
 
   const db = useDatabase();
@@ -68,7 +69,7 @@ export default function ItemDetailScreen() {
         }}
       >
         <Text variant="body" style={{ color: theme['ink-2'] }}>
-          このアイテムは削除されています
+          {t('item.deleted')}
         </Text>
       </View>
     );
@@ -80,10 +81,10 @@ export default function ItemDetailScreen() {
   };
 
   const onDelete = () => {
-    Alert.alert('削除しますか？', 'この操作は取り消せません。', [
-      { text: 'やめる', style: 'cancel' },
+    Alert.alert(t('item.deleteConfirm'), t('common.irreversible'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: '削除',
+        text: t('common.delete'),
         style: 'destructive',
         onPress: () => {
           // 物理削除は archived からのみ
@@ -112,7 +113,7 @@ export default function ItemDetailScreen() {
               onRefetchMeta={() => {
                 itemRepo.resetMetaStatus(db, item.id);
                 void invalidate();
-                showToast('再取得します');
+                showToast(t('item.refetching'));
               }}
               onDelete={onDelete}
             />
@@ -143,15 +144,15 @@ export default function ItemDetailScreen() {
 
         <View style={{ gap: 8 }}>
           <Text variant="caption" style={{ color: theme['ink-2'] }}>
-            元の URL
+            {t('item.originalUrl')}
           </Text>
           <Card>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="リンクをコピー"
+              accessibilityLabel={t('item.copyLink')}
               onPress={() => {
                 void Clipboard.setStringAsync(item.url);
-                showToast('コピーしました');
+                showToast(t('item.copied'));
               }}
               style={{ padding: 16 }}
             >
@@ -163,13 +164,13 @@ export default function ItemDetailScreen() {
         </View>
 
         <View style={{ gap: 12 }}>
-          <Button label="開く" onPress={() => openBrowser(item)} />
+          <Button label={t('common.open')} onPress={() => openBrowser(item)} />
           <ItemStatusActions
             item={item}
             onRead={() => actions.mutate({ type: 'read', id: item.id })}
             onSnooze={() => {
               actions.mutate({ type: 'snooze', id: item.id, days: SNOOZE_DAYS });
-              showToast(`${SNOOZE_DAYS} 日後にまた出します`);
+              showToast(t('home.snoozed', { count: SNOOZE_DAYS }));
             }}
             onArchive={() => actions.mutate({ type: 'archive', id: item.id })}
             onRestore={() => actions.mutate({ type: 'restore', id: item.id })}

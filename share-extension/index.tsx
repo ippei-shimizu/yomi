@@ -3,8 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { openSharedDb } from '@/db/client';
-import { readSharedState } from '@/db/sharedState';
+import { itemRepo } from '@/db/repositories';
 import type { Tag } from '@/db/schema';
+import { readSharedState } from '@/db/sharedState';
+import { createTranslate, deviceLanguageTags, resolveLocale, type Translate } from '@/lib/i18n';
 
 import { attachTag, save, type SaveState } from './saveFlow';
 import { EXTENSION_COLORS, extensionStyles as styles } from './styles';
@@ -20,8 +22,19 @@ type State =
   | { kind: 'saved'; itemId: string; recentTags: Tag[] }
   | { kind: Exclude<SaveState, 'saving' | 'saved'> };
 
+/**
+ * 表示言語。本体が共有した設定を優先し、無ければ端末の言語から決める。
+ *
+ * 本体を一度も開いていない場合や App Group が読めない場合でも、
+ * 日本語で固定せず端末の言語に倒す。
+ */
+function shareTranslate(sharedLocale: ReturnType<typeof readSharedState>['locale']): Translate {
+  return createTranslate(sharedLocale ?? resolveLocale('system', deviceLanguageTags()));
+}
+
 export default function ShareExtension({ url, text }: InitialProps) {
   const [state, setState] = useState<State>({ kind: 'saving' });
+  const [t, setT] = useState<Translate>(() => shareTranslate(null));
   const [attached, setAttached] = useState<Set<string>>(new Set());
   const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -39,7 +52,10 @@ export default function ShareExtension({ url, text }: InitialProps) {
       if (cancelled) return;
 
       try {
-        const outcome = save(openSharedDb(), { url, text }, { isPro: readSharedState().isPro });
+        const shared = readSharedState();
+        setT(() => shareTranslate(shared.locale));
+
+        const outcome = save(openSharedDb(), { url, text }, { isPro: shared.isPro });
         if (cancelled) return;
 
         setState(
@@ -71,11 +87,11 @@ export default function ShareExtension({ url, text }: InitialProps) {
 
   return (
     <View style={styles.card}>
-      {state.kind === 'saving' ? <Message text="保存中" /> : null}
+      {state.kind === 'saving' ? <Message text={t('share.saving')} /> : null}
 
       {state.kind === 'saved' ? (
         <>
-          <Message text="保存しました" accent={EXTENSION_COLORS.ok} />
+          <Message text={t('share.saved')} accent={EXTENSION_COLORS.ok} />
           {state.recentTags.length > 0 ? (
             <View style={styles.tagRow}>
               {state.recentTags.map((tag) => (
@@ -96,17 +112,22 @@ export default function ShareExtension({ url, text }: InitialProps) {
         </>
       ) : null}
 
-      {state.kind === 'duplicate' ? <Closable text="保存済みです" onClose={close} /> : null}
+      {state.kind === 'duplicate' ? (
+        <Closable text={t('share.duplicate')} closeLabel={t('common.close')} onClose={close} />
+      ) : null}
 
       {state.kind === 'limit' ? (
         <Closable
-          text="保存上限（50件）に達しました"
-          description="アプリで Pro にアップグレードすると解除されます"
+          text={t('share.limit', { limit: itemRepo.FREE_PLAN_ITEM_LIMIT })}
+          description={t('share.limitDescription')}
+          closeLabel={t('common.close')}
           onClose={close}
         />
       ) : null}
 
-      {state.kind === 'error' ? <Closable text="保存できませんでした" onClose={close} /> : null}
+      {state.kind === 'error' ? (
+        <Closable text={t('share.error')} closeLabel={t('common.close')} onClose={close} />
+      ) : null}
     </View>
   );
 }
@@ -123,10 +144,12 @@ function Message({ text, accent }: { text: string; accent?: string }) {
 function Closable({
   text,
   description,
+  closeLabel,
   onClose,
 }: {
   text: string;
   description?: string;
+  closeLabel: string;
   onClose: () => void;
 }) {
   return (
@@ -134,7 +157,7 @@ function Closable({
       <Message text={text} />
       {description === undefined ? null : <Text style={styles.description}>{description}</Text>}
       <Pressable accessibilityRole="button" onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeLabel}>閉じる</Text>
+        <Text style={styles.closeLabel}>{closeLabel}</Text>
       </Pressable>
     </>
   );

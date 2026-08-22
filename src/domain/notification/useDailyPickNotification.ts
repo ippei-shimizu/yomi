@@ -7,6 +7,7 @@ import type { YomiDatabase } from '@/db/types';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { capture } from '@/lib/analytics';
+import { useTranslation } from '@/ui';
 
 import { itemIdFromNotification, rescheduleDailyPick } from './notifications';
 
@@ -18,21 +19,23 @@ import { itemIdFromNotification, rescheduleDailyPick } from './notifications';
  */
 export function useDailyPickNotification(db: YomiDatabase) {
   const queryClient = useQueryClient();
+  const t = useTranslation();
 
   useEffect(() => {
-    void rescheduleDailyPick(db);
+    void rescheduleDailyPick(t, db);
 
     // items が書き換わったら通知を積み直す（起動時・状態変更時・設定変更時）
     const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
       if (event.type !== 'updated') return;
       const key = event.query.queryKey;
       if (Array.isArray(key) && key[0] === queryKeys.items[0]) {
-        void rescheduleDailyPick(db);
+        void rescheduleDailyPick(t, db);
       }
     });
 
     return unsubscribe;
-  }, [db, queryClient]);
+    // 言語を変えたら、積んである通知も新しい言語で積み直す
+  }, [db, queryClient, t]);
 
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {

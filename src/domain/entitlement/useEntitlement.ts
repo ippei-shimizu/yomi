@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import Purchases, { type CustomerInfo, type PurchasesOffering } from 'react-native-purchases';
 
-import { writeSharedState } from '@/db/sharedState';
+import { updateSharedState } from '@/db/sharedState';
 
 import { readOverride, type OverrideState } from './devOverride';
 import { limitsFor, type PlanLimits } from './plan';
@@ -64,7 +64,7 @@ export function useEntitlement(): Entitlement {
   useEffect(() => {
     // Share Extension は RevenueCat SDK を持たないため、判定結果だけを共有する
     try {
-      writeSharedState({ isPro });
+      updateSharedState({ isPro });
     } catch {
       // 共有に失敗しても本体の動作は続ける。Extension 側は既定で無料扱いに倒れる
     }

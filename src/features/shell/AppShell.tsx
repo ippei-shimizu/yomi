@@ -1,13 +1,15 @@
 import { Stack } from 'expo-router';
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 
 import { useDatabase } from '@/db/DatabaseProvider';
+import { updateSharedState } from '@/db/sharedState';
 import { useMetaFetchWorker } from '@/domain/meta';
 import { useDailyPickNotification } from '@/domain/notification';
 import { useOnboardingCompleted } from '@/features/settings/useSettings';
 import { useAnalyticsSync } from '@/lib/analyticsSync';
-import { useApplyColorScheme, useIsDark, useThemeColors } from '@/ui';
+import { useApplyColorScheme, useIsDark, useLocale, useThemeColors } from '@/ui';
 
 /**
  * ナビゲーションの骨格と、アプリ全体で回すバックグラウンド処理。
@@ -18,7 +20,17 @@ export function AppShell() {
   const theme = useThemeColors();
   const isDark = useIsDark();
   const db = useDatabase();
+  const locale = useLocale();
   const [onboardingCompleted] = useOnboardingCompleted();
+
+  // Share Extension は MMKV の設定を読めないので、解決した言語を共有する
+  useEffect(() => {
+    try {
+      updateSharedState({ locale });
+    } catch {
+      // App Group が解決できなくても本体は動かす。共有シートが端末の言語に倒れるだけ
+    }
+  }, [locale]);
 
   // テーマ設定を NativeWind にも反映する
   useApplyColorScheme();

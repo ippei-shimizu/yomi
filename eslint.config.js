@@ -21,7 +21,7 @@ const shareExtensionForbiddenPackages = [
  * src/ui/（コンポーネントを含む）ではなく独立した src/design/ に置き、
  * ツリーごと許可している。
  */
-const shareExtensionAllowedTrees = ['@/db', '@/domain/url', '@/design'];
+const shareExtensionAllowedTrees = ['@/db', '@/domain/url', '@/design', '@/lib/i18n'];
 
 module.exports = defineConfig([
   expoConfig,
@@ -89,11 +89,12 @@ module.exports = defineConfig([
               group: [
                 '@/**',
                 // '@/domain' 自体も許可しないと '@/domain/url' を再包含できない
-                ...shareExtensionAllowedTrees.flatMap((tree) =>
-                  tree === '@/domain/url'
-                    ? ['!@/domain', `!${tree}`, `!${tree}/**`]
-                    : [`!${tree}`, `!${tree}/**`],
-                ),
+                // 入れ子のツリーを許可するには、親も一度再包含する必要がある
+                ...shareExtensionAllowedTrees.flatMap((tree) => {
+                  const parent = tree.split('/').slice(0, -1).join('/');
+                  const reinclude = tree.includes('/', '@/'.length) ? [`!${parent}`] : [];
+                  return [...reinclude, `!${tree}`, `!${tree}/**`];
+                }),
               ],
               message: `share-extension/ からは ${shareExtensionAllowedTrees.join('・')} のみ import できます。`,
             },

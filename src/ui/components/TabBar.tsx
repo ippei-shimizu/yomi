@@ -1,7 +1,11 @@
 import { Pressable, useWindowDimensions, View } from 'react-native';
 
-import { Text } from '../Text';
 import { colors, layout, radius } from '@/design/tokens';
+import type { MessageKey } from '@/lib/i18n';
+
+import { useTranslation } from '../i18n';
+
+import { Text } from '../Text';
 
 /**
  * 浮いた pill 型タブバー。
@@ -36,8 +40,17 @@ const TAB_GLYPHS: Record<string, string> = {
   settings: '⚙',
 };
 
+/** アイコンのみのバーなので、読み上げには画面名が要る */
+const TAB_LABEL_KEYS: Record<string, MessageKey> = {
+  index: 'tab.home',
+  library: 'tab.library',
+  stats: 'tab.stats',
+  settings: 'tab.settings',
+};
+
 export function TabBar({ state, navigation }: TabBarProps) {
   const { width } = useWindowDimensions();
+  const t = useTranslation();
 
   return (
     <View
@@ -60,7 +73,11 @@ export function TabBar({ state, navigation }: TabBarProps) {
             key={route.key}
             accessibilityRole="tab"
             accessibilityState={{ selected: focused }}
-            accessibilityLabel={route.name}
+            accessibilityLabel={
+              TAB_LABEL_KEYS[route.name] === undefined
+                ? route.name
+                : t(TAB_LABEL_KEYS[route.name] as MessageKey)
+            }
             onPress={() => {
               const event = navigation.emit({
                 type: 'tabPress',

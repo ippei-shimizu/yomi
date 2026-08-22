@@ -28,6 +28,10 @@ const config: ExpoConfig = {
     },
     infoPlist: {
       UIBackgroundModes: ['fetch', 'processing'],
+      // 対応言語の宣言。これが無いと iOS の「言語」設定にアプリが現れず、
+      // 端末の言語も日本語として解決されない
+      CFBundleLocalizations: ['ja', 'en'],
+      CFBundleDevelopmentRegion: 'ja',
     },
   },
   plugins: [

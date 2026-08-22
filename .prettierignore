@@ -1,0 +1,9 @@
+node_modules
+ios
+android
+.expo
+package-lock.json
+
+# Markdown は対象外。日本語の表を含むため Prettier の桁揃えが
+# 全角文字幅を考慮できず、かえって崩れて差分ノイズにもなる。
+*.md

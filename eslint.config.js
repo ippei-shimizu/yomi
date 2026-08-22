@@ -33,7 +33,10 @@ module.exports = defineConfig([
         {
           patterns: [
             {
-              group: ['../../*'],
+              // src/ 配下を相対パスで深く辿るのを防ぐ。
+              // リポジトリルートの成果物（app.config / drizzle の生成物）には
+              // @/ エイリアスが無いため例外として許可する。
+              group: ['../../*', '!../../app.config', '!../../drizzle', '!../../drizzle/*'],
               message: '2 階層以上さかのぼる相対 import は使わず @/ エイリアスを使ってください。',
             },
           ],

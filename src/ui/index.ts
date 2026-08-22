@@ -3,6 +3,7 @@ export { useAppFonts } from './fonts';
 export { useIsDark, useThemeColors } from './theme';
 export * from '@/design/tokens';
 
+export { BottomSheet } from './components/BottomSheet';
 export { Button } from './components/Button';
 export { Card } from './components/Card';
 export { Chip } from './components/Chip';

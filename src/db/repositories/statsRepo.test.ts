@@ -207,3 +207,47 @@ describe("pickCandidates（Today's Pick / 通知）", () => {
     expect([...first].sort()).toEqual(first);
   });
 });
+
+describe('listSavedSince（Share Extension での保存を本体が拾う）', () => {
+  it('指定時刻より後の saved を source つきで返す', () => {
+    save(new Date('2026-08-20T09:00:00'));
+    save(new Date('2026-08-21T09:00:00'));
+
+    const result = statsRepo.listSavedSince(db, new Date('2026-08-20T12:00:00'));
+    expect(result).toHaveLength(1);
+    expect(result[0]?.source).toBe('zenn');
+  });
+
+  it('古い順に返る（最後の at を次回の基準にできる）', () => {
+    save(new Date('2026-08-20T09:00:00'));
+    save(new Date('2026-08-21T09:00:00'));
+    save(new Date('2026-08-22T09:00:00'));
+
+    const result = statsRepo.listSavedSince(db, new Date(0));
+    const times = result.map((r) => r.at.getTime());
+    expect([...times].sort((a, b) => a - b)).toEqual(times);
+  });
+
+  it('境界（同時刻）は含まない。二重送信を防ぐ', () => {
+    const at = new Date('2026-08-20T09:00:00');
+    save(at);
+
+    expect(statsRepo.listSavedSince(db, at)).toHaveLength(0);
+  });
+
+  it('read / archived のログは含まない', () => {
+    const item = save(new Date('2026-08-20T09:00:00'));
+    itemRepo.markRead(db, item.id, { now: new Date('2026-08-21T09:00:00') });
+
+    expect(statsRepo.listSavedSince(db, new Date('2026-08-20T12:00:00'))).toHaveLength(0);
+  });
+
+  // read_logs には外部キーが無いので、削除済みアイテムのログが残る
+  it('物理削除されたアイテムのログは source を取れないので除く', () => {
+    const item = save(new Date('2026-08-20T09:00:00'));
+    itemRepo.archive(db, item.id, new Date('2026-08-20T10:00:00'));
+    itemRepo.remove(db, item.id);
+
+    expect(statsRepo.listSavedSince(db, new Date(0))).toHaveLength(0);
+  });
+});

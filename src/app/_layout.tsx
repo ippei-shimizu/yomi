@@ -13,6 +13,11 @@ import { useMigrations } from '@/db/migrations';
 import { useMetaFetchWorker } from '@/domain/meta';
 import { configureNotificationHandler, useDailyPickNotification } from '@/domain/notification';
 import { useOnboardingCompleted } from '@/features/settings/useSettings';
+import { configurePurchases } from '@/domain/entitlement';
+import { initAnalytics } from '@/lib/analytics';
+import { useAnalyticsSync } from '@/lib/analyticsSync';
+import { config } from '@/lib/config';
+import { initSentry } from '@/lib/sentry';
 import { Text, useAppFonts, useThemeColors } from '@/ui';
 
 /**
@@ -58,6 +63,8 @@ function AppShell() {
   useMetaFetchWorker(db);
   // 通知は items が変わるたびに積み直す（§5.4）
   useDailyPickNotification(db);
+  // Share Extension での保存を read_logs 経由で分析に送る（§7.3）
+  useAnalyticsSync(db);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -80,8 +87,12 @@ function AppShell() {
   );
 }
 
-// 通知の表示方法はモジュール読み込み時に一度だけ設定する
+// 外部サービスの初期化はモジュール読み込み時に一度だけ。
+// いずれもキー未設定なら何もしない（起動を妨げない）。
 configureNotificationHandler();
+initSentry(config.sentry.dsn);
+initAnalytics(config.posthog.apiKey, config.posthog.host);
+if (config.revenueCat.apiKey.length > 0) configurePurchases(config.revenueCat.apiKey);
 
 export default function RootLayout() {
   // QueryClient はアプリの生存期間で 1 つ。再レンダリングで作り直さない。

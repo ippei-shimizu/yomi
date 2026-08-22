@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { useDatabase } from '@/db/DatabaseProvider';
+import { daysBetween } from '@/domain/date/week';
+import { capture } from '@/lib/analytics';
 import { invalidationKeys, queryKeys } from '@/db/queryKeys';
 import { itemRepo, tagRepo } from '@/db/repositories';
 import type { Item, Tag } from '@/db/schema';
@@ -82,9 +84,20 @@ export function useItemActions() {
   return useMutation({
     mutationFn: async (action: ItemAction) => {
       switch (action.type) {
-        case 'read':
-          return itemRepo.markRead(db, action.id, { memo: action.memo });
+        case 'read': {
+          const item = itemRepo.findById(db, action.id);
+          itemRepo.markRead(db, action.id, { memo: action.memo });
+          // 送るのは日数だけ。URL・タイトルは送らない（docs/DesignDoc.md §7.3）
+          if (item) {
+            capture({
+              name: 'item_read',
+              properties: { days_since_saved: daysBetween(item.savedAt, new Date()) },
+            });
+          }
+          return;
+        }
         case 'archive':
+          capture({ name: 'item_archived' });
           return itemRepo.archive(db, action.id);
         case 'restore':
           return itemRepo.restoreToUnread(db, action.id);

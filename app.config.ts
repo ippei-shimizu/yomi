@@ -21,6 +21,9 @@ const config: ExpoConfig = {
     supportsTablet: false,
     deploymentTarget: '17.0',
     entitlements: {
+      // src/db/appGroup.ts の APP_GROUP と一致させること。
+      // Expo の設定ローダは相対 TS import を解決できないため直接書いているが、
+      // 食い違いは app.config.test.ts が検出する。
       'com.apple.security.application-groups': ['group.jp.ippei.yomi'],
     },
     infoPlist: {

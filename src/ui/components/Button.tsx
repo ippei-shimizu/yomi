@@ -28,15 +28,22 @@ export function Button({ label, variant = 'primary', disabled, ...rest }: Button
     >
       <View
         style={{
-          height: layout.buttonHeight,
+          // height ではなく minHeight。英語のラベルは日本語より長く、
+          // 固定高だと 2 行になった時点で文字が切れる
+          minHeight: layout.buttonHeight,
           borderRadius: radius.pill,
           backgroundColor: isPrimary ? colors.brand.brand : theme.surface,
           alignItems: 'center',
           justifyContent: 'center',
           paddingHorizontal: 24,
+          paddingVertical: 12,
         }}
       >
-        <Text variant="heading" style={{ color: isPrimary ? '#FFFFFF' : theme.ink }}>
+        <Text
+          variant="heading"
+          numberOfLines={2}
+          style={{ color: isPrimary ? '#FFFFFF' : theme.ink, textAlign: 'center' }}
+        >
           {label}
         </Text>
       </View>

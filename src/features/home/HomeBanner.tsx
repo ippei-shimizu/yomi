@@ -23,7 +23,7 @@ export function HomeBanner({ dotColor, label }: { dotColor: string; label: strin
       }}
     >
       <View style={{ width: 8, height: 8, borderRadius: radius.pill, backgroundColor: dotColor }} />
-      <Text variant="caption" style={{ color: colors.brand.brand }}>
+      <Text variant="caption" style={{ flex: 1, color: colors.brand.brand }}>
         {label}
       </Text>
     </View>

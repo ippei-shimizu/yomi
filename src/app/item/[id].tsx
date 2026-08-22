@@ -98,6 +98,9 @@ export default function ItemDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <ScrollView
+        // 入力欄がキーボードに隠れないよう、iOS の自動インセットに任せる
+        automaticallyAdjustKeyboardInsets
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
           paddingTop: insets.top + 8,

@@ -37,6 +37,9 @@ export default function TagSettingsScreen() {
 
   return (
     <ScrollView
+      // 入力欄がキーボードに隠れないよう、iOS の自動インセットに任せる
+      automaticallyAdjustKeyboardInsets
+      keyboardShouldPersistTaps="handled"
       style={{ flex: 1, backgroundColor: theme.bg }}
       contentContainerStyle={{
         paddingHorizontal: layout.screenPadding,

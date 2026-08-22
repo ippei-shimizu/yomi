@@ -17,7 +17,7 @@ export function ItemMetaLine({ item }: { item: Item }) {
     <View style={{ gap: 6 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
         <SourceIcon source={item.source} size={16} />
-        <Text variant="caption" style={{ color: theme['ink-2'] }}>
+        <Text variant="caption" numberOfLines={1} style={{ flex: 1, color: theme['ink-2'] }}>
           {item.siteName ?? hostnameOf(item.url)}
           {item.author === null ? '' : ` · @${item.author.replace(/^@/, '')}`}
         </Text>

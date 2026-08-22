@@ -1,6 +1,7 @@
-export { Text, type TextProps, type TextScript } from './Text';
+export { Text, type TextProps } from './Text';
 export { useAppFonts } from './fonts';
 export { useLocale, useTranslation } from './i18n';
+export { ScriptProvider } from './scriptContext';
 export { useApplyColorScheme, useColorSchemeSetting, useIsDark, useThemeColors } from './theme';
 export * from '@/design/tokens';
 

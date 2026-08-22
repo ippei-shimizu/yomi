@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDatabase } from '@/db/DatabaseProvider';
 import { queryKeys } from '@/db/queryKeys';
-import { statsRepo } from '@/db/repositories';
+import { itemRepo, statsRepo } from '@/db/repositories';
 import { colors, layout } from '@/design/tokens';
 import {
   formatAverageDays,
@@ -80,7 +80,7 @@ export default function StatsScreen() {
       </View>
 
       <View style={{ gap: layout.cardGap }}>
-        <SectionHeader title={t('stats.recentWeeks')} />
+        <SectionHeader title={t('stats.recentWeeks', { weeks: statsRepo.RECENT_WEEKS })} />
         <Card>
           <View style={{ padding: 16, gap: 8 }}>
             <WeeklyChart weeks={recentWeeks} />
@@ -93,7 +93,11 @@ export default function StatsScreen() {
         <Card>
           <View style={{ padding: 16, gap: 6 }}>
             <Text variant="body" style={{ color: theme.ink }}>
-              {t('stats.currentSummary', { unread: current.unread, stale: current.stale })}
+              {t('stats.currentSummary', {
+                unread: current.unread,
+                stale: current.stale,
+                days: itemRepo.STALE_THRESHOLD_DAYS,
+              })}
             </Text>
             <Text variant="caption" style={{ color: theme['ink-2'] }}>
               {t('stats.averageDaysToRead', {

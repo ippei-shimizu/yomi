@@ -2,7 +2,9 @@ import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { itemRepo } from '@/db/repositories';
 import type { Item } from '@/db/schema';
 import { layout } from '@/design/tokens';
 import { displayTitle } from '@/features/items/display';
@@ -23,6 +25,7 @@ import { Button, colors, EmptyState, useThemeColors, useTranslation } from '@/ui
 export default function HomeScreen() {
   const theme = useThemeColors();
   const t = useTranslation();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [order, setOrder] = useState<UnreadOrder>(
     () => (getString(storageKeys.unreadOrder) as UnreadOrder | undefined) ?? 'oldest',
@@ -84,7 +87,8 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{
           paddingHorizontal: layout.screenPadding,
-          paddingTop: 24,
+          // ナビバーを使わないので、ステータスバーの下に潜らないよう自分で空ける
+          paddingTop: insets.top + 8,
           // 浮いたタブバーに隠れないよう下端を空ける
           paddingBottom: layout.listBottomInset,
         }}
@@ -124,7 +128,10 @@ export default function HomeScreen() {
               <Pressable accessibilityRole="button" onPress={() => router.push('/stale')}>
                 <HomeBanner
                   dotColor={colors.status.danger}
-                  label={t('home.staleBanner', { count: staleCount })}
+                  label={t('home.staleBanner', {
+                    count: staleCount,
+                    days: itemRepo.STALE_THRESHOLD_DAYS,
+                  })}
                 />
               </Pressable>
             ) : null}

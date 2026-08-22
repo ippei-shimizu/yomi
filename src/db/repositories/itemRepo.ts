@@ -129,6 +129,24 @@ export function remove(db: YomiDatabase, id: string): boolean {
 }
 
 /**
+ * 複数件を 1 トランザクションで物理削除する。archived のもののみ対象。
+ *
+ * @returns 実際に削除された件数
+ */
+export function removeMany(db: YomiDatabase, ids: string[]): number {
+  if (ids.length === 0) return 0;
+
+  return db.transaction((tx) => {
+    const deleted = tx
+      .delete(items)
+      .where(and(inArray(items.id, ids), eq(items.status, 'archived')))
+      .returning({ id: items.id })
+      .all();
+    return deleted.length;
+  });
+}
+
+/**
  * Home の未読キュー。
  * スヌーズ中のものを末尾に送り、それ以外は保存日順（既定は古い順）。
  */

@@ -32,10 +32,10 @@ Share Extension（別プロセス）
   └─ Save Card
 ```
 
-expo-router のファイル構成：
+expo-router のファイル構成（DesignDoc.md §3.1 に合わせ `src/app/` に置く）：
 
 ```
-app/
+src/app/
 ├── _layout.tsx
 ├── onboarding/
 │   ├── _layout.tsx

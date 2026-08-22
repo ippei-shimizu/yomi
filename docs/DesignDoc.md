@@ -98,7 +98,9 @@ share-extension/
 └── index.tsx               # Extension エントリ（最小依存）
 ```
 
-**依存ルール**：`share-extension/` は `db/` と `domain/url/` のみ import 可。`features/`, RevenueCat, PostHog を import しない（バンドルサイズ・起動時間のため）。
+**依存ルール**：`share-extension/` は `db/`、`domain/url/`、`design/`（デザイントークン）のみ import 可。`features/`, `ui/`, RevenueCat, PostHog, Sentry を import しない（バンドルサイズ・起動時間のため）。ESLint の `no-restricted-imports` と `app.config.ts` の `excludedPackages` の両方で強制する。
+
+デザイントークンを `ui/` ではなく `design/` に置いているのは、`ui/` がコンポーネントを含むため。ESLint のパターンは gitignore と同じ規則で、除外したツリーの中の 1 ファイルだけを再包含できない。
 
 ## 4. データモデル
 
@@ -174,6 +176,8 @@ export const readLogs = sqliteTable('read_logs', {
 
 Pro のメモ全文検索用に `items_fts`（FTS5, `title, memo, description`）を trigger で同期。無料プランは `title LIKE` のみ。
 
+**トークナイザは `trigram` を使う。** 既定の `unicode61` は連続する日本語を 1 トークンとして扱うため、「Solid Queueのasyncモード」に対して「モード」も「async」も引けない（実測で確認済み）。ただし `trigram` は 3 文字未満のクエリを扱えないので、**2 文字以下は `LIKE` にフォールバックする**（「入門」「DB」のような語は日常的に検索されるため）。
+
 ## 5. 主要コンポーネント設計
 
 ### 5.1 Share Extension
@@ -208,7 +212,7 @@ export default function ShareExtension({ url, text }: InitialProps) {
 ```
 
 - **ネットワーク禁止**。iOS Extension はメモリ上限（~120MB）とライフタイムが短い
-- 上限判定のため Extension からも Pro 状態を知る必要がある → 本体が `UserDefaults(suiteName: appGroup)` に `isPro` をキャッシュし、Extension はそれを読む（RevenueCat SDK は Extension に入れない）
+- 上限判定のため Extension からも Pro 状態を知る必要がある → 本体が **App Group コンテナ上の `shared-state.json`** に `isPro` をキャッシュし、Extension はそれを読む（RevenueCat SDK は Extension に入れない）。`UserDefaults(suiteName:)` はカスタムネイティブモジュールが必要になるため、`expo-file-system` の `Paths.appleSharedContainers` で完結する方式を採った。読めない場合は必ず無料プラン扱いに倒す
 - `limit` 時は「本体アプリで Pro にアップグレード」のメッセージのみ。購入は Extension 内で行わない
 
 ### 5.2 MetaFetchWorker
@@ -278,18 +282,22 @@ RevenueCat 側の設定：
 ### 5.5 URL 正規化
 
 ```ts
-export function normalizeUrl(raw: string): string {
-  const u = new URL(raw.trim());
-  u.hostname = u.hostname.toLowerCase().replace(/^(www\.|mobile\.)/, '');
-  if (u.hostname === 'twitter.com') u.hostname = 'x.com';
-  for (const k of [...u.searchParams.keys()]) {
-    if (/^(utm_|fbclid|gclid|igsh|ref|s|t)$/.test(k) || k.startsWith('utm_')) u.searchParams.delete(k);
-  }
-  u.hash = '';
-  u.pathname = u.pathname.replace(/\/+$/, '') || '/';
-  return u.toString();
-}
+// 不正な URL と http(s) 以外のスキームは null を返す
+export function normalizeUrl(raw: string): string | null { … }
 ```
+
+実装上の要点（`src/domain/url/normalize.ts`）：
+
+- **http(s) 以外のスキームを拒否する。** `new URL('javascript:alert(1)')` も `new URL('file:///etc/passwd')` も例外を投げずにパースが成功するため、検査しないと SFSafariViewController に渡ってしまう
+- **例外を投げず `null` を返す。** 共有シートやインポートの貼り付けという信頼できない入力を直接受けるため
+- `www.` / `mobile.` を除去し、`twitter.com` を `x.com` に統一
+- トラッキングパラメータの除去は**スコープを分ける**
+  - 全ホスト: `utm_*` / `fbclid` / `gclid` / `ref`
+  - `x.com` のみ: `s` / `t`
+  - `instagram` / `threads` のみ: `igsh`
+
+  `s` / `t` を全ホストで落とすと `/search?s=rails` と `/search?s=react` が同じ `url_hash` になり、**2 件目以降が「保存済み」と誤判定されて保存できなくなる**。重複が 1 件増えるより明確に悪いため、迷ったら落とさない方に倒す
+- `m.` 始まりのホストは正規化しない（同じ理由で、別サービスを同一視するリスクを取らない）
 
 短縮 URL（`t.co`）は Extension 内では展開しない。MetaFetchWorker が HEAD で展開し `url` を更新、`url_hash` も再計算（衝突時は古い方に統合）。
 
@@ -334,8 +342,10 @@ React Query のキーは `['items', status, filter]`。`itemRepo` の書き込�
 ### 7.1 iOS 設定
 
 - App Group: `group.jp.ippei.yomi`（本体 / Extension 共通）
-- Bundle ID: `jp.ippei.yomi` / Extension: `jp.ippei.yomi.share`
-- `app.config.ts` で `expo-share-extension` plugin を設定。`activationRules` は `NSExtensionActivationSupportsWebURLWithMaxCount: 1`, `…WebPageWithMaxCount: 1`, `…Text: true`
+- Bundle ID: `jp.ippei.yomi` / Extension: `jp.ippei.yomi.ShareExtension`（`expo-share-extension` がターゲット名から自動導出する。変更するオプションが無い）
+- `app.config.ts` で `expo-share-extension` plugin を設定。`activationRules` はプラグインの高レベル形式で `[{ type: 'url', max: 1 }, { type: 'text' }]` と書く（プラグインが `NSExtensionActivationSupportsWebURLWithMaxCount` / `…Text` に変換する）
+- `NSExtensionActivationSupportsWebPageWithMaxCount` は `preprocessingFile`（Safari の DOM から情報を抜く JS）を渡したときのみ出力される。現状は設定していない
+- **`expo-share-extension` は公式には SDK 54 までの対応**（README の対応表、`expo-modules-core@^3.0.20`）。本プロジェクトは SDK 57 で、config plugin と生成物は検証済みだが Xcode でのコンパイルは未検証。落ちた場合は SDK 54 へのダウングレードで対応する
 - Background Modes: `fetch`, `processing`
 - 通知: `UNUserNotificationCenter` 権限はオンボーディング最終画面で要求
 
@@ -351,8 +361,12 @@ GitHub Actions：`main` push で `eas build --profile preview --non-interactive`
 
 ### 7.3 分析イベント（PostHog）
 
-`item_saved`（source）, `item_read`（days_since_saved）, `item_archived`, `notification_opened`, `paywall_viewed`（trigger: limit/settings）, `purchase_completed`（product）。
-個人特定情報・URL・タイトルは送らない。
+`item_saved`（source）, `item_read`（days_since_saved）, `item_archived`, `notification_opened`, `paywall_viewed`（trigger: `limit_save` / `limit_tag` / `stale_bulk` / `memo_search` / `import` / `settings`）, `purchase_completed`（product）。
+個人特定情報・URL・タイトルは送らない。送れるプロパティは `AnalyticsEvent`（`src/lib/analytics.ts`）の型で縛り、型テストで固定する。
+
+**`item_saved` は本体が送る。** 保存は Share Extension で起きるが、そこには PostHog を入れられない。本体は起動時と foreground 復帰時に `read_logs` を見て、前回送った時刻より後の `saved` を送る（送信済み位置を MMKV に保持し、二重送信も送り漏れも防ぐ）。
+
+Sentry は `beforeSend` / `beforeBreadcrumb` で URL・タイトル・メモをスクラブする。`xhr` / `fetch` の breadcrumb は URL そのものを持つため捨てる。
 
 ### 7.4 バックアップ
 
@@ -363,7 +377,7 @@ GitHub Actions：`main` push で `eas build --profile preview --non-interactive`
 | 対象 | 方法 |
 |---|---|
 | URL 正規化・ソース判定・oEmbed/OGP parser | Vitest（pure function） |
-| Repository | expo-sqlite を in-memory で開き Vitest |
+| Repository | **better-sqlite3** を in-memory で開き、`drizzle/` の実マイグレーションを適用して Vitest（expo-sqlite はネイティブモジュールで Node では動かない。ドライバのみが本番と異なり、SQL とスキーマは同一） |
 | Entitlement override 署名検証 | Vitest（鍵ペアはテスト用に別途生成） |
 | Share Extension | 実機 dev build で手動。自動化はしない |
 | 課金 | RevenueCat Sandbox + StoreKit Configuration file（Xcode）|
@@ -382,7 +396,7 @@ GitHub Actions：`main` push で `eas build --profile preview --non-interactive`
 ## 10. 未決事項
 
 - [ ] X oEmbed の rate limit 実測（1 日 100 件程度なら問題ないはず）
-- [ ] `expo-share-extension` の最新 SDK 対応状況の確認
+- [x] `expo-share-extension` の最新 SDK 対応状況の確認 → 公式には SDK 54 まで。SDK 57 で config plugin と生成物は動作を確認済み。Xcode でのコンパイルは実機で要確認（§7.1）
 - [ ] 買い切り後にサブスク契約が残っているケースの UI（RevenueCat 側で lifetime を優先表示）
 - [x] Stats の「週」の起点 → 月曜固定
 - [x] Today's Pick の選択方式 → ランダム（5.6）

@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# 同じ PR で連続 push した場合、古い実行は打ち切る
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Format
+        run: npm run format:check
+
+      - name: Test
+        run: npm run test
+
+      # ネイティブビルドなしで JS バンドルが通ることを確認する。
+      # macOS ランナーを使わずに壊れを検知できる。
+      - name: Bundle
+        run: npm run bundle:check

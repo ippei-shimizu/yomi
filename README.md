@@ -53,6 +53,18 @@ share-extension/  Share Extension エントリ（最小依存）
 
 `share-extension/` から import してよいのは `src/db/` と `src/domain/url/` のみ。iOS Extension のメモリ上限と起動時間の要件があるため、ESLint で機械的に制限している（`docs/DesignDoc.md` §3.1）。
 
+## テスト
+
+| 対象 | 方法 |
+|---|---|
+| pure function（URL 正規化・パーサ・署名検証・日付計算ほか） | Vitest |
+| Repository・スキーマ | better-sqlite3 を in-memory で開き、実マイグレーションを適用して Vitest |
+| Share Extension・課金・通知 | 実機で手動（[docs/testing/manual-checklist.md](docs/testing/manual-checklist.md)） |
+| E2E | Maestro（Home のスワイプと読了フローのみ。[.maestro/](.maestro/)） |
+
+CI は PR と `main` への push で lint / typecheck / format / test / bundle を回す
+（[.github/workflows/](.github/workflows/)）。
+
 ## 開発ルール
 
 - コードを書く前に `.claude/skills/code-rules/SKILL.md` を読む

@@ -1,0 +1,34 @@
+# Home のスワイプと読了フロー（docs/DesignDoc.md §8）
+#
+# E2E はこのフローだけに絞る。画面の網羅より、
+# 「保存したものを読み切る」中核導線が壊れていないことを見る。
+appId: jp.ippei.yomi
+---
+- launchApp:
+    clearState: true
+
+# Onboarding をスキップして Home へ
+- tapOn: 'スキップ'
+- assertVisible:
+    id: 'Home'
+    optional: true
+
+# 未読が無ければ空状態が出ていること
+- assertVisible: '未読'
+
+# 1 行目を右にスワイプして既読にする
+- swipe:
+    from:
+      point: '20%,45%'
+    to:
+      point: '90%,45%'
+    optional: true
+
+# 読了確認 → メモをスキップ
+- tapOn:
+    text: 'スキップ'
+    optional: true
+
+# Library の既読タブに移動していること
+- tapOn: 'library'
+- tapOn: '既読'

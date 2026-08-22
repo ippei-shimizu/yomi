@@ -1,16 +1,21 @@
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Item } from '@/db/schema';
 import { layout, radius } from '@/design/tokens';
 import { displayTitle } from '@/features/items/display';
 import { ItemRow } from '@/features/items/ItemRow';
-import { useItemActions, useLibraryItems } from '@/features/items/queries';
+import { useEntitlement } from '@/domain/entitlement';
+import { SOURCES } from '@/domain/url';
+import { useItemActions } from '@/features/items/queries';
 import { groupByMonth, memoPreview } from '@/features/library/grouping';
-import { EmptyState, Segment, Text, useThemeColors } from '@/ui';
+import { SearchBar } from '@/features/library/SearchBar';
+import { useLibraryFilter, useSearchResults } from '@/features/library/useSearch';
+import { useTags } from '@/features/tags/queries';
+import { Chip, EmptyState, Segment, Text, useThemeColors } from '@/ui';
 
 type LibraryTab = 'read' | 'archived';
 
@@ -30,7 +35,12 @@ export default function LibraryScreen() {
   const [tab, setTab] = useState<LibraryTab>('read');
   const [selection, setSelection] = useState<Set<string> | null>(null);
 
-  const { data, isLoading } = useLibraryItems(tab);
+  const { limits } = useEntitlement();
+  const { filter, setQuery, toggleSource, toggleTag, isActive } = useLibraryFilter();
+  const [showFilters, setShowFilters] = useState(false);
+
+  const { data, isLoading } = useSearchResults(tab, filter, limits.memoSearch);
+  const { data: tags = [] } = useTags();
   const actions = useItemActions();
 
   const rows = useMemo((): Row[] => {
@@ -181,6 +191,51 @@ export default function LibraryScreen() {
             setSelection(null);
           }}
         />
+
+        <SearchBar
+          value={filter.query}
+          onChangeText={setQuery}
+          filterActive={isActive}
+          onPressFilter={() => setShowFilters((current) => !current)}
+        />
+
+        {limits.memoSearch ? null : (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() =>
+              router.push({ pathname: '/paywall', params: { trigger: 'memo_search' } })
+            }
+          >
+            <Text variant="caption" style={{ color: theme['ink-2'] }}>
+              Pro ではメモも検索できます
+            </Text>
+          </Pressable>
+        )}
+
+        {showFilters ? (
+          <View style={{ gap: 8 }}>
+            <FilterRow
+              label="ソース"
+              chips={SOURCES.map((source) => ({
+                key: source,
+                label: source,
+                selected: filter.sources.includes(source),
+                onPress: () => toggleSource(source),
+              }))}
+            />
+            {tags.length === 0 ? null : (
+              <FilterRow
+                label="タグ"
+                chips={tags.map((tag) => ({
+                  key: tag.id,
+                  label: tag.name,
+                  selected: filter.tagIds.includes(tag.id),
+                  onPress: () => toggleTag(tag.id),
+                }))}
+              />
+            )}
+          </View>
+        ) : null}
       </View>
 
       <FlashList
@@ -194,11 +249,19 @@ export default function LibraryScreen() {
         ListEmptyComponent={
           isLoading ? null : (
             <EmptyState
-              title={tab === 'read' ? 'まだ読了はありません' : 'アーカイブは空です'}
+              title={
+                isActive
+                  ? '該当するものがありません'
+                  : tab === 'read'
+                    ? 'まだ読了はありません'
+                    : 'アーカイブは空です'
+              }
               description={
-                tab === 'read'
-                  ? '読み終えた記事とメモがここに残ります'
-                  : '捨てたものがここに入ります'
+                isActive
+                  ? '検索語や絞り込みを変えてみてください'
+                  : tab === 'read'
+                    ? '読み終えた記事とメモがここに残ります'
+                    : '捨てたものがここに入ります'
               }
             />
           )
@@ -216,6 +279,33 @@ export default function LibraryScreen() {
           }
         />
       ) : null}
+    </View>
+  );
+}
+
+function FilterRow({
+  label,
+  chips,
+}: {
+  label: string;
+  chips: { key: string; label: string; selected: boolean; onPress: () => void }[];
+}) {
+  const theme = useThemeColors();
+
+  return (
+    <View style={{ gap: 6 }}>
+      <Text variant="caption" style={{ color: theme['ink-2'] }}>
+        {label}
+      </Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8 }}
+      >
+        {chips.map((chip) => (
+          <Chip key={chip.key} label={chip.label} selected={chip.selected} onPress={chip.onPress} />
+        ))}
+      </ScrollView>
     </View>
   );
 }

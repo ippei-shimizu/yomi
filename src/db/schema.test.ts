@@ -6,6 +6,23 @@ import { createTestDb, runMigrations } from './testing';
 
 const now = new Date('2026-08-22T00:00:00.000Z');
 
+/**
+ * アプリが定義したテーブルだけを返す。
+ * sqlite_* / __drizzle_* / FTS5 の shadow テーブル（items_fts_data 等）は除く。
+ */
+function baseTableNames(db: ReturnType<typeof createTestDb>): string[] {
+  return db
+    .all<{ name: string }>(sql`SELECT name FROM sqlite_master WHERE type = 'table'`)
+    .map((r) => r.name)
+    .filter(
+      (name) =>
+        !name.startsWith('sqlite_') &&
+        !name.startsWith('__drizzle') &&
+        !name.startsWith('items_fts'),
+    )
+    .sort();
+}
+
 function newItem(overrides: Partial<typeof items.$inferInsert> = {}) {
   return {
     id: 'item-1',
@@ -21,13 +38,25 @@ function newItem(overrides: Partial<typeof items.$inferInsert> = {}) {
 
 describe('マイグレーション', () => {
   it('4 テーブルすべてが作られる', () => {
+    expect(baseTableNames(createTestDb())).toEqual(['item_tags', 'items', 'read_logs', 'tags']);
+  });
+
+  it('全文検索用の items_fts が作られる（docs/DesignDoc.md §4.3）', () => {
     const db = createTestDb();
     const names = db
       .all<{ name: string }>(sql`SELECT name FROM sqlite_master WHERE type = 'table'`)
-      .map((r) => r.name)
-      .filter((n) => !n.startsWith('sqlite_') && !n.startsWith('__drizzle'));
+      .map((r) => r.name);
 
-    expect(names.sort()).toEqual(['item_tags', 'items', 'read_logs', 'tags']);
+    expect(names).toContain('items_fts');
+  });
+
+  it('items_fts を同期するトリガーが 3 つある', () => {
+    const db = createTestDb();
+    const triggers = db
+      .all<{ name: string }>(sql`SELECT name FROM sqlite_master WHERE type = 'trigger'`)
+      .map((r) => r.name);
+
+    expect(triggers.sort()).toEqual(['items_fts_delete', 'items_fts_insert', 'items_fts_update']);
   });
 
   // 起動のたびに実行されるため、2 回目以降が失敗すると 2 回目の起動で落ちる
@@ -36,11 +65,7 @@ describe('マイグレーション', () => {
     expect(() => runMigrations(db)).not.toThrow();
     expect(() => runMigrations(db)).not.toThrow();
 
-    const names = db
-      .all<{ name: string }>(sql`SELECT name FROM sqlite_master WHERE type = 'table'`)
-      .map((r) => r.name)
-      .filter((n) => !n.startsWith('sqlite_') && !n.startsWith('__drizzle'));
-    expect(names.sort()).toEqual(['item_tags', 'items', 'read_logs', 'tags']);
+    expect(baseTableNames(db)).toEqual(['item_tags', 'items', 'read_logs', 'tags']);
   });
 
   it('設計どおりのインデックスが作られる', () => {

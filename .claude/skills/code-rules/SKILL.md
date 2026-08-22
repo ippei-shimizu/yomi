@@ -88,13 +88,15 @@ try { return verify(code); } catch { return false; }
 
 ## ARCH — モジュール境界
 
-### R-ARCH1. `share-extension/` は `db/` と `domain/url/` しか import しない
+### R-ARCH1. `share-extension/` は `@/db`・`@/domain/url`・`@/design` しか import しない
 
 **理由**: iOS の Share Extension はメモリ上限 ~120MB、起動から終了まで 2 秒以内という制約がある。依存が増えるとバンドルサイズと起動時間が悪化し、この制約を破る。
 
-**必須**: RevenueCat / PostHog / Sentry / `features/` を import しない。ESLint の `no-restricted-imports` で機械的に落とす。
+**必須**: RevenueCat / PostHog / Sentry / `@/ui` / `@/features` を import しない。ESLint の `no-restricted-imports` と `app.config.ts` の `excludedPackages` の両方で落とす。
 
-**初出**: 設計時（`docs/DesignDoc.md` §3.1）
+`@/design`（デザイントークン）は `docs/DesignDoc.md` §3.1 に無いが許可している。値と JSON だけでコンポーネントを引き込まず、`docs/DesignGuideline.md` §8 が Extension にも同じトークンを使うよう求めているため。
+
+**初出**: 設計時（`docs/DesignDoc.md` §3.1）、PR #41 で `@/design` を追加
 
 ### R-ARCH2. Share Extension でネットワークアクセスをしない
 
@@ -389,3 +391,35 @@ inArray(itemTags.itemId, itemIds)
 **理由**: iOS は失敗が続くタスクの実行頻度を下げる。対象 0 件を `Failed` で返すのも同じで、「正常に確認して何も無かった」は `Success` にする。
 
 **初出**: PR #40
+
+### R-ARCH6. 「一部だけ許可したいツリー」は独立したディレクトリに切り出す
+
+**理由**: ESLint の `no-restricted-imports` のパターンは gitignore と同じ規則で、**除外されたツリーの中の 1 ファイルだけを再包含できない**。`['@/**', '!@/ui/tokens']` は効かない。
+
+**必須**: Extension や他の制限付きレイヤに一部だけ見せたい値は、`src/design/` のように**独立したツリー**に置いてツリーごと許可する。「1 ファイルだけ例外」を設定で表現しようとしない。
+
+**初出**: PR #41
+
+### R-ARCH7. 設定を書き換えたら、許可と制限の両方を実際に検査する
+
+**理由**: `no-restricted-imports` のパターンは意図どおりに書けたつもりでも効かないことがある（上記）。しかも**制限が効きすぎている方向の誤りは、正しく書けているように見える**（エラーが出ないので気づかない）。
+
+**必須**: プローブファイルを作り、**許可されるべき import と制限されるべき import の両方**を実際に lint にかけて確認する。
+
+**初出**: PR #41
+
+### R-UI7. effect の中で同期的に setState しない
+
+**理由**: `react-hooks/set-state-in-effect` が検出する。カスケードレンダリングを招くうえ、Share Extension では**保存処理が最初の描画をブロックして「無反応の時間」を作る**（起動 2 秒以内の要件に直接効く）。
+
+**必須**: `Promise.resolve().then(...)` で 1 フレーム遅らせ、先にプレースホルダを描画する。あわせて `cancelled` フラグでアンマウント後の setState を防ぐ。
+
+**初出**: PR #41
+
+### R-TEST7. テストの include パターンに、新しく作ったトップレベルディレクトリを足す
+
+**理由**: `vitest.config.mts` の `include` は `src/**` だけだったため、`share-extension/` に書いたテストが**一度も実行されていなかった**。失敗ではなく「0 件」なので気づきにくい。
+
+**必須**: `src/` の外にコードを置いたら include を更新し、テスト件数が増えたことを確認する。
+
+**初出**: PR #41

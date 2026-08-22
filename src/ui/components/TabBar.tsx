@@ -1,7 +1,7 @@
 import { Pressable, useWindowDimensions, View } from 'react-native';
 
 import { Text } from '../Text';
-import { colors, layout, radius } from '../tokens';
+import { colors, layout, radius } from '@/design/tokens';
 
 /**
  * 浮いた pill 型タブバー（docs/DesignGuideline.md §5）。

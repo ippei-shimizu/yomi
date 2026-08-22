@@ -2,7 +2,7 @@ import { Pressable, View, type PressableProps } from 'react-native';
 
 import { Text } from '../Text';
 import { useThemeColors } from '../theme';
-import { colors, layout, radius } from '../tokens';
+import { colors, layout, radius } from '@/design/tokens';
 
 export type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;

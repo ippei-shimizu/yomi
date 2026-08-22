@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import { Text } from '../Text';
-import { layout, radius, staleBadgeColor } from '../tokens';
+import { layout, radius, staleBadgeColor } from '@/design/tokens';
 
 /**
  * 放置日数バッジ（docs/PRD.md §7.2）。7 日超で黄、30 日超で赤。

@@ -10,10 +10,12 @@ import type { Item } from '@/db/schema';
 import { layout, radius, typography } from '@/design/tokens';
 import { displayTitle } from '@/features/items/display';
 import { useInvalidateItems, useItem, useItemActions } from '@/features/items/queries';
+import { useItemTags } from '@/features/tags/queries';
+import { TagPickerSheet } from '@/features/tags/TagPickerSheet';
 import { MemoSheet } from '@/features/reading/MemoSheet';
 import { ReadConfirmSheet } from '@/features/reading/ReadConfirmSheet';
 import { useReadFlow } from '@/features/reading/useReadFlow';
-import { BottomSheet, Button, Card, SourceIcon, Text, Toast, useThemeColors } from '@/ui';
+import { BottomSheet, Button, Card, Chip, SourceIcon, Text, Toast, useThemeColors } from '@/ui';
 
 const SNOOZE_DAYS = 7;
 
@@ -29,6 +31,7 @@ export default function ItemDetailScreen() {
   const readFlow = useReadFlow();
 
   const [toast, setToast] = useState<string | null>(null);
+  const [tagPickerOpen, setTagPickerOpen] = useState(false);
   // 通知やホームからの ?open=1 で 1 度だけ自動的にブラウザを開く
   const autoOpened = useRef(false);
 
@@ -144,6 +147,8 @@ export default function ItemDetailScreen() {
           </Text>
         </View>
 
+        <TagRow itemId={item.id} onOpenPicker={() => setTagPickerOpen(true)} />
+
         {item.status === 'read' ? (
           <MemoField item={item} onSaved={() => void invalidate()} />
         ) : null}
@@ -190,6 +195,16 @@ export default function ItemDetailScreen() {
         </View>
       )}
 
+      <TagPickerSheet
+        itemId={item.id}
+        visible={tagPickerOpen}
+        onClose={() => setTagPickerOpen(false)}
+        onRequestPaywall={() => {
+          setTagPickerOpen(false);
+          router.push({ pathname: '/paywall', params: { trigger: 'limit_tag' } });
+        }}
+      />
+
       <ReadConfirmSheet
         visible={readFlow.step === 'confirm'}
         onRead={readFlow.confirmRead}
@@ -214,6 +229,24 @@ export default function ItemDetailScreen() {
         }}
         onDismiss={readFlow.dismiss}
       />
+    </View>
+  );
+}
+
+/** S03 のタグ行。+ で Tag Picker を開く */
+function TagRow({ itemId, onOpenPicker }: { itemId: string; onOpenPicker: () => void }) {
+  const theme = useThemeColors();
+  const { data: tags = [] } = useItemTags(itemId);
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+      <Text variant="caption" style={{ color: theme['ink-2'] }}>
+        タグ
+      </Text>
+      {tags.map((tag) => (
+        <Chip key={tag.id} label={tag.name} selected onPress={onOpenPicker} />
+      ))}
+      <Chip label="＋" onPress={onOpenPicker} />
     </View>
   );
 }
